@@ -62,10 +62,10 @@ namespace LastEpoch_Hud.Scripts
                 ModVersion = Main.mod_version,
                 KeyBinds =
                 {
+                    Items_MoveToPlayer = KeyCode.F2,
                     BankStashs = KeyCode.F3,
-                    HeadhunterBuffs = KeyCode.F2,
-                    EternityCache_Past = KeyCode.F4,                      //Items_Crafting_Eternity_Anywhere mod from https://github.com/RolandSolymosi
-                    EternityCache_Future = KeyCode.F5
+                    EternityCache_Past = KeyCode.F4                      //Items_Crafting_Eternity_Anywhere mod from https://github.com/RolandSolymosi
+                    //EternityCache_Future = KeyCode.F5                    
                 },
                 modsNotInHud =
                 {
@@ -191,6 +191,8 @@ namespace LastEpoch_Hud.Scripts
                         Enable_AutoPickup_Keys = false,
                         Enable_AutoPickup_Potions = false,
                         Enable_AutoPickup_XpTome = false,
+                        Enable_AutoPickup_FavorTome = false,
+                        Enable_AutoPickup_MemoryAmber = false,
                         Enable_AutoPickup_Materials = false,
                         Enable_AutoPickup_WovenEchoes = false,
                         Enable_AutoPickup_FromFilter = false,
@@ -504,8 +506,8 @@ namespace LastEpoch_Hud.Scripts
             if (data.ModVersion != Main.mod_version)
             {
                 //Update save when mod update here
-                data.KeyBinds.EternityCache_Past = KeyCode.F4;
-                data.KeyBinds.EternityCache_Future = KeyCode.F5;
+                //data.KeyBinds.EternityCache_Past = KeyCode.F4;
+                //data.KeyBinds.EternityCache_Future = KeyCode.F5;
 
                 data.ModVersion = Main.mod_version;
                 data_changed = true;
@@ -546,11 +548,12 @@ namespace LastEpoch_Hud.Scripts
             //KeyBinds
             public struct KeyBinds
             {
+                public UnityEngine.KeyCode Items_MoveToPlayer;
                 public UnityEngine.KeyCode BankStashs;
-                public UnityEngine.KeyCode HeadhunterBuffs;
+                //public UnityEngine.KeyCode HeadhunterBuffs;
                 public UnityEngine.KeyCode EternityCache_Past;
-                public UnityEngine.KeyCode EternityCache_Future;
-                public UnityEngine.KeyCode Monoliths_Corruption;
+                //public UnityEngine.KeyCode EternityCache_Future;
+                //public UnityEngine.KeyCode Monoliths_Corruption;                
             }
             //Options not in hud (you have to set in defaultconfig before build)
             public struct ModsNotInHud
@@ -701,6 +704,8 @@ namespace LastEpoch_Hud.Scripts
                 public bool Enable_AutoPickup_Keys;
                 public bool Enable_AutoPickup_Potions;
                 public bool Enable_AutoPickup_XpTome;
+                public bool Enable_AutoPickup_FavorTome;
+                public bool Enable_AutoPickup_MemoryAmber;
                 public bool Enable_AutoPickup_Materials;
                 public bool Enable_AutoPickup_WovenEchoes;
                 public bool Enable_AutoPickup_FromFilter;

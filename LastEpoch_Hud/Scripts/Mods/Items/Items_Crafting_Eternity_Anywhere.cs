@@ -3,9 +3,7 @@
 using HarmonyLib;
 using Il2Cpp;
 using MelonLoader;
-using System.Runtime.CompilerServices;
 using UnityEngine;
-using static MelonLoader.MelonLogger;
 
 namespace LastEpoch_Hud.Scripts.Mods.Items
 {
@@ -36,7 +34,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     else if (Refs_Manager.EternityCachePanelUI.futureHolder.active) { IsFuture = true; }
                 }
                 if (Input.GetKeyDown(Save_Manager.instance.data.KeyBinds.EternityCache_Past)) { OpenClose(false); }
-                else if (Input.GetKeyDown(Save_Manager.instance.data.KeyBinds.EternityCache_Future)) { OpenClose(true); }
+                //else if (Input.GetKeyDown(Save_Manager.instance.data.KeyBinds.EternityCache_Future)) { OpenClose(true); }
             }
         }
 

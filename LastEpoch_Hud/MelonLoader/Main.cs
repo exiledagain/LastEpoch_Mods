@@ -54,7 +54,7 @@ namespace LastEpoch_Hud
         }
 
         public static Selected current = Selected.Unknow;
-        private static string dictionary_path = Application.dataPath + "/../Mods/" + Main.mod_name + "/Locales";
+        private static readonly string dictionary_path = Application.dataPath + "/../Mods/" + Main.mod_name + "/Locales";
         public static string dictionnary_filename = "";
         public static Dictionary<string, string> current_dictionary = null;
         public static bool update = false;
@@ -129,7 +129,7 @@ namespace LastEpoch_Hud
     public class Scenes
     {
         public static string SceneName = "";
-        private static string[] SceneMenuNames = { "ClientSplash", "PersistentUI", "Login", "CharacterSelectScene" };
+        private static readonly string[] SceneMenuNames = { "ClientSplash", "PersistentUI", "Login", "CharacterSelectScene" };
 
         public static bool IsGameScene()
         {
@@ -189,7 +189,7 @@ namespace LastEpoch_Hud
             List<GameObject> result = new List<GameObject>();
             for (int i = 0; i < obj.transform.childCount; i++)
             {
-                string obj_name = obj.transform.GetChild(i).gameObject.name;
+                //string obj_name = obj.transform.GetChild(i).gameObject.name;
                 result.Add(obj.transform.GetChild(i).gameObject);
             }
 
@@ -213,7 +213,7 @@ namespace LastEpoch_Hud
         }
         public static Toggle Get_ToggleInPanel(GameObject obj, string panel_name, string obj_name)
         {
-            Toggle result = new Toggle(); //null;
+            Toggle result = null; // new Toggle();
             GameObject panel = GetChild(obj, panel_name);
             if (!panel.IsNullOrDestroyed()) { result = Functions.GetChild(panel, obj_name).GetComponent<Toggle>(); }
 
@@ -221,7 +221,7 @@ namespace LastEpoch_Hud
         }
         public static Text Get_TextInPanel(GameObject obj, string panel_name, string obj_name)
         {
-            Text result = new Text(); //null;
+            Text result = null;// new Text();
             GameObject panel = GetChild(obj, panel_name);
             if (!panel.IsNullOrDestroyed()) { result = Functions.GetChild(panel, obj_name).GetComponent<Text>(); }
 
@@ -229,7 +229,7 @@ namespace LastEpoch_Hud
         }
         public static Slider Get_SliderInPanel(GameObject obj, string panel_name, string obj_name)
         {
-            Slider result = new Slider(); //null;
+            Slider result = null; // new Slider();
             GameObject panel = GetChild(obj, panel_name);
             if (!panel.IsNullOrDestroyed()) { result = Functions.GetChild(panel, obj_name).GetComponent<Slider>(); }
 
@@ -237,7 +237,7 @@ namespace LastEpoch_Hud
         }
         public static Button Get_ButtonInPanel(GameObject obj, string obj_name)
         {
-            Button result = new Button(); //null;
+            Button result = null; // new Button();
             GameObject panel = GetChild(obj, obj_name);
             if (!panel.IsNullOrDestroyed()) { result = panel.GetComponent<Button>(); }
 
@@ -245,7 +245,7 @@ namespace LastEpoch_Hud
         }
         public static Text Get_TextInToggle(GameObject obj, string panel_name, string toggle_name, string obj_name)
         {
-            Text result = new Text(); //null;
+            Text result = null; // new Text();
             GameObject panel = GetChild(obj, panel_name);
             if (!panel.IsNullOrDestroyed())
             {
@@ -260,7 +260,7 @@ namespace LastEpoch_Hud
         }
         public static Text Get_TextInButton(GameObject obj, string button_name, string text_name)
         {
-            Text result = new Text(); //null;
+            Text result = null; // new Text();
             GameObject button = GetChild(obj, button_name);
             if (!button.IsNullOrDestroyed())
             {
@@ -271,7 +271,7 @@ namespace LastEpoch_Hud
         }
         public static Dropdown Get_DopboxInPanel(GameObject obj, string panel_name, string dropdown_name, UnityAction<int> action)
         {
-            Dropdown result = new Dropdown(); //null;
+            Dropdown result = null; // new Dropdown();
             GameObject panel = GetChild(obj, panel_name);
             if (!panel.IsNullOrDestroyed())
             {
@@ -290,7 +290,7 @@ namespace LastEpoch_Hud
         }
         public static Toggle Get_ToggleInLabel(GameObject obj, string panel_name, string obj_name, bool makeSureItsActive = false)
         {
-            Toggle result = new Toggle(); //null;
+            Toggle result = null; // new Toggle();
             GameObject panel = GetChild(obj, panel_name);
             if (!panel.IsNullOrDestroyed())
             {
@@ -332,7 +332,7 @@ namespace LastEpoch_Hud
         }
         public static Sprite GetItemIcon(ItemDataUnpacked item)
         {
-            Sprite result = new Sprite(); //null;
+            Sprite result = null; // new Sprite();
             try { result = UITooltipItem.GetItemSprite(item, ItemUIContext.Default); }
             catch { Main.logger_instance?.Error("Error GetItemIcon"); }
 

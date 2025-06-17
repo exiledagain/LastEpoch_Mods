@@ -49,7 +49,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Monoliths
                 if ((!started) && (player_position != Get_PlayerPosition()) && ((Get_PlayerPosition().x != 0f) || (Get_PlayerPosition().y != 0f) || (Get_PlayerPosition().z != 0f)))
                 {
                     player_position = Get_PlayerPosition();
-                    Main.logger_instance?.Msg("Player Spawn at Position : " + player_position);
+                    Main.logger_instance.Msg("Player Spawn at Position : " + player_position);
                     player_start_time = System.DateTime.Now;
                     complete = false;
                     started = true;
