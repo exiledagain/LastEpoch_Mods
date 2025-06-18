@@ -18,7 +18,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
         public class GroundItemManager_dropFavorTomeForPlayer
         {
             [HarmonyPostfix]
-            static void Postfix(ref GroundItemManager __instance, Actor __0, int __1, UnityEngine.Vector3 __2, bool __3, bool __4)
+            static void Postfix(ref GroundItemManager __instance, Actor __0, int __1, ref UnityEngine.Vector3 __2, bool __3, bool __4)
             {
                 if (CanRun())
                 {
