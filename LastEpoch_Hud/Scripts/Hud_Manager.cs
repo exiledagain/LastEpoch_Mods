@@ -627,12 +627,15 @@ namespace LastEpoch_Hud.Scripts
                                     case "Toggle_Items_Pickup_AutoPickup_Keys": { Save_Manager.instance.data.Items.Pickup.Enable_AutoPickup_Keys = __instance.isOn; break; }
                                     case "Toggle_Items_Pickup_AutoPickup_Pots": { Save_Manager.instance.data.Items.Pickup.Enable_AutoPickup_Potions = __instance.isOn; break; }
                                     case "Toggle_Items_Pickup_AutoPickup_XpTome": { Save_Manager.instance.data.Items.Pickup.Enable_AutoPickup_XpTome = __instance.isOn; break; }
+                                    case "Toggle_Items_Pickup_AutoPickup_FavorTome": { Save_Manager.instance.data.Items.Pickup.Enable_AutoPickup_FavorTome = __instance.isOn; break; }
+                                    case "Toggle_Items_Pickup_AutoPickup_MemoryAmber": { Save_Manager.instance.data.Items.Pickup.Enable_AutoPickup_MemoryAmber = __instance.isOn; break; }
+                                    case "Toggle_Items_Pickup_AutoPickup_WovenEchoes": { Save_Manager.instance.data.Items.Pickup.Enable_AutoPickup_WovenEchoes = __instance.isOn; break; }
                                     case "Toggle_Items_Pickup_AutoPickup_Materials": { Save_Manager.instance.data.Items.Pickup.Enable_AutoPickup_Materials = __instance.isOn; break; }
                                     case "Toggle_Items_Pickup_AutoPickup_Filters": { Save_Manager.instance.data.Items.Pickup.Enable_AutoPickup_FromFilter = __instance.isOn; break; }
                                     case "Toggle_Items_Pickup_AutoStore_OnDrop": { Save_Manager.instance.data.Items.Pickup.Enable_AutoStore_OnDrop = __instance.isOn; break; }
                                     case "Toggle_Items_Pickup_AutoStore_OnInventoryOpen": { Save_Manager.instance.data.Items.Pickup.Enable_AutoStore_OnInventoryOpen = __instance.isOn; break; }
-                                    case "Toggle_Items_Pickup_AutoStore_10sec": { Save_Manager.instance.data.Items.Pickup.Enable_AutoStore_Timer = __instance.isOn; break; }
-                                    case "Toggle_Items_Pickup_AutoSell_All_Hide": { Save_Manager.instance.data.Items.Pickup.Enable_AutoSell_Hide = __instance.isOn; break; }
+                                    case "Toggle_Items_Pickup_AutoStore_Timer": { Save_Manager.instance.data.Items.Pickup.Enable_AutoStore_Timer = __instance.isOn; break; }
+                                    case "Toggle_Items_Pickup_AutoSell_FromFilter": { Save_Manager.instance.data.Items.Pickup.Enable_AutoSell_FromFilter = __instance.isOn; break; }
                                     
                                     case "Toggle_Items_Pickup_Range_Pickup": { Save_Manager.instance.data.Items.Pickup.Enable_RangePickup = __instance.isOn; break; }
                                     case "Toggle_Items_Pickup_Hide_Notifications": { Save_Manager.instance.data.Items.Pickup.Enable_HideMaterialsNotifications = __instance.isOn; break; }
@@ -815,6 +818,12 @@ namespace LastEpoch_Hud.Scripts
                                     case "Slider_Character_Cheats_FavorMultiplier":
                                         {
                                             Save_Manager.instance.data.Character.Cheats.FavorMultiplier = __0;
+                                            //Content.Character.Cheats.favor_text.text = "x " + (int)(Save_Manager.instance.data.Character.Cheats.FavorMultiplier);
+                                            break;
+                                        }
+                                    case "Slider_Character_Cheats_MemoryAmberMultiplier":
+                                        {
+                                            Save_Manager.instance.data.Character.Cheats.MemoryAmberMultiplier = (uint)__0;
                                             //Content.Character.Cheats.favor_text.text = "x " + (int)(Save_Manager.instance.data.Character.Cheats.FavorMultiplier);
                                             break;
                                         }
@@ -1113,6 +1122,7 @@ namespace LastEpoch_Hud.Scripts
 
                                     case "Slider_Items_Craft_LegendaryPotencial": { Save_Manager.instance.data.Items.CraftingSlot.LegendaryPotencial = (int)__0; break; }
                                     case "Slider_Items_Craft_WeaverWill": { Save_Manager.instance.data.Items.CraftingSlot.WeaverWill = (int)__0; break; }
+                                    case "Slider_Items_Pickup_AutoStore_Timer": { Save_Manager.instance.data.Items.Pickup.AutoStore_Timer = (int)__0; break; }
                                 }
                             }
                             else if (__instance.name.Contains("Slider_Scenes_"))
@@ -1505,6 +1515,10 @@ namespace LastEpoch_Hud.Scripts
                                 Cheats.favor_text = Functions.Get_TextInToggle(character_cheats_content, "FavorMultiplier", "Toggle_Character_Cheats_FavorMultiplier", "Value");
                                 Cheats.favor_slider = Functions.Get_SliderInPanel(character_cheats_content, "FavorMultiplier", "Slider_Character_Cheats_FavorMultiplier");
 
+                                Cheats.memoryamber_toggle = Functions.Get_ToggleInPanel(character_cheats_content, "MemoryAmberMultiplier", "Toggle_Character_Cheats_MemoryAmberMultiplier");
+                                Cheats.memoryamber_text = Functions.Get_TextInToggle(character_cheats_content, "MemoryAmberMultiplier", "Toggle_Character_Cheats_MemoryAmberMultiplier", "Value");
+                                Cheats.memoryamber_slider = Functions.Get_SliderInPanel(character_cheats_content, "MemoryAmberMultiplier", "Slider_Character_Cheats_MemoryAmberMultiplier");
+
                                 Cheats.itemdropmultiplier_toggle = Functions.Get_ToggleInPanel(character_cheats_content, "ItemDropMultiplier", "Toggle_Character_Cheats_ItemDropMultiplier");
                                 Cheats.itemdropmultiplier_text = Functions.Get_TextInToggle(character_cheats_content, "ItemDropMultiplier", "Toggle_Character_Cheats_ItemDropMultiplier", "Value");
                                 Cheats.itemdropmultiplier_slider = Functions.Get_SliderInPanel(character_cheats_content, "ItemDropMultiplier", "Slider_Character_Cheats_ItemDropMultiplier");
@@ -1716,6 +1730,10 @@ namespace LastEpoch_Hud.Scripts
                     {
                         Events.Set_Toggle_Event(Cheats.favor_toggle, Cheats.Favor_Toggle_Action);
                     }
+                    if (!Cheats.memoryamber_toggle.IsNullOrDestroyed())
+                    {
+                        Events.Set_Toggle_Event(Cheats.memoryamber_toggle, Cheats.memoryamber_Toggle_Action);
+                    }
                     if (!Cheats.itemdropmultiplier_toggle.IsNullOrDestroyed())
                     {
                         Events.Set_Toggle_Event(Cheats.itemdropmultiplier_toggle, Cheats.ItemDropMulti_Toggle_Action);
@@ -1869,6 +1887,14 @@ namespace LastEpoch_Hud.Scripts
                             if (!Cheats.favor_slider.IsNullOrDestroyed())
                             {
                                 Cheats.favor_slider.value = Save_Manager.instance.data.Character.Cheats.FavorMultiplier;
+                            }
+                            if (!Cheats.memoryamber_toggle.IsNullOrDestroyed())
+                            {
+                                Cheats.memoryamber_toggle.isOn = Save_Manager.instance.data.Character.Cheats.Enable_MemoryAmberMultiplier;
+                            }
+                            if (!Cheats.memoryamber_slider.IsNullOrDestroyed())
+                            {
+                                Cheats.memoryamber_slider.value = Save_Manager.instance.data.Character.Cheats.MemoryAmberMultiplier;
                             }
                             if (!Cheats.itemdropmultiplier_toggle.IsNullOrDestroyed())
                             {
@@ -2214,6 +2240,10 @@ namespace LastEpoch_Hud.Scripts
                             {
                                 Cheats.favor_text.text = "x " + (int)(Save_Manager.instance.data.Character.Cheats.FavorMultiplier);
                             }
+                            if (!Cheats.memoryamber_text.IsNullOrDestroyed())
+                            {
+                                Cheats.memoryamber_text.text = "x " + (int)(Save_Manager.instance.data.Character.Cheats.MemoryAmberMultiplier);
+                            }
                             if (!Cheats.itemdropmultiplier_text.IsNullOrDestroyed())
                             {
                                 Cheats.itemdropmultiplier_text.text = "x " + (int)(Save_Manager.instance.data.Character.Cheats.ItemDropMultiplier);
@@ -2396,7 +2426,19 @@ namespace LastEpoch_Hud.Scripts
                     }
                     public static Text favor_text = null;
                     public static Slider favor_slider = null;
-                    
+
+                    public static Toggle memoryamber_toggle = null;
+                    public static readonly System.Action<bool> memoryamber_Toggle_Action = new System.Action<bool>(Set_memoryamber_Enable);
+                    private static void Set_memoryamber_Enable(bool enable)
+                    {
+                        if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!favor_toggle.IsNullOrDestroyed()))
+                        {
+                            Save_Manager.instance.data.Character.Cheats.Enable_MemoryAmberMultiplier = memoryamber_toggle.isOn;
+                        }
+                    }
+                    public static Text memoryamber_text = null;
+                    public static Slider memoryamber_slider = null;
+
                     public static Toggle itemdropmultiplier_toggle = null;
                     public static readonly System.Action<bool> ItemDropMulti_Toggle_Action = new System.Action<bool>(Set_ItemDropMulti_Enable);
                     private static void Set_ItemDropMulti_Enable(bool enable)
@@ -2715,10 +2757,13 @@ namespace LastEpoch_Hud.Scripts
                             GameObject items_drop_content = Functions.GetViewportContent(content_obj, "Items_Drop", "Items_Data_Content");
                             if (!items_drop_content.IsNullOrDestroyed())
                             {
-                                Drop.force_unique_toggle = Functions.Get_ToggleInPanel(items_drop_content, "ForceUnique", "Toggle_Items_Drop_ForceUnique");
-                                Drop.force_set_toggle = Functions.Get_ToggleInPanel(items_drop_content, "ForceSet", "Toggle_Items_Drop_ForceSet");
-                                Drop.force_legendary_toggle = Functions.Get_ToggleInPanel(items_drop_content, "ForceLegendary", "Toggle_Items_Drop_ForceLegendary");
-
+                                GameObject force = Functions.GetChild(items_drop_content, "Force");
+                                if (!force.IsNullOrDestroyed())
+                                {
+                                    Drop.force_unique_toggle = Functions.Get_ToggleInPanel(force, "ForceUnique", "Toggle_Items_Drop_ForceUnique");
+                                    Drop.force_set_toggle = Functions.Get_ToggleInPanel(force, "ForceSet", "Toggle_Items_Drop_ForceSet");
+                                    Drop.force_legendary_toggle = Functions.Get_ToggleInPanel(force, "ForceLegendary", "Toggle_Items_Drop_ForceLegendary");
+                                }
                                 Drop.implicits_toggle = Functions.Get_ToggleInPanel(items_drop_content, "Implicits", "Toggle_Items_Drop_Implicits");
                                 Drop.implicits_text = Functions.Get_TextInToggle(items_drop_content, "Implicits", "Toggle_Items_Drop_Implicits", "Value");
                                 Drop.implicits_slider_min = Functions.Get_SliderInPanel(items_drop_content, "Implicits", "Slider_Items_Drop_Implicits_Min");
@@ -2781,14 +2826,19 @@ namespace LastEpoch_Hud.Scripts
                                 Pickup.autopickup_keys_toggle = Functions.Get_ToggleInPanel(items_pickup_content, "AutoPickup_Keys", "Toggle_Items_Pickup_AutoPickup_Keys");
                                 Pickup.autopickup_potions_toggle = Functions.Get_ToggleInPanel(items_pickup_content, "AutoPickup_Pots", "Toggle_Items_Pickup_AutoPickup_Pots");
                                 Pickup.autopickup_xptome_toggle = Functions.Get_ToggleInPanel(items_pickup_content, "AutoPickup_XpTome", "Toggle_Items_Pickup_AutoPickup_XpTome");
+                                Pickup.autopickup_favortome_toggle = Functions.Get_ToggleInPanel(items_pickup_content, "AutoPickup_FavorTome", "Toggle_Items_Pickup_AutoPickup_FavorTome");
+                                Pickup.autopickup_memoryamber_toggle = Functions.Get_ToggleInPanel(items_pickup_content, "AutoPickup_MemoryAmber", "Toggle_Items_Pickup_AutoPickup_MemoryAmber");
+                                Pickup.autopickup_wovenechoes_toggle = Functions.Get_ToggleInPanel(items_pickup_content, "AutoPickup_WovenEchoes", "Toggle_Items_Pickup_AutoPickup_WovenEchoes");
                                 Pickup.autopickup_materials_toggle = Functions.Get_ToggleInPanel(items_pickup_content, "AutoPickup_Materials", "Toggle_Items_Pickup_AutoPickup_Materials");
                                 Pickup.autopickup_fromfilter_toggle = Functions.Get_ToggleInPanel(items_pickup_content, "AutoPickup_Filters", "Toggle_Items_Pickup_AutoPickup_Filters");
 
                                 Pickup.autostore_materials_ondrop_toggle = Functions.Get_ToggleInPanel(items_pickup_content, "AutoStore_OnDrop", "Toggle_Items_Pickup_AutoStore_OnDrop");
                                 Pickup.autostore_materials_oninventoryopen_toggle = Functions.Get_ToggleInPanel(items_pickup_content, "AutoStore_OnInventoryOpen", "Toggle_Items_Pickup_AutoStore_OnInventoryOpen");
-                                Pickup.autostore_materials_all10sec_toggle = Functions.Get_ToggleInPanel(items_pickup_content, "AutoStore_10sec", "Toggle_Items_Pickup_AutoStore_10sec");
+                                Pickup.autostore_materials_Timer_toggle = Functions.Get_ToggleInPanel(items_pickup_content, "AutoStore_Timer", "Toggle_Items_Pickup_AutoStore_Timer");                                
+                                Pickup.autostore_materials_Timer_text = Functions.Get_TextInToggle(items_pickup_content, "AutoStore_Timer", "Toggle_Items_Pickup_AutoStore_Timer", "Label");
+                                Pickup.autostore_materials_Timer_slider = Functions.Get_SliderInPanel(items_pickup_content, "AutoStore_Timer", "Slider_Items_Pickup_AutoStore_Timer");
 
-                                Pickup.autosell_hide_toggle = Functions.Get_ToggleInPanel(items_pickup_content, "AutoSell_All_Hide", "Toggle_Items_Pickup_AutoSell_All_Hide");
+                                Pickup.autosell_hide_toggle = Functions.Get_ToggleInPanel(items_pickup_content, "AutoSell_FromFilter", "Toggle_Items_Pickup_AutoSell_FromFilter");
 
                                 Pickup.range_pickup_toggle = Functions.Get_ToggleInPanel(items_pickup_content, "Range_Pickup", "Toggle_Items_Pickup_Range_Pickup");
                                 Pickup.hide_materials_notifications_toggle = Functions.Get_ToggleInPanel(items_pickup_content, "Hide_Notifications", "Toggle_Items_Pickup_Hide_Notifications");
@@ -3006,14 +3056,18 @@ namespace LastEpoch_Hud.Scripts
                             Pickup.autopickup_keys_toggle.isOn = Save_Manager.instance.data.Items.Pickup.Enable_AutoPickup_Keys;
                             Pickup.autopickup_potions_toggle.isOn = Save_Manager.instance.data.Items.Pickup.Enable_AutoPickup_Potions;
                             Pickup.autopickup_xptome_toggle.isOn = Save_Manager.instance.data.Items.Pickup.Enable_AutoPickup_XpTome;
+                            Pickup.autopickup_favortome_toggle.isOn = Save_Manager.instance.data.Items.Pickup.Enable_AutoPickup_FavorTome;
+                            Pickup.autopickup_memoryamber_toggle.isOn = Save_Manager.instance.data.Items.Pickup.Enable_AutoPickup_MemoryAmber;
+                            Pickup.autopickup_wovenechoes_toggle.isOn = Save_Manager.instance.data.Items.Pickup.Enable_AutoPickup_WovenEchoes;
                             Pickup.autopickup_materials_toggle.isOn = Save_Manager.instance.data.Items.Pickup.Enable_AutoPickup_Materials;
                             Pickup.autopickup_fromfilter_toggle.isOn = Save_Manager.instance.data.Items.Pickup.Enable_AutoPickup_FromFilter;
 
                             Pickup.autostore_materials_ondrop_toggle.isOn = Save_Manager.instance.data.Items.Pickup.Enable_AutoStore_OnDrop;
                             Pickup.autostore_materials_oninventoryopen_toggle.isOn = Save_Manager.instance.data.Items.Pickup.Enable_AutoStore_OnInventoryOpen;
-                            Pickup.autostore_materials_all10sec_toggle.isOn = Save_Manager.instance.data.Items.Pickup.Enable_AutoStore_Timer;
+                            Pickup.autostore_materials_Timer_toggle.isOn = Save_Manager.instance.data.Items.Pickup.Enable_AutoStore_Timer;
+                            Pickup.autostore_materials_Timer_slider.value = Save_Manager.instance.data.Items.Pickup.AutoStore_Timer;
 
-                            Pickup.autosell_hide_toggle.isOn = Save_Manager.instance.data.Items.Pickup.Enable_AutoSell_Hide;                            
+                            Pickup.autosell_hide_toggle.isOn = Save_Manager.instance.data.Items.Pickup.Enable_AutoSell_FromFilter;                            
 
                             Pickup.range_pickup_toggle.isOn = Save_Manager.instance.data.Items.Pickup.Enable_RangePickup;
                             Pickup.hide_materials_notifications_toggle.isOn = Save_Manager.instance.data.Items.Pickup.Enable_HideMaterialsNotifications;
@@ -3119,6 +3173,7 @@ namespace LastEpoch_Hud.Scripts
                             CraftingSlot.forgin_potencial_text.text = "" + (int)(Save_Manager.instance.data.Items.CraftingSlot.ForginPotencial);
                             CraftingSlot.legendary_potencial_text.text = "" + (int)(Save_Manager.instance.data.Items.CraftingSlot.LegendaryPotencial);
                             CraftingSlot.weaver_will_text.text = "" + (int)(Save_Manager.instance.data.Items.CraftingSlot.WeaverWill);
+                            Pickup.autostore_materials_Timer_text.text = "All " + (int)Save_Manager.instance.data.Items.Pickup.AutoStore_Timer + " sec";
 
                             //Tiers
                             Drop.seal_tier_text.text = ((int)(Save_Manager.instance.data.Items.Drop.SealTier_Min) + 1) + " to " + ((int)(Save_Manager.instance.data.Items.Drop.SealTier_Max) + 1);
@@ -3218,11 +3273,16 @@ namespace LastEpoch_Hud.Scripts
                     public static Toggle autopickup_keys_toggle = null;
                     public static Toggle autopickup_potions_toggle = null;
                     public static Toggle autopickup_xptome_toggle = null;
+                    public static Toggle autopickup_favortome_toggle = null;
+                    public static Toggle autopickup_memoryamber_toggle = null;
+                    public static Toggle autopickup_wovenechoes_toggle = null;
                     public static Toggle autopickup_materials_toggle = null;
                     public static Toggle autopickup_fromfilter_toggle = null;
                     public static Toggle autostore_materials_ondrop_toggle = null;
                     public static Toggle autostore_materials_oninventoryopen_toggle = null;
-                    public static Toggle autostore_materials_all10sec_toggle = null;
+                    public static Toggle autostore_materials_Timer_toggle = null;
+                    public static Text autostore_materials_Timer_text = null;
+                    public static Slider autostore_materials_Timer_slider = null;                    
                     public static Toggle autosell_hide_toggle = null;
                     public static Toggle range_pickup_toggle = null;
                     public static Toggle hide_materials_notifications_toggle = null;

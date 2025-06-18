@@ -62,14 +62,10 @@ namespace LastEpoch_Hud.Scripts
                 ModVersion = Main.mod_version,
                 KeyBinds =
                 {
-                    Items_MoveToPlayer = KeyCode.F2,
-                    BankStashs = KeyCode.F3,
-                    EternityCache_Past = KeyCode.F4                      //Items_Crafting_Eternity_Anywhere mod from https://github.com/RolandSolymosi
-                    //EternityCache_Future = KeyCode.F5                    
+                    BankStashs = KeyCode.F3
                 },
                 modsNotInHud =
                 {
-                    Enable_CombatLog = false,
                     Enable_PotionResplenishment = false,
                     Craft_Seal_Tier = 0,                            //When using glyph of despair, set seal tier to : 0 = T1, 1 = T2, 2 = T3, 3 = T4, 4 = T5, 5 = T6, 6 = T7
                     Craft_No_Forgin_Potencial_Cost = true,           //When add or upgrade normal item with tier < T5
@@ -79,14 +75,12 @@ namespace LastEpoch_Hud.Scripts
                 },
                 Login =
                 {
-                    //Enable_Mods = true,
                     Enable_AutoLoginOffline = true
                 },
                 Character =
                 {
                     Cheats =
                     {
-                        //Enable_Mods = true,
                         Enable_GodMode = false,
                         Enable_LowLife = false,
                         Enable_CanChooseBlessing = false,
@@ -109,6 +103,8 @@ namespace LastEpoch_Hud.Scripts
                         GoldDropChance = 0f,
                         Enable_GoldDropMultiplier = false,
                         GoldDropMultiplier = 0f,
+                        Enable_MemoryAmberMultiplier = false,
+                        MemoryAmberMultiplier = 1,
                         Enable_WaypointsUnlock = false
                     },
                     PermanentBuffs =
@@ -200,7 +196,7 @@ namespace LastEpoch_Hud.Scripts
                         Enable_AutoStore_OnInventoryOpen = false,
                         Enable_AutoStore_Timer = false,
                         AutoStore_Timer = 10,
-                        Enable_AutoSell_Hide = false,
+                        Enable_AutoSell_FromFilter = false,
                         Enable_RangePickup = false,
                         Enable_HideMaterialsNotifications = false
                     },
@@ -548,17 +544,11 @@ namespace LastEpoch_Hud.Scripts
             //KeyBinds
             public struct KeyBinds
             {
-                public UnityEngine.KeyCode Items_MoveToPlayer;
                 public UnityEngine.KeyCode BankStashs;
-                //public UnityEngine.KeyCode HeadhunterBuffs;
-                public UnityEngine.KeyCode EternityCache_Past;
-                //public UnityEngine.KeyCode EternityCache_Future;
-                //public UnityEngine.KeyCode Monoliths_Corruption;                
             }
             //Options not in hud (you have to set in defaultconfig before build)
             public struct ModsNotInHud
             {
-                public bool Enable_CombatLog;
                 public bool Enable_PotionResplenishment;
                 public byte Craft_Seal_Tier;
                 public bool Craft_No_Forgin_Potencial_Cost;
@@ -602,6 +592,8 @@ namespace LastEpoch_Hud.Scripts
                 public float GoldDropChance;
                 public bool Enable_GoldDropMultiplier;
                 public float GoldDropMultiplier;
+                public bool Enable_MemoryAmberMultiplier;
+                public uint MemoryAmberMultiplier;
                 public bool Enable_WaypointsUnlock;
             }
             public struct PermanentBuffs
@@ -715,7 +707,7 @@ namespace LastEpoch_Hud.Scripts
                 public bool Enable_AutoStore_Timer;
                 public int AutoStore_Timer;
 
-                public bool Enable_AutoSell_Hide;
+                public bool Enable_AutoSell_FromFilter;
 
                 public bool Enable_RangePickup;
                 public bool Enable_HideMaterialsNotifications;

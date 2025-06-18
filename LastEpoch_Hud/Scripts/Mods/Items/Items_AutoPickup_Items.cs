@@ -35,7 +35,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         else if ((__1.itemType < 34) &&
                             (!Refs_Manager.filter_manager.IsNullOrDestroyed()) &&
                             ((Save_Manager.instance.data.Items.Pickup.Enable_AutoPickup_FromFilter) ||
-                            (Save_Manager.instance.data.Items.Pickup.Enable_AutoSell_Hide)))
+                            (Save_Manager.instance.data.Items.Pickup.Enable_AutoSell_FromFilter)))
                         {
                             if (!Refs_Manager.filter_manager.Filter.IsNullOrDestroyed())
                             {
@@ -58,7 +58,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                                     bool pickup = ItemContainersManager.Instance.attemptToPickupItem(__1, __0.position());
                                     if (pickup) { result = false; }
                                 }
-                                else if ((!FilterShow) && (Save_Manager.instance.data.Items.Pickup.Enable_AutoSell_Hide))
+                                else if ((!FilterShow) && (Save_Manager.instance.data.Items.Pickup.Enable_AutoSell_FromFilter))
                                 {
                                     __0.goldTracker.modifyGold(item.VendorSaleValue);
                                     result = false;
