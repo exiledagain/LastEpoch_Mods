@@ -1606,7 +1606,7 @@ namespace LastEpoch_Hud.Scripts
                                 Data.monolith_dropdown.m_CurrentIndex = 0;
                             }
                             else { Main.logger_instance.Error("Hud Manager : character_data_content is null"); }
-
+                            
                             GameObject char_data = Functions.GetChild(content_obj, "Character_Data");
                             if (!char_data.IsNullOrDestroyed())
                             {
@@ -1615,6 +1615,28 @@ namespace LastEpoch_Hud.Scripts
                                 {
                                     Data.save_button = Functions.GetChild(panel_save, "Btn_Character_Data_Save").GetComponent<Button>();
                                 }
+                            }
+
+                            //Faction Tracker
+                            GameObject character_faction_content = Functions.GetViewportContent(content_obj, "Character_Factions", "Character_Factions_Content");
+                            if (!character_faction_content.IsNullOrDestroyed())
+                            {
+                                Faction_Tracker.factions_dropdown = Functions.Get_DopboxInPanel(character_faction_content, "Factions_Dropdown", "Dropdown", new System.Action<int>((_) => { Update_Faction_Data(); }));
+                                Faction_Tracker.factions_go = Functions.GetChild(character_faction_content, "Factions_Values");
+                                if (!Faction_Tracker.factions_go.IsNullOrDestroyed()) { Faction_Tracker.factions_go.active = false; }
+
+                                Faction_Tracker.factions_favor_text = Functions.Get_TextInButton(character_faction_content, "Factions_Values", "FavorValue");
+                                Faction_Tracker.factions_favor_slider = Functions.Get_SliderInPanel(character_faction_content, "Factions_Values", "Slider_Character_Factions_Favor");
+                                Faction_Tracker.factions_gain_favor_button = Functions.GetChild(Faction_Tracker.factions_go, "Btn_Character_Factions_Gain_Favor").GetComponent<Button>();
+                                //Faction_Tracker.factions_set_favor_button = Functions.GetChild(Faction_Tracker.factions_go, "Btn_Character_Factions_Set_Favor").GetComponent<Button>();
+                                
+                                Faction_Tracker.factions_rank_text = Functions.Get_TextInButton(character_faction_content, "Factions_Values", "RankValue");
+                                Faction_Tracker.factions_rank_slider = Functions.Get_SliderInPanel(character_faction_content, "Factions_Values", "Slider_Character_Factions_Rank");
+                                Faction_Tracker.factions_set_rank_button = Functions.GetChild(Faction_Tracker.factions_go, "Btn_Character_Factions_Set_Rang").GetComponent<Button>();
+
+                                Faction_Tracker.factions_reputation_text = Functions.Get_TextInButton(character_faction_content, "Factions_Values", "ReputationValue");
+                                Faction_Tracker.factions_reputation_slider = Functions.Get_SliderInPanel(character_faction_content, "Factions_Values", "Slider_Character_Factions_Reputation");
+                                Faction_Tracker.factions_set_reputation_button = Functions.GetChild(Faction_Tracker.factions_go, "Btn_Character_Factions_Set_Reputation").GetComponent<Button>();
                             }
 
                             //Buffs
@@ -1802,9 +1824,39 @@ namespace LastEpoch_Hud.Scripts
                     {
                         Events.Set_Slider_Event(Data.monolith_gaze_slider, Data.monolith_gaze_slider_Action);
                     }
+                    
                     if (!Data.save_button.IsNullOrDestroyed())
                     {
                         Events.Set_Button_Event(Data.save_button, Data.Save_OnClick_Action);
+                    }
+
+                    if (!Faction_Tracker.factions_favor_slider.IsNullOrDestroyed())
+                    {
+                        Events.Set_Slider_Event(Faction_Tracker.factions_favor_slider, Faction_Tracker.factions_favor_slider_Action);
+                    }
+                    if (!Faction_Tracker.factions_gain_favor_button.IsNullOrDestroyed())
+                    {
+                        Events.Set_Button_Event(Faction_Tracker.factions_gain_favor_button, Faction_Tracker.factions_gain_favor_OnClick_Action);
+                    }
+                    if (!Faction_Tracker.factions_set_favor_button.IsNullOrDestroyed())
+                    {
+                        Events.Set_Button_Event(Faction_Tracker.factions_set_favor_button, Faction_Tracker.factions_set_favor_OnClick_Action);
+                    }
+                    if (!Faction_Tracker.factions_rank_slider.IsNullOrDestroyed())
+                    {
+                        Events.Set_Slider_Event(Faction_Tracker.factions_rank_slider, Faction_Tracker.factions_rank_slider_Action);
+                    }
+                    if (!Faction_Tracker.factions_set_rank_button.IsNullOrDestroyed())
+                    {
+                        Events.Set_Button_Event(Faction_Tracker.factions_set_rank_button, Faction_Tracker.factions_set_rank_OnClick_Action);
+                    }
+                    if (!Faction_Tracker.factions_reputation_slider.IsNullOrDestroyed())
+                    {
+                        Events.Set_Slider_Event(Faction_Tracker.factions_reputation_slider, Faction_Tracker.factions_reputation_slider_Action);
+                    }
+                    if (!Faction_Tracker.factions_set_reputation_button.IsNullOrDestroyed())
+                    {
+                        Events.Set_Button_Event(Faction_Tracker.factions_set_reputation_button, Faction_Tracker.factions_set_reputation_OnClick_Action);
                     }
                 }
                 public static void Set_Active(bool show)
@@ -2213,6 +2265,15 @@ namespace LastEpoch_Hud.Scripts
                             }
                         }
                     }
+                }
+                public static void Update_Faction_Data()
+                {
+                    Faction_Tracker.factions_favor_text.text = Faction_Tracker.factions_favor_slider.value.ToString();
+                    Faction_Tracker.factions_rank_text.text = Faction_Tracker.factions_rank_slider.value.ToString();
+                    Faction_Tracker.factions_reputation_text.text = Faction_Tracker.factions_reputation_slider.value.ToString();
+                    if (Faction_Tracker.factions_dropdown.value > 0) { Faction_Tracker.factions_go.active = true; }
+                    else { Faction_Tracker.factions_go.active = false; }
+                    Faction_Tracker.selected_faction = Faction_Tracker.GetFaction();
                 }
                 public static void UpdateVisuals()
                 {
@@ -2675,13 +2736,105 @@ namespace LastEpoch_Hud.Scripts
                             monolith_gaze_text.text = result.ToString();
                         }
                     }
-
+                                        
                     public static Button save_button = null;
-
                     public static readonly System.Action Save_OnClick_Action = new System.Action(Save_Click);
                     public static void Save_Click()
                     {
+                        Main.logger_instance.Msg("Save Character Data");
                         if (!Refs_Manager.player_data.IsNullOrDestroyed()) { Refs_Manager.player_data.SaveData(); }
+                    }
+                }
+                public class Faction_Tracker
+                {
+                    public static Il2CppLE.Factions.Faction selected_faction = null;
+                    public static Il2CppLE.Factions.Faction GetFaction()
+                    {
+                        Il2CppLE.Factions.Faction faction = null;
+                        if (!Refs_Manager.faction_tracker.IsNullOrDestroyed())
+                        {                            
+                            foreach (Il2CppSystem.Collections.Generic.KeyValuePair<Il2CppLE.Factions.FactionID, Il2CppLE.Factions.Faction> values in Refs_Manager.faction_tracker.factions)
+                            {
+                                if (((values.Key == Il2CppLE.Factions.FactionID.CircleOfFortune) && (factions_dropdown.value == 1)) ||
+                                    ((values.Key == Il2CppLE.Factions.FactionID.MerchantsGuild) && (factions_dropdown.value == 2)) ||
+                                    ((values.Key == Il2CppLE.Factions.FactionID.ForgottenKnights) && (factions_dropdown.value == 3)) ||
+                                    ((values.Key == Il2CppLE.Factions.FactionID.TheWeaver) && (factions_dropdown.value == 4)))
+                                {
+                                    faction = values.Value;
+                                }
+                            }
+                        }
+
+                        return faction;
+                    }
+                                        
+                    public static Dropdown factions_dropdown = null;
+                    public static GameObject factions_go = null;
+                    public static Text factions_favor_text = null;
+                    public static Slider factions_favor_slider = null;
+                    public static readonly System.Action<float> factions_favor_slider_Action = new System.Action<float>(factions_favor);
+                    public static void factions_favor(float f)
+                    {
+                        int result = System.Convert.ToInt32(factions_favor_slider.value);
+                        if (!factions_favor_text.IsNullOrDestroyed()) { factions_favor_text.text = result.ToString(); }
+                    }
+                    public static Button factions_gain_favor_button = null;
+                    public static readonly System.Action factions_gain_favor_OnClick_Action = new System.Action(factions_gain_favor_Click);
+                    public static void factions_gain_favor_Click()
+                    {
+                        if ((!factions_favor_slider.IsNullOrDestroyed()) && (!selected_faction.IsNullOrDestroyed()))
+                        {
+                            selected_faction.GainFavor(Il2CppSystem.Convert.ToInt32(factions_favor_slider.value), false);
+                            selected_faction.SaveAndSync(false);
+                        }
+                    }
+                    public static Button factions_set_favor_button = null;
+                    public static readonly System.Action factions_set_favor_OnClick_Action = new System.Action(factions_set_favor_Click);
+                    public static void factions_set_favor_Click()
+                    {
+                        if ((!factions_favor_slider.IsNullOrDestroyed()) && (!selected_faction.IsNullOrDestroyed()))
+                        {
+                            selected_faction.Favor = Il2CppSystem.Convert.ToInt32(factions_favor_slider.value);
+                            selected_faction.SaveAndSync(false);
+                        }
+                    }
+
+                    public static Text factions_rank_text = null;
+                    public static Slider factions_rank_slider = null;
+                    public static readonly System.Action<float> factions_rank_slider_Action = new System.Action<float>(factions_rank);
+                    public static void factions_rank(float f)
+                    {
+                        int result = System.Convert.ToInt32(factions_rank_slider.value);
+                        if (!factions_rank_text.IsNullOrDestroyed()) { factions_rank_text.text = result.ToString(); }
+                    }
+                    public static Button factions_set_rank_button = null;
+                    public static readonly System.Action factions_set_rank_OnClick_Action = new System.Action(factions_set_rank_Click);
+                    public static void factions_set_rank_Click()
+                    {
+                        if ((!factions_rank_slider.IsNullOrDestroyed()) && (!selected_faction.IsNullOrDestroyed()))
+                        {
+                            selected_faction.Rank = Il2CppSystem.Convert.ToInt32(factions_rank_slider.value);
+                            selected_faction.SaveAndSync(false);
+                        }
+                    }
+
+                    public static Text factions_reputation_text = null;
+                    public static Slider factions_reputation_slider = null;
+                    public static readonly System.Action<float> factions_reputation_slider_Action = new System.Action<float>(factions_reputation);
+                    public static void factions_reputation(float f)
+                    {
+                        int result = System.Convert.ToInt32(factions_reputation_slider.value);
+                        if (!factions_reputation_text.IsNullOrDestroyed()) { factions_reputation_text.text = result.ToString(); }
+                    }
+                    public static Button factions_set_reputation_button = null;
+                    public static readonly System.Action factions_set_reputation_OnClick_Action = new System.Action(factions_set_reputation_Click);
+                    public static void factions_set_reputation_Click()
+                    {
+                        if ((!factions_reputation_slider.IsNullOrDestroyed()) && (!selected_faction.IsNullOrDestroyed()))
+                        {
+                            selected_faction.Reputation = Il2CppSystem.Convert.ToInt32(factions_reputation_slider.value);
+                            selected_faction.SaveAndSync(false);
+                        }
                     }
                 }
                 public class Buffs

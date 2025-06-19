@@ -2,6 +2,7 @@
 using UnityEngine;
 using Il2CppItemFiltering;
 using Il2Cpp;
+using Il2CppLE.Factions;
 
 namespace LastEpoch_Hud.Scripts
 {
@@ -48,6 +49,7 @@ namespace LastEpoch_Hud.Scripts
         public static MonolithZoneManager monolith_zone_manager = null;
         public static MovingPlayer player_moving = null;
         public static AbilityManager ability_manager = null;
+        public static FactionTracker faction_tracker = null;
 
         void Awake()
         {
@@ -112,6 +114,7 @@ namespace LastEpoch_Hud.Scripts
                 if (player_visuals.IsNullOrDestroyed()) { player_visuals = PlayerFinder.getPlayerVisuals(); }
                 if (player_data.IsNullOrDestroyed()) { player_data = PlayerFinder.getPlayerData(); }
                 if (player_data_tracker.IsNullOrDestroyed()) { player_data_tracker = PlayerFinder.getPlayerDataTracker(); }
+                if ((faction_tracker.IsNullOrDestroyed()) && (!player_actor.IsNullOrDestroyed())) { faction_tracker = player_actor.gameObject.GetComponent<FactionTracker>(); }
                 if ((player_quest_list.IsNullOrDestroyed()) && (!player_actor.IsNullOrDestroyed())) { player_quest_list = player_actor.gameObject.GetComponent<PlayerQuestListHolder>(); }
                 if (player_health.IsNullOrDestroyed()) { player_health = PlayerFinder.getLocalPlayerHealth(); }
                 if ((player_moving.IsNullOrDestroyed()) && (!player_actor.IsNullOrDestroyed())) { player_moving = player_actor.gameObject.GetComponent<MovingPlayer>(); }

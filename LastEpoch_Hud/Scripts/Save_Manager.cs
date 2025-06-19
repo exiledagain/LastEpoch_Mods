@@ -286,6 +286,15 @@ namespace LastEpoch_Hud.Scripts
                         SockectedSkill_2 = "Storm Bolt"
                     }
                 },
+                Factions =
+                {
+                    TheWoven =
+                    {
+                        Enable_TreePoints = false,
+                        TreePoints = 0,
+                        Enable_FreeRespe = false
+                    }
+                },
                 Scenes =
                 {
                     Camera =
@@ -537,6 +546,7 @@ namespace LastEpoch_Hud.Scripts
                 public Login Login;
                 public Character Character;
                 public Items Items;
+                public Factions Factions;
                 public Scenes Scenes;
                 public Skills Skills;
             }
@@ -807,6 +817,19 @@ namespace LastEpoch_Hud.Scripts
                 public string SockectedSkill_0;
                 public string SockectedSkill_1;
                 public string SockectedSkill_2;
+            }
+
+            //Factions
+            public struct Factions
+            {
+                public TheWoven TheWoven;
+            }
+
+            public struct TheWoven
+            {
+                public bool Enable_TreePoints;
+                public int TreePoints;
+                public bool Enable_FreeRespe;
             }
 
             //Scenes
