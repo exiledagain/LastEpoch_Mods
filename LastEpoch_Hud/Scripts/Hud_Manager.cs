@@ -26,7 +26,6 @@ namespace LastEpoch_Hud.Scripts
         private static Canvas hud_canvas = null;
         private readonly string asset_bundle_name = "lastepochmods"; //Name of asset file
         private bool hud_initializing = false;
-        private bool asset_bundle_initializing = false;
         private bool data_initializing = false;
 
         private bool updating = false;
@@ -37,52 +36,46 @@ namespace LastEpoch_Hud.Scripts
         {
             instance = this;
             enable = true;
+            AssetBundleCreateRequest bundleLoadRequest = AssetBundle.LoadFromFileAsync(Path.Combine(asset_path, asset_bundle_name));
+            asset_bundle = bundleLoadRequest.assetBundle;
+            if (asset_bundle == null) { Main.logger_instance.Error("AssetBundle Error"); }
+            else { Object.DontDestroyOnLoad(asset_bundle); }
         }
         void Update()
         {
-            Update_Hud_Scale();
-            Update_Refs();
-            Update_Locale();
-
-            if (!hud_object.IsNullOrDestroyed())
+            if (!asset_bundle.IsNullOrDestroyed())
             {
-                if ((!data_initialized) && (!data_initializing)) { Init_UserData(); } //set once
-                if ((IsPauseOpen()) && (!updating))
+                Update_Hud_Scale();
+                Update_Refs();
+                Update_Locale();
+
+                if (!hud_object.IsNullOrDestroyed())
                 {
-                    updating = true;
-                    Update_Hud_Content();
-                    hud_object.active = true;
-                    Content.Set_Active();
-                    if ((!Refs_Manager.epoch_input_manager.IsNullOrDestroyed()) && (!Hud_Base.Btn_Resume.IsNullOrDestroyed()))
+                    if ((!data_initialized) && (!data_initializing)) { Init_UserData(); } //set once
+                    if ((IsPauseOpen()) && (!updating))
                     {
-                        if (Input.GetKeyDown(KeyCode.Escape)) { exit = true; }
-                        if ((Input.GetKeyUp(KeyCode.Escape)) && (exit)) { Hud_Base.Btn_Resume.onClick.Invoke(); exit = false; }
-                        else { Refs_Manager.epoch_input_manager.forceDisableInput = true; }
+                        updating = true;
+                        Update_Hud_Content();
+                        hud_object.active = true;
+                        Content.Set_Active();
+                        if ((!Refs_Manager.epoch_input_manager.IsNullOrDestroyed()) && (!Hud_Base.Btn_Resume.IsNullOrDestroyed()))
+                        {
+                            if (Input.GetKeyDown(KeyCode.Escape)) { exit = true; }
+                            if ((Input.GetKeyUp(KeyCode.Escape)) && (exit)) { Hud_Base.Btn_Resume.onClick.Invoke(); exit = false; }
+                            else { Refs_Manager.epoch_input_manager.forceDisableInput = true; }
+                        }
+                        updating = false;
                     }
-                    updating = false;
+                    else if (!updating)
+                    {
+                        updating = true;
+                        hud_object.active = false;
+                        if (!Refs_Manager.epoch_input_manager.IsNullOrDestroyed()) { Refs_Manager.epoch_input_manager.forceDisableInput = false; }
+                        Content.Character.need_update = true;
+                        updating = false;
+                    }
                 }
-                else if (!updating)
-                {
-                    updating = true;
-                    hud_object.active = false;
-                    if (!Refs_Manager.epoch_input_manager.IsNullOrDestroyed()) { Refs_Manager.epoch_input_manager.forceDisableInput = false; }
-                    Content.Character.need_update = true;
-                    updating = false;
-                }
-            }            
-        }
-
-        void Init_AssetsBundle()
-        {
-            asset_bundle_initializing = true;
-            if (Main.debug) { Main.logger_instance.Msg("Hud Manager : Initialize assets bundle"); }
-            if ((Directory.Exists(asset_path)) && (File.Exists(Path.Combine(asset_path, asset_bundle_name))))
-            {
-                asset_bundle = AssetBundle.LoadFromFile(Path.Combine(asset_path, asset_bundle_name));
-                Object.DontDestroyOnLoad(asset_bundle);
             }
-            else { Main.logger_instance.Error("Hud Manager : " + asset_bundle_name + " Not Found in Assets directory"); }
-            asset_bundle_initializing = false;
         }
         void Init_Hud()
         {
@@ -102,20 +95,11 @@ namespace LastEpoch_Hud.Scripts
                 }
                 if (asset_name != "")
                 {
-                    if (Main.debug) { Main.logger_instance.Msg("Hud Manager : Load hud prefab obj"); }
                     UnityEngine.Object obj = asset_bundle.LoadAsset(asset_name);
-                    //we need guid in order to load Hus_S
-
-                    //GameObject prefab_object = asset_bundle.LoadAsset<GameObject>(asset_name);
-                    if (Main.debug) { Main.logger_instance.Msg("Hud Manager : Convert to GameObject"); }
-                    GameObject prefab_object = obj.TryCast<GameObject>();
-
-                    //GameObject prefab_object = asset_bundle.LoadAsset(asset_name).TryCast<GameObject>();                
+                    GameObject prefab_object = obj.TryCast<GameObject>();             
                     if (!prefab_object.IsNullOrDestroyed())
                     {
-                        if (Main.debug) { Main.logger_instance.Msg("Hud Manager : Initialize hud prefab"); }
                         prefab_object.active = false; //Hide
-                                                      //prefab_object.AddComponent<Hud_S>(); //try to load unity script
                         prefab_object.AddComponent<UIMouseListener>(); //Block Mouse
                         prefab_object.AddComponent<WindowFocusManager>();
 
@@ -123,7 +107,6 @@ namespace LastEpoch_Hud.Scripts
                         if (Main.debug) { Main.logger_instance.Msg("Hud Manager : Instantiate hud prefab"); }
                         hud_object = Object.Instantiate(prefab_object, Vector3.zero, Quaternion.identity);
                         Object.DontDestroyOnLoad(hud_object);
-                        //Init_Hud_Refs();
 
                         if (Main.debug) { Main.logger_instance.Msg("Hud Manager : Initialize hud refs"); }
                         Hud_Menu.Set_Events();
@@ -180,34 +163,6 @@ namespace LastEpoch_Hud.Scripts
 
             hud_initializing = false;
         }
-        /*void Init_Hud_Refs()
-        {
-            if (Main.debug) { Main.logger_instance.Msg("Hud Manager : Initialize hud refs"); }            
-            Hud_Menu.Set_Events();
-
-            Content.content_obj = Functions.GetChild(hud_object, "Content");
-            Content.Character.Get_Refs();
-            Content.Character.Set_Events();
-            Content.Character.Set_Active(false);
-
-            Content.Items.Get_Refs();
-            Content.Items.Set_Events();
-            Content.Items.Set_Active(false);
-
-            Content.Scenes.Get_Refs();
-            Content.Scenes.Set_Events();
-            Content.Scenes.Set_Active(false);
-
-            Content.Skills.Get_Refs();
-            Content.Skills.Set_Active(false);
-
-            Content.OdlForceDrop.Get_Refs();
-            Content.OdlForceDrop.Set_Events();
-            Content.OdlForceDrop.Set_Active(false);
-
-            Content.Headhunter.Get_Refs();
-            Content.Headhunter.Set_Active(false);
-        }*/
         void Init_UserData()
         {
             data_initializing = true;
@@ -229,8 +184,7 @@ namespace LastEpoch_Hud.Scripts
         }
         void Update_Refs()
         {
-            if ((hud_canvas.IsNullOrDestroyed()) && (!hud_object.IsNullOrDestroyed())) { hud_canvas = hud_object.GetComponent<Canvas>(); }            
-            if ((asset_bundle.IsNullOrDestroyed()) && (!asset_bundle_initializing)) { Init_AssetsBundle(); }
+            if ((hud_canvas.IsNullOrDestroyed()) && (!hud_object.IsNullOrDestroyed())) { hud_canvas = hud_object.GetComponent<Canvas>(); }
             if (!Refs_Manager.game_uibase.IsNullOrDestroyed())
             {
                 if ((game_canvas.IsNullOrDestroyed()) && (Refs_Manager.game_uibase.canvases.Count > 0)) { game_canvas = Refs_Manager.game_uibase.canvases[0]; }

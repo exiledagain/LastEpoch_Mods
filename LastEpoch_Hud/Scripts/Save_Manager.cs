@@ -2,6 +2,7 @@
 using System.IO;
 using UnityEngine;
 using MelonLoader;
+using Il2CppCysharp.Threading.Tasks.Triggers;
 
 namespace LastEpoch_Hud.Scripts
 {
@@ -525,7 +526,7 @@ namespace LastEpoch_Hud.Scripts
             {
                 data_duplicate = data;
                 Save();
-                Mods_Manager.instance?.SetActive(Refs_Manager.online);             
+                if (!Mods_Manager.instance.IsNullOrDestroyed()) { Mods_Manager.instance.change = true; } //Will be removed soon (when i have time to do it ^^) 
             }
         }
         public void Save()

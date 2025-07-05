@@ -15,6 +15,31 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 bool result = true;
                 if (Scenes.IsGameScene())
                 {
+                    /*//Fix unique subtype when Force Legendary
+                    if ((!Save_Manager.instance.IsNullOrDestroyed()) && (__1.rarity == 9))
+                    {
+                        if (Save_Manager.instance.data.Items.Drop.Enable_ForceLegendary)
+                        {
+                            UniqueList.Entry unique = UniqueList.getUnique(__1.uniqueID);
+                            if (!unique.subTypes.Contains((byte)__1.subType))
+                            {
+                                ushort backup = __1.subType;
+                                if (unique.subTypes.Count > 0)
+                                {
+                                    int rand = UnityEngine.Random.RandomRangeInt(0, unique.subTypes.Count);
+                                    __1.subType = unique.subTypes[rand];
+                                    __1.id[2] = unique.subTypes[rand]; //subtype
+                                    __1.RefreshIDAndValues();
+                                }
+                            }
+
+                            //Get eligibles affixes
+                            Il2CppSystem.ValueTuple<Il2CppSystem.Collections.Generic.List<AffixList.Affix>, Il2CppSystem.Collections.Generic.List<AffixList.Affix>> eligibles_affixes = __1.GetEligibleAffixes(new Il2CppSystem.Collections.Generic.List<int>(), AffixList.SpecialAffixType.Standard);
+                            //Add affixes
+
+                        }
+                    }*/
+
                     //Fix Load items with more than 4 affixs
                     if ((__1.rarity == 5) || (__1.rarity == 6))
                     {

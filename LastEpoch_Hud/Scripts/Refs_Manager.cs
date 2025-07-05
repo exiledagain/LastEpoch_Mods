@@ -74,7 +74,7 @@ namespace LastEpoch_Hud.Scripts
             if ((quest_list.IsNullOrDestroyed()) && (!QuestList.instance.IsNullOrDestroyed())) { quest_list = QuestList.instance; }
             if ((scene_list.IsNullOrDestroyed()) && (!SceneList.instance.IsNullOrDestroyed())) { scene_list = SceneList.instance; }
             if ((character_select.IsNullOrDestroyed()) && (!CharacterSelect.instance.IsNullOrDestroyed())) { character_select = CharacterSelect.instance; }
-            if ((!character_select.IsNullOrDestroyed()) && (character_select.OnOnlineTabChange.IsNullOrDestroyed())) { character_select.OnOnlineTabChange = Action_SetOnline; }
+            //if ((!character_select.IsNullOrDestroyed()) && (character_select.OnOnlineTabChange.IsNullOrDestroyed())) { character_select.OnOnlineTabChange = Action_SetOnline; }
             if ((craft_slot_manager.IsNullOrDestroyed()) && (!CraftingSlotManager.instance.IsNullOrDestroyed())) { craft_slot_manager = CraftingSlotManager.instance; }
             if (ability_manager.IsNullOrDestroyed()) { ability_manager = AbilityManager.instance; }
 
@@ -135,7 +135,7 @@ namespace LastEpoch_Hud.Scripts
             }
         }
 
-        private static readonly System.Action<bool> Action_SetOnline = new System.Action<bool>(SetOnline);
+        /*private static readonly System.Action<bool> Action_SetOnline = new System.Action<bool>(SetOnline);
         private static void SetOnline(bool result)
         {
             result = true;
@@ -146,6 +146,6 @@ namespace LastEpoch_Hud.Scripts
                 online = result;
                 if (!Mods_Manager.instance.IsNullOrDestroyed()) { Mods_Manager.instance.SetActive(result); }
             }
-        }
+        }*/
     }
 }

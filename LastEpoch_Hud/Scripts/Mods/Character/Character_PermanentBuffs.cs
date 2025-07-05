@@ -9,7 +9,10 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
     public class Character_PermanentBuffs : MonoBehaviour
     {
         public static Character_PermanentBuffs instance { get; private set; }
-        public Character_PermanentBuffs(System.IntPtr ptr) : base(ptr) { }        
+        public Character_PermanentBuffs(System.IntPtr ptr) : base(ptr) { }
+
+        
+
         public struct PermanentBuff
         {
             public string Name;
@@ -31,7 +34,14 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
         }
         void Update()
         {
-            if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!force_disable))
+            if (!Save_Manager.instance.IsNullOrDestroyed())
+            {
+                if ((!Save_Manager.instance.data.Character.PermanentBuffs.Enable_Mod) && (Mod_Enable)) { force_disable = true; }
+                else if (Save_Manager.instance.data.Character.PermanentBuffs.Enable_Mod) { Mod_Enable = true; }
+            }
+            else { Mod_Enable = false; }
+            
+            if ((Mod_Enable) && (!force_disable))
             {
                 if ((Buff_Enable) && (!Running)) { StartBuffs(); }
                 else if (Running)
@@ -56,14 +66,15 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
                     PauseMenu = HudIsOpen();
                 }
             }
-            else
+            else if ((Mod_Enable) && (force_disable))
             {
                 Running = false;
                 Buff_Enable = false;
                 RemoveBuffs();
-                if (force_disable) { this.gameObject.active = false; }
+                Mod_Enable = false;
+                force_disable = false;
             }
-        }        
+        }
         void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             if (!Save_Manager.instance.IsNullOrDestroyed()) { Buff_Enable = InitBuffs(); }
@@ -76,23 +87,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
             else { return false; }
         }        
           
-        public void Enable()
-        {
-            if (!Save_Manager.instance.IsNullOrDestroyed())
-            {
-                if (Save_Manager.instance.data.Character.PermanentBuffs.Enable_Mod)
-                {
-                    force_disable = false;
-                    this.gameObject.active = true;
-                }
-                else { Disable(); }
-            }
-        }
-        public void Disable()
-        {
-            force_disable = true;
-        }
-
+        private bool Mod_Enable = false;
         private bool force_disable = false;
         private bool Buff_Enable = false;
         private bool Running = false;
@@ -221,9 +216,9 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
             return result;
         }
         private void StartBuffs()
-        {
+        {            
             if (!Starting)
-            {
+            {                
                 Starting = true;
                 if (!Refs_Manager.player_actor.IsNullOrDestroyed())
                 {
