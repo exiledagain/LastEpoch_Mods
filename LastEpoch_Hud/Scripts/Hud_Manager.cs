@@ -2738,9 +2738,18 @@ namespace LastEpoch_Hud.Scripts
                     {
                         if ((!factions_favor_slider.IsNullOrDestroyed()) && (!selected_faction.IsNullOrDestroyed()))
                         {
-                            selected_faction.GainFavor(Il2CppSystem.Convert.ToInt32(factions_favor_slider.value), false);
+                            if (!selected_faction.hasEverJoined) { selected_faction.Join(true); }
+                            if (!selected_faction.IsMember) { selected_faction.IsMember = true; }
+
+                            int added_favor = Il2CppSystem.Convert.ToInt32(factions_favor_slider.value);
+                            int max_favor = 999999;
+                            int max_added_favor = max_favor - selected_faction.Favor;
+                            if (added_favor > max_added_favor) { added_favor = max_added_favor; }
+
+                            selected_faction.GainFavor(added_favor, false);
                             selected_faction.SaveAndSync(false);
                         }
+                        else { Main.logger_instance.Error("Faction not found"); }
                     }
                     public static Button factions_set_favor_button = null;
                     public static readonly System.Action factions_set_favor_OnClick_Action = new System.Action(factions_set_favor_Click);
@@ -2748,9 +2757,18 @@ namespace LastEpoch_Hud.Scripts
                     {
                         if ((!factions_favor_slider.IsNullOrDestroyed()) && (!selected_faction.IsNullOrDestroyed()))
                         {
-                            selected_faction.Favor = Il2CppSystem.Convert.ToInt32(factions_favor_slider.value);
+                            if (!selected_faction.hasEverJoined) { selected_faction.Join(true); }
+                            if (!selected_faction.IsMember) { selected_faction.IsMember = true; }
+
+                            int added_favor = Il2CppSystem.Convert.ToInt32(factions_favor_slider.value);
+                            int max_favor = 999999;
+                            int max_added_favor = max_favor - selected_faction.Favor;
+                            if (added_favor > max_added_favor) { added_favor = max_added_favor; }
+
+                            selected_faction.Favor = added_favor;
                             selected_faction.SaveAndSync(false);
                         }
+                        else { Main.logger_instance.Error("Faction not found"); }
                     }
 
                     public static Text factions_rank_text = null;
@@ -2759,7 +2777,7 @@ namespace LastEpoch_Hud.Scripts
                     public static void factions_rank(float f)
                     {
                         int result = System.Convert.ToInt32(factions_rank_slider.value);
-                        if (!factions_rank_text.IsNullOrDestroyed()) { factions_rank_text.text = result.ToString(); }
+                        if (!factions_rank_text.IsNullOrDestroyed()){ factions_rank_text.text = result.ToString(); }
                     }
                     public static Button factions_set_rank_button = null;
                     public static readonly System.Action factions_set_rank_OnClick_Action = new System.Action(factions_set_rank_Click);
@@ -2767,9 +2785,18 @@ namespace LastEpoch_Hud.Scripts
                     {
                         if ((!factions_rank_slider.IsNullOrDestroyed()) && (!selected_faction.IsNullOrDestroyed()))
                         {
-                            selected_faction.Rank = Il2CppSystem.Convert.ToInt32(factions_rank_slider.value);
+                            if (!selected_faction.hasEverJoined) { selected_faction.Join(true); }
+                            if (!selected_faction.IsMember) { selected_faction.IsMember = true; }
+
+                            int max_rank = 12;
+                            if ((factions_dropdown.value == 3) || (factions_dropdown.value == 4)) { max_rank = 10; }
+                            int rank = Il2CppSystem.Convert.ToInt32(factions_rank_slider.value);
+                            if (rank > max_rank) { rank = max_rank; }
+
+                            selected_faction.Rank = rank;
                             selected_faction.SaveAndSync(false);
                         }
+                        else { Main.logger_instance.Error("Faction not found"); }
                     }
 
                     public static Text factions_reputation_text = null;
@@ -2786,9 +2813,17 @@ namespace LastEpoch_Hud.Scripts
                     {
                         if ((!factions_reputation_slider.IsNullOrDestroyed()) && (!selected_faction.IsNullOrDestroyed()))
                         {
-                            selected_faction.Reputation = Il2CppSystem.Convert.ToInt32(factions_reputation_slider.value);
+                            if (!selected_faction.hasEverJoined) { selected_faction.Join(true); }
+                            if (!selected_faction.IsMember) { selected_faction.IsMember = true; }
+
+                            int favor = Il2CppSystem.Convert.ToInt32(factions_reputation_slider.value);
+                            int total_reputation = selected_faction.TotalReputation;
+                            if (favor > total_reputation) { favor = total_reputation; }
+
+                            selected_faction.Reputation = favor;
                             selected_faction.SaveAndSync(false);
                         }
+                        else { Main.logger_instance.Error("Faction not found"); }
                     }
                 }
                 public class Buffs

@@ -27,6 +27,8 @@ namespace LastEpoch_Hud.Scripts
         GameObject minimap_icons_obj = null;
         GameObject monoliths_complete_objectives_obj = null;
 
+        GameObject items_visuals_obj = null;
+
         bool initialized = false;
         bool enable = false;
         public bool change = false;
@@ -108,6 +110,11 @@ namespace LastEpoch_Hud.Scripts
             monoliths_complete_objectives_obj = Object.Instantiate(new GameObject { name = "Mod_Monoliths_Complete_Objectives" }, Vector3.zero, Quaternion.identity);
             monoliths_complete_objectives_obj.AddComponent<Mods.Monoliths.Monoliths_CompleteObjective>();
             Mods_Objects.Add(monoliths_complete_objectives_obj);
+
+            //Exemple to replace a skin by an other
+            items_visuals_obj = Object.Instantiate(new GameObject { name = "mod_list_items_visuals" }, Vector3.zero, Quaternion.identity);
+            items_visuals_obj.AddComponent<Mods.Cosmetics.Items_Visuals>();
+            Mods_Objects.Add(items_visuals_obj);
 
             foreach (GameObject mod in Mods_Objects) { Object.DontDestroyOnLoad(mod); }
             Mods_Objects.Clear();
