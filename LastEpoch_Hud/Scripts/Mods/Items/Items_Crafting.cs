@@ -368,7 +368,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             public static bool updating = false;
             public static bool already_reset = false;
             public static string shards_text_filter = "";
-            public static TextMeshProUGUI FixStuckButtonText = null; //Used on resolution changed
+            public static GameObject FixStuckButton_obj = null;
             public static string FixStuckButtonText_str = "Drop Item on Ground";
 
             public static void Init()
@@ -408,16 +408,14 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         RectTransform craftingMatButton_rect_transf = craftingMatButton.GetComponent<RectTransform>();
                         float craftingMatButton_H = craftingMatButton_rect_transf.rect.height;
                         float margin = 20 * craftingMatButton_rect_transf.lossyScale.x; //Fix Hight resolution scaling
-                        GameObject FixStuckButton_obj = Object.Instantiate(craftingMatButton, new Vector3(craftingMatButton.transform.position.x, (craftingMatButton.transform.position.y - craftingMatButton_H - margin), craftingMatButton.transform.position.z), Quaternion.identity);
+                        FixStuckButton_obj = Object.Instantiate(craftingMatButton, new Vector3(craftingMatButton.transform.position.x, (craftingMatButton.transform.position.y - craftingMatButton_H - margin), craftingMatButton.transform.position.z), Quaternion.identity);
+                        FixStuckButton_obj.gameObject.SetActive(false);
                         FixStuckButton_obj.name = "UnstuckButton";
                         FixStuckButton_obj.transform.SetParent(__instance.transform);
                         FixStuckButton_obj.transform.localScale = craftingMatButton.transform.localScale;
                         Button FixStuckButton = FixStuckButton_obj.GetComponent<Button>();
-                        FixStuckButton.onClick = new UnityEngine.UI.Button.ButtonClickedEvent();
+                        FixStuckButton.onClick = new Button.ButtonClickedEvent();
                         FixStuckButton.onClick.AddListener(Events.ClearSlot_OnClick_Action);
-                        GameObject FixStuckButtonText_obj = Functions.GetChild(FixStuckButton_obj, "text");
-                        FixStuckButtonText = FixStuckButtonText_obj.GetComponent<TextMeshProUGUI>();
-                        FixStuckButtonText.text = FixStuckButtonText_str;
 
                         initialized = true;
                     }
@@ -853,6 +851,19 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     }
                 }
             }
+            public static void ShowHide_DropOnGround_Button()
+            {
+                if (!Ui.FixStuckButton_obj.IsNullOrDestroyed())
+                {
+                    Ui.FixStuckButton_obj.gameObject.SetActive(!Current.item.IsNullOrDestroyed());
+                    GameObject FixStuckButtonText_obj = Functions.GetChild(FixStuckButton_obj, "text");
+                    if (!FixStuckButtonText_obj.IsNullOrDestroyed())
+                    {
+                        TextMeshProUGUI FixStuckButtonText = FixStuckButtonText_obj.GetComponent<TextMeshProUGUI>();
+                        if (!FixStuckButtonText.IsNullOrDestroyed()) { FixStuckButtonText.text = FixStuckButtonText_str; }
+                    }
+                }
+            }
 
             public static void Update()
             {
@@ -1133,18 +1144,12 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 static void Postifx()
                 {
                     Debug(false, "UIBase.openCraftingPanel()");
-
-                    //Fix when scale changed
-                    if (!Ui.FixStuckButtonText.IsNullOrDestroyed())
-                    {
-                        Ui.FixStuckButtonText.text = Ui.FixStuckButtonText_str;
-                    }
-
                     if (Enable)
                     {
                         Crafting_Main_Ui.IsOpen = true;
                         if (!Ui.initialized) { Ui.Init(); }
                         Ui.force_update_slots = true; //Force Update
+                        Ui.ShowHide_DropOnGround_Button();
                     }
                     else { Debug(false, "Disable"); }
                 }
@@ -1179,7 +1184,6 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     if (Enable)
                     {                        
                         if (Crafting_Manager_instance.IsNullOrDestroyed()) { Crafting_Manager_instance = __instance; }
-                        ;
                         if (!__0.IsNullOrDestroyed())
                         {
                             Current.item = null;                            
@@ -1187,9 +1191,10 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                             if (!item_container.IsNullOrDestroyed())
                             {
                                 Current.item_container = item_container;
-                                if (!item_container.content.IsNullOrDestroyed()) { Current.item = item_container.content.data; }
+                                if (!item_container.content.IsNullOrDestroyed()) { Current.item = item_container.content.data; }                                
                             }
                             else { Current.item_container = null; }
+                            Ui.ShowHide_DropOnGround_Button();
                         }
                     }
                     else { Debug(false, "Disable"); }
@@ -1210,6 +1215,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         Current.slot = null;
                         Current.btn = null;
                         Current.item_container = null;
+                        Ui.ShowHide_DropOnGround_Button();                        
                     }
                     else { Debug(false, "Disable"); }
                 }
