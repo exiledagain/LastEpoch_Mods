@@ -20,7 +20,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
         public static bool CanCraftToT7 = true;
         public static bool CanCraftIdols = true;
         public static bool CanCraftUniqueSet = true;
-        public static bool CanCraftWithoutShard = true; //Enable UpgradeBtn, Show shards in Material
+        public static bool CanCraftWithoutShard = true; //Enable UpgradeBtn, Show shards in Material        
 
         public static CraftingManager Crafting_Manager_instance = null; //Used to Show value in game
 
@@ -368,6 +368,8 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             public static bool updating = false;
             public static bool already_reset = false;
             public static string shards_text_filter = "";
+            public static TextMeshProUGUI FixStuckButtonText = null; //Used on resolution changed
+            public static string FixStuckButtonText_str = "Drop Item on Ground";
 
             public static void Init()
             {
@@ -403,10 +405,10 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
 
                         //Add Clear slot button (fix item stuck in forge)
                         GameObject craftingMatButton = Functions.GetChild(__instance, "ViewCraftingMaterialsButton");
-                        float craftingMatButton_H = craftingMatButton.GetComponent<RectTransform>().rect.height;
-                        float margin = 10;
+                        RectTransform craftingMatButton_rect_transf = craftingMatButton.GetComponent<RectTransform>();
+                        float craftingMatButton_H = craftingMatButton_rect_transf.rect.height;
+                        float margin = 20 * craftingMatButton_rect_transf.lossyScale.x; //Fix Hight resolution scaling
                         GameObject FixStuckButton_obj = Object.Instantiate(craftingMatButton, new Vector3(craftingMatButton.transform.position.x, (craftingMatButton.transform.position.y - craftingMatButton_H - margin), craftingMatButton.transform.position.z), Quaternion.identity);
-                        //GameObject FixStuckButton_obj = Object.Instantiate(craftingMatButton, new Vector3((craftingMatButton.transform.position.x + craftingMatButton_W + margin), craftingMatButton.transform.position.y, craftingMatButton.transform.position.z), Quaternion.identity);
                         FixStuckButton_obj.name = "UnstuckButton";
                         FixStuckButton_obj.transform.SetParent(__instance.transform);
                         FixStuckButton_obj.transform.localScale = craftingMatButton.transform.localScale;
@@ -414,8 +416,8 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         FixStuckButton.onClick = new UnityEngine.UI.Button.ButtonClickedEvent();
                         FixStuckButton.onClick.AddListener(Events.ClearSlot_OnClick_Action);
                         GameObject FixStuckButtonText_obj = Functions.GetChild(FixStuckButton_obj, "text");
-                        TextMeshProUGUI FixStuckButtonText = FixStuckButtonText_obj.GetComponent<TextMeshProUGUI>();
-                        FixStuckButtonText.text = "Fix : Clear Slot";
+                        FixStuckButtonText = FixStuckButtonText_obj.GetComponent<TextMeshProUGUI>();
+                        FixStuckButtonText.text = FixStuckButtonText_str;
 
                         initialized = true;
                     }
@@ -1112,10 +1114,14 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             public static readonly System.Action ClearSlot_OnClick_Action = new System.Action(ClearSlot_Click);
             private static void ClearSlot_Click() //Fix Clear Slot
             {
-                if (!Current.item_container.IsNullOrDestroyed())
+                //Drop on Ground
+                if ((!Current.item.IsNullOrDestroyed()) && (!Refs_Manager.ground_item_manager.IsNullOrDestroyed()) && (!Refs_Manager.player_actor.IsNullOrDestroyed()))
                 {
-                    if (!Current.item_container.content.IsNullOrDestroyed()) { Current.item_container.Clear(); }
+                    Refs_Manager.ground_item_manager.dropItemForPlayer(Refs_Manager.player_actor, Current.item, Refs_Manager.player_actor.position(), false);
                 }
+
+                //Clear Slot
+                if (!Current.item_container.IsNullOrDestroyed()) { Current.item_container.Clear(); }
             }
         }
         public class Ui_Base
@@ -1127,6 +1133,13 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 static void Postifx()
                 {
                     Debug(false, "UIBase.openCraftingPanel()");
+
+                    //Fix when scale changed
+                    if (!Ui.FixStuckButtonText.IsNullOrDestroyed())
+                    {
+                        Ui.FixStuckButtonText.text = Ui.FixStuckButtonText_str;
+                    }
+
                     if (Enable)
                     {
                         Crafting_Main_Ui.IsOpen = true;
