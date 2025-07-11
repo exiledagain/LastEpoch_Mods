@@ -4,6 +4,7 @@ using Il2CppLE.Data;
 using Il2CppTMPro;
 using MelonLoader;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace LastEpoch_Hud.Scripts.Mods.Items
 {
@@ -50,7 +51,8 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
         }
         
         public class Current
-        {            
+        {    
+            public static OneItemContainer item_container = null;
             public static ItemData item = null;
             public static AffixSlotForge slot = null;
             public static CraftingUpgradeButton btn = null;
@@ -398,46 +400,24 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         //Move seal
                         Vector3 seal_position = Refs_Manager.craft_slot_manager.sealedAffixHolder.transform.position;
                         Refs_Manager.craft_slot_manager.sealedAffixHolder.transform.position = new Vector3(seal_position.x, seal_position.y - 200, seal_position.z);
+
+                        //Add Clear slot button (fix item stuck in forge)
+                        GameObject craftingMatButton = Functions.GetChild(__instance, "ViewCraftingMaterialsButton");
+                        float craftingMatButton_H = craftingMatButton.GetComponent<RectTransform>().rect.height;
+                        float margin = 10;
+                        GameObject FixStuckButton_obj = Object.Instantiate(craftingMatButton, new Vector3(craftingMatButton.transform.position.x, (craftingMatButton.transform.position.y - craftingMatButton_H - margin), craftingMatButton.transform.position.z), Quaternion.identity);
+                        //GameObject FixStuckButton_obj = Object.Instantiate(craftingMatButton, new Vector3((craftingMatButton.transform.position.x + craftingMatButton_W + margin), craftingMatButton.transform.position.y, craftingMatButton.transform.position.z), Quaternion.identity);
+                        FixStuckButton_obj.name = "UnstuckButton";
+                        FixStuckButton_obj.transform.SetParent(__instance.transform);
+                        FixStuckButton_obj.transform.localScale = craftingMatButton.transform.localScale;
+                        Button FixStuckButton = FixStuckButton_obj.GetComponent<Button>();
+                        FixStuckButton.onClick = new UnityEngine.UI.Button.ButtonClickedEvent();
+                        FixStuckButton.onClick.AddListener(Events.ClearSlot_OnClick_Action);
+                        GameObject FixStuckButtonText_obj = Functions.GetChild(FixStuckButton_obj, "text");
+                        TextMeshProUGUI FixStuckButtonText = FixStuckButtonText_obj.GetComponent<TextMeshProUGUI>();
+                        FixStuckButtonText.text = "Fix : Clear Slot";
+
                         initialized = true;
-
-                        //Events
-                        /*Slot_refs[] refs = { slot_0_refs, slot_1_refs, slot_2_refs, slot_3_refs, slot_4_refs, slot_5_refs };
-                        foreach (Slot_refs r in refs)
-                        {
-                            UnityEngine.UI.Button upgrade_available_btn = r.upgrade_available.GetComponent<UnityEngine.UI.Button>();
-                            upgrade_available_btn.interactable = true;
-
-                            if (r.Slot_obj.name == slot_0_refs.Slot_obj.name)
-                            {
-                                upgrade_available_btn.onClick = new UnityEngine.UI.Button.ButtonClickedEvent();
-                                upgrade_available_btn.onClick.AddListener(Events.Slot_0_UpgradeAvailable_OnClick_Action);
-                            }
-                            else if (r.Slot_obj.name == slot_1_refs.Slot_obj.name)
-                            {
-                                upgrade_available_btn.onClick = new UnityEngine.UI.Button.ButtonClickedEvent();
-                                upgrade_available_btn.onClick.AddListener(Events.Slot_1_UpgradeAvailable_OnClick_Action);
-                            }
-                            else if (r.Slot_obj.name == slot_2_refs.Slot_obj.name)
-                            {
-                                upgrade_available_btn.onClick = new UnityEngine.UI.Button.ButtonClickedEvent();
-                                upgrade_available_btn.onClick.AddListener(Events.Slot_2_UpgradeAvailable_OnClick_Action);
-                            }
-                            else if (r.Slot_obj.name == slot_3_refs.Slot_obj.name)
-                            {
-                                upgrade_available_btn.onClick = new UnityEngine.UI.Button.ButtonClickedEvent();
-                                upgrade_available_btn.onClick.AddListener(Events.Slot_3_UpgradeAvailable_OnClick_Action);
-                            }
-                            else if (r.Slot_obj.name == slot_4_refs.Slot_obj.name)
-                            {
-                                upgrade_available_btn.onClick = new UnityEngine.UI.Button.ButtonClickedEvent();
-                                upgrade_available_btn.onClick.AddListener(Events.Slot_4_UpgradeAvailable_OnClick_Action);
-                            }
-                            else if (r.Slot_obj.name == slot_5_refs.Slot_obj.name)
-                            {
-                                upgrade_available_btn.onClick = new UnityEngine.UI.Button.ButtonClickedEvent();
-                                upgrade_available_btn.onClick.AddListener(Events.Slot_5_UpgradeAvailable_OnClick_Action);
-                            }
-                        }*/
                     }
                 }
             }
@@ -1129,6 +1109,14 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     Ui.Invoke_ShardElementBtn();
                 }
             }
+            public static readonly System.Action ClearSlot_OnClick_Action = new System.Action(ClearSlot_Click);
+            private static void ClearSlot_Click() //Fix Clear Slot
+            {
+                if (!Current.item_container.IsNullOrDestroyed())
+                {
+                    if (!Current.item_container.content.IsNullOrDestroyed()) { Current.item_container.Clear(); }
+                }
+            }
         }
         public class Ui_Base
         {
@@ -1181,12 +1169,14 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         ;
                         if (!__0.IsNullOrDestroyed())
                         {
-                            Current.item = null;
+                            Current.item = null;                            
                             OneItemContainer item_container = __0.TryCast<OneItemContainer>();
                             if (!item_container.IsNullOrDestroyed())
                             {
+                                Current.item_container = item_container;
                                 if (!item_container.content.IsNullOrDestroyed()) { Current.item = item_container.content.data; }
                             }
+                            else { Current.item_container = null; }
                         }
                     }
                     else { Debug(false, "Disable"); }
@@ -1206,6 +1196,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         Current.item = null;
                         Current.slot = null;
                         Current.btn = null;
+                        Current.item_container = null;
                     }
                     else { Debug(false, "Disable"); }
                 }
