@@ -11,7 +11,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Cosmetics
     public class Items_Visuals : MonoBehaviour
     {
         public static Items_Visuals instance { get; private set; }
-        public Items_Visuals(System.IntPtr ptr) : base(ptr) { }
+        public Items_Visuals(System.IntPtr ptr) : base(ptr) { }          
 
         //Used to make a list of skin
         /*[HarmonyPatch(typeof(ItemVisualDatabase), "BuildLookup")]
