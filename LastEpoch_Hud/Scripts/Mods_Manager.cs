@@ -26,7 +26,7 @@ namespace LastEpoch_Hud.Scripts
         GameObject items_crafting_obj = null;
         GameObject minimap_icons_obj = null;
         GameObject monoliths_complete_objectives_obj = null;
-
+        GameObject bank_quad_obj = null;
         GameObject items_visuals_obj = null;
 
         bool initialized = false;
@@ -115,6 +115,10 @@ namespace LastEpoch_Hud.Scripts
             items_visuals_obj = Object.Instantiate(new GameObject { name = "mod_list_items_visuals" }, Vector3.zero, Quaternion.identity);
             items_visuals_obj.AddComponent<Mods.Cosmetics.Items_Visuals>();
             Mods_Objects.Add(items_visuals_obj);
+
+            bank_quad_obj = Object.Instantiate(new GameObject { name = "mod_bank_quad" }, Vector3.zero, Quaternion.identity);
+            bank_quad_obj.AddComponent<Mods.Bank.Bank_Quad>();
+            Mods_Objects.Add(bank_quad_obj);
 
             foreach (GameObject mod in Mods_Objects) { Object.DontDestroyOnLoad(mod); }
             Mods_Objects.Clear();

@@ -177,10 +177,10 @@ namespace LastEpoch_Hud
                         break;
                     }
                 }
-                string[] no_bug = { "skin", "Modifier Button", "legendary_icon" };
+                string[] no_bug = { "skin", "Modifier Button", "legendary_icon", "quad_stash_row" };
                 if ((!found) && (!no_bug.Contains(name))) { Main.logger_instance?.Error("Functions.GetChild, Child : " + name + " not Found"); }
             }
-            else { Main.logger_instance?.Error("Obj is null "); }
+            else { Main.logger_instance.Error("GetChild(" + name + ") : Obj is null"); }
 
             return result;
         }
