@@ -194,9 +194,13 @@ namespace LastEpoch_Hud.Scripts.Mods.Bank
                 if (!stash_item_container.IsNullOrDestroyed())
                 {
                     int index = stash_item_container.CurrentlyActiveTab;
-                    if ((index > -1) && (stash_item_container.LinkedStash.Tabs.Count > index))
+                    for (int i = 0; i < stash_item_container.LinkedStash.Tabs.Count; i++)
                     {
-                        r = stash_item_container.LinkedStash.Tabs[index].DisplayName;
+                        if (stash_item_container.LinkedStash.Tabs[i].TabId == index)
+                        {
+                            r = stash_item_container.LinkedStash.Tabs[i].DisplayName;
+                            break;
+                        }
                     }
                 }
 
@@ -207,9 +211,13 @@ namespace LastEpoch_Hud.Scripts.Mods.Bank
                 string r = "";
                 if (!stash_item_container.IsNullOrDestroyed())
                 {
-                    if ((index > -1) && (stash_item_container.LinkedStash.Tabs.Count > index))
+                    for (int i = 0; i < stash_item_container.LinkedStash.Tabs.Count; i++)
                     {
-                        r = stash_item_container.LinkedStash.Tabs[index].DisplayName;
+                        if (stash_item_container.LinkedStash.Tabs[i].TabId == index)
+                        {
+                            r = stash_item_container.LinkedStash.Tabs[i].DisplayName;
+                            break;
+                        }
                     }
                 }
 
@@ -240,7 +248,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Bank
             public static System.Collections.Generic.List<int> SlotsPosition(Vector2Int slot_position, Vector2Int item_size)
             {
                 System.Collections.Generic.List<int> positions = new System.Collections.Generic.List<int>();
-                int base_position = slot_position.x + (slot_position.y * 24);
+                int base_position = slot_position.x + (slot_position.y * quad_size.x);
                 for (int y = 0; y < item_size.y; y++)
                 {
                     for (int x = 0; x < item_size.x; x++)
@@ -271,7 +279,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Bank
 
                 public static void DefaultConfig()
                 {
-                    Main.logger_instance?.Msg("QuadStashs : Make DefaultConfig");
+                    Main.logger_instance.Msg("QuadStashs : Make DefaultConfig");
 
                     UserTabs = new Structures.tabs
                     {
@@ -280,7 +288,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Bank
                 }
                 public static void Load()
                 {
-                    Main.logger_instance?.Msg("QuadStashs : Try to Load : " + Data.path + Data.filename);
+                    Main.logger_instance.Msg("QuadStashs : Try to Load : " + Data.path + Data.filename);
 
                     if (!File.Exists(Data.path + filename))
                     {
@@ -292,14 +300,14 @@ namespace LastEpoch_Hud.Scripts.Mods.Bank
                         try
                         {
                             Data.UserTabs = JsonConvert.DeserializeObject<Structures.tabs>(File.ReadAllText(Data.path + filename));
-                            Main.logger_instance?.Msg("QuadStashs : Loaded");
+                            Main.logger_instance.Msg("QuadStashs : Loaded");
                         }
-                        catch { Main.logger_instance?.Error("QuadStashs : Error loading file : " + Data.path + filename); }
+                        catch { Main.logger_instance.Error("QuadStashs : Error loading file : " + Data.path + filename); }
                     }
                 }
                 public static void Save()
                 {
-                    Main.logger_instance?.Msg("QuadStashs : Save : " + Data.path + Data.filename);
+                    Main.logger_instance.Msg("QuadStashs : Save : " + Data.path + Data.filename);
                     string jsonString = JsonConvert.SerializeObject(Data.UserTabs, Newtonsoft.Json.Formatting.Indented);
                     if (!Directory.Exists(Data.path)) { Directory.CreateDirectory(Data.path); }
                     if (File.Exists(Data.path + Data.filename)) { File.Delete(Data.path + Data.filename); }
@@ -338,15 +346,12 @@ namespace LastEpoch_Hud.Scripts.Mods.Bank
                 [HarmonyPrefix]
                 static void Prefix(ref TabbedItemContainer __instance, ref ItemContainer __0)
                 {
-                    //Main.logger_instance.Msg("TabbedItemContainer.AddNewTab");
                     if (stash_item_container.IsNullOrDestroyed()) { stash_item_container = __instance.TryCast<StashItemContainer>(); }
                     if (!stash_item_container.IsNullOrDestroyed())
                     {
                         int index = stash_item_container.containers.Count;
                         if (Get.IsQuadStash(index)) { __0.size = quad_size; }
                         else { __0.size = default_size; }
-
-                        //if (occupied_slots.IsNullOrDestroyed()) { occupied_slots = new System.Collections.Generic.List<bool[]>(); }
                         bool[] occupied = new bool[(quad_size.x * quad_size.y)];
                         for (int i = 0; i < occupied.Length; i++) { occupied[i] = false; }
                         occupied_slots.Add(occupied);
@@ -360,9 +365,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Bank
                 [HarmonyPrefix]
                 static void Prefix(ref ItemContainerUIWithSearch __instance, ref TabbedItemContainer __0)
                 {
-                    //item_container_ui_with_search = __instance;
                     if (stash_item_container.IsNullOrDestroyed()) { stash_item_container = __0.TryCast<StashItemContainer>(); }
-                    //stash_item_container = __0.TryCast<StashItemContainer>();
                     if (!stash_item_container_ui.IsNullOrDestroyed())
                     {
                         stash_item_container_ui.slotSize = stash_item_container_ui.CalculateSlotSize();
@@ -383,28 +386,41 @@ namespace LastEpoch_Hud.Scripts.Mods.Bank
                     {
                         if (!stash_item_container.IsNullOrDestroyed())
                         {
-                            int index = stash_item_container.currentlyActiveTab; //don't use "currentlyActiveTab", check contenair
                             bool occupied = false;
-                            if (index < occupied_slots.Count)
-                            {                                
-                                foreach (int slot_index in Get.SlotsPosition(__0, __1))
+                            bool found = false;
+                            int index = 0;
+                            foreach (ItemContainer item_contenair in stash_item_container.containers)
+                            {
+                                if (item_contenair == __instance)
                                 {
-                                    if (slot_index < occupied_slots[index].Length)
+                                    found = true;
+                                    break;
+                                }
+                                index++;
+                            }
+                            if (found)
+                            {
+                                if (index < occupied_slots.Count)
+                                {
+                                    foreach (int slot_index in Get.SlotsPosition(__0, __1))
                                     {
-                                        if (occupied_slots[index][slot_index])
+                                        if (slot_index < occupied_slots[index].Length)
+                                        {                                            
+                                            if (occupied_slots[index][slot_index])
+                                            {
+                                                occupied = true;
+                                                break;
+                                            }
+                                        }
+                                        else
                                         {
-                                            occupied = true;
+                                            Main.logger_instance.Error("CheckSlotsOccupied : slot_index = " + slot_index + " / occupied_slots[" + index + "].Length = " + occupied_slots[index].Length);
                                             break;
                                         }
-                                    }
-                                    else
-                                    {
-                                        Main.logger_instance.Error("CheckSlotsOccupied : slot_index = " + slot_index + " / occupied_slots[" + index + "].Length = " + occupied_slots[index].Length);
-                                        break;
-                                    }
+                                    }                                    
                                 }
+                                else { Main.logger_instance.Error("CheckSlotsOccupied : Index  = " + index + " /  occupied_slots.Count = " + occupied_slots.Count); }
                             }
-                            else { Main.logger_instance.Error("CheckSlotsOccupied : Index  = " + index + " /  occupied_slots.Count = " + occupied_slots.Count); }
                             __result = occupied;
                             r = false;
                         }
@@ -493,14 +509,12 @@ namespace LastEpoch_Hud.Scripts.Mods.Bank
                 }
             }
 
-            //Ui
             [HarmonyPatch(typeof(ConfigureTabUI), "OnEnable")]
             public class ConfigureTabUI_OnEnable
             {
                 [HarmonyPrefix]
                 static void Prefix(ref ConfigureTabUI __instance)
                 {
-                    //Main.logger_instance.Msg("ConfigureTabUI.OnEnable(); Prefix");
                     GameObject content = __instance.contents.gameObject;
                     if (!content.IsNullOrDestroyed())
                     {
@@ -552,7 +566,6 @@ namespace LastEpoch_Hud.Scripts.Mods.Bank
                 [HarmonyPostfix]
                 static void Postfix(ref ConfigureTabUI __instance, int __0, int __1, string __2, int __3, int __4, Il2CppSystem.Collections.Generic.List<string> __5, Il2CppSystem.Collections.Generic.List<int> __6, bool __7, StashPriority __8)
                 {
-                    //Main.logger_instance.Msg("ConfigureTabUI.SetSelections(); Postfix");
                     configure_tab_ui = __instance;
                     open_configure = true;
                 }
@@ -564,7 +577,6 @@ namespace LastEpoch_Hud.Scripts.Mods.Bank
                 [HarmonyPrefix]
                 static void Prefix(ref ConfigureTabUI __instance)
                 {
-                    //Main.logger_instance.Msg("ConfigureTabUI.ConfirmConfigure(); Prefix");                    
                     if ((!Save.Data.UserTabs.IsNullOrDestroyed()) && (!configure_stash_toggle.IsNullOrDestroyed()))
                     {
                         bool save = false;
