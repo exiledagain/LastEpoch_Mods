@@ -23,6 +23,7 @@ namespace LastEpoch_Hud.Scripts
         GameObject items_autosell_timer_obj = null;
         GameObject items_headhunter_obj = null;
         GameObject items_mjolner_obj = null;
+        GameObject items_sandsofsilk_obj = null;
         GameObject items_crafting_obj = null;
         GameObject minimap_icons_obj = null;
         GameObject monoliths_complete_objectives_obj = null;
@@ -94,6 +95,10 @@ namespace LastEpoch_Hud.Scripts
             items_mjolner_obj = Object.Instantiate(new GameObject { name = "Mod_Items_Mjolner" }, Vector3.zero, Quaternion.identity);
             items_mjolner_obj.AddComponent<Mods.Items.Items_Mjolner>();
             Mods_Objects.Add(items_mjolner_obj);
+
+            items_sandsofsilk_obj = Object.Instantiate(new GameObject { name = "Mod_Items_SandsOfSilk" }, Vector3.zero, Quaternion.identity);
+            items_sandsofsilk_obj.AddComponent<Mods.Items.Items_SandsOfSilk>();
+            Mods_Objects.Add(items_sandsofsilk_obj);
 
             items_crafting_obj = Object.Instantiate(new GameObject { name = "Mod_Items_Crafting" }, Vector3.zero, Quaternion.identity);
             items_crafting_obj.AddComponent<Mods.Items.Items_Crafting>();
