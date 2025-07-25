@@ -61,7 +61,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     subClassRequirement = ItemList.SubClassRequirement.None,
                     cannotDrop = false,
                     itemTags = ItemLocationTag.None,
-                    levelRequirement = 0,
+                    levelRequirement = 52,
                     name = Get_Subtype_Name(),
                     subTypeID = base_id
                 };
@@ -99,6 +99,15 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             private static Il2CppSystem.Collections.Generic.List<ItemList.EquipmentImplicit> implicits()
             {
                 Il2CppSystem.Collections.Generic.List<ItemList.EquipmentImplicit> implicits = new Il2CppSystem.Collections.Generic.List<ItemList.EquipmentImplicit>();
+                implicits.Add(new ItemList.EquipmentImplicit
+                {
+                    implicitMaxValue = 50,
+                    implicitValue = 50,
+                    property = SP.DodgeRating,
+                    specialTag = 0,
+                    tags = AT.None,
+                    type = BaseStats.ModType.ADDED
+                });
 
                 return implicits;
             }
@@ -119,7 +128,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     isSetItem = false,
                     setID = 0,
                     overrideLevelRequirement = true,
-                    levelRequirement = 0,
+                    levelRequirement = 52,
                     legendaryType = UniqueList.LegendaryType.LegendaryPotential,
                     overrideEffectiveLevelForLegendaryPotential = true,
                     effectiveLevelForLegendaryPotential = 0,
@@ -259,10 +268,10 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 result.Add(new UniqueItemMod
                 {
                     canRoll = true,
-                    property = SP.WardGain,
+                    property = SP.HealthLeech,
                     tags = AT.None,
-                    type = BaseStats.ModType.INCREASED,
-                    maxValue = 0.7f,
+                    type = BaseStats.ModType.ADDED,
+                    maxValue = 1f,
                     value = 0.5f
                 });
                 result.Add(new UniqueItemMod
