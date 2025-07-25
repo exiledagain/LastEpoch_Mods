@@ -6,10 +6,10 @@ using UnityEngine;
 namespace LastEpoch_Hud.Scripts.Mods.Items
 {
     [RegisterTypeInIl2Cpp]
-    public class Items_SandsOfSilk : MonoBehaviour
+    public class Items_EssentiaSanguis : MonoBehaviour
     {
-        public static Items_SandsOfSilk instance { get; private set; }
-        public Items_SandsOfSilk(System.IntPtr ptr) : base(ptr) { }
+        public static Items_EssentiaSanguis instance { get; private set; }
+        public Items_EssentiaSanguis(System.IntPtr ptr) : base(ptr) { }
 
         void Awake()
         {
@@ -21,7 +21,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             if (!Assets.Loaded) { Assets.Load(); }
             if ((Locales.current != Locales.Selected.Unknow) && (!Basic.AddedToBasicList)) { Basic.AddToBasicList(); }
             if ((Locales.current != Locales.Selected.Unknow) && (!Unique.AddedToUniqueList)) { Unique.AddToUniqueList(); }
-            if ((Locales.current != Locales.Selected.Unknow) && (Unique.AddedToUniqueList) && (!Unique.AddedToDictionary)) { Unique.AddToDictionary(); }            
+            if ((Locales.current != Locales.Selected.Unknow) && (Unique.AddedToUniqueList) && (!Unique.AddedToDictionary)) { Unique.AddToDictionary(); }
         }
 
         public class Assets
@@ -33,7 +33,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 {
                     foreach (string name in Hud_Manager.asset_bundle.GetAllAssetNames())
                     {
-                        if (name.Contains("/sandsofsilk/"))
+                        if (name.Contains("/essentiasanguis/"))
                         {
                             if ((Functions.Check_Texture(name)) && (name.Contains("icon")) && (Unique.Icon.IsNullOrDestroyed()))
                             {
@@ -50,8 +50,8 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
         public class Basic
         {
             public static bool AddedToBasicList = false;
-            public static readonly byte base_type = 1; //Body Armor
-            public static readonly int base_id = 71;
+            public static readonly byte base_type = 4; //Gloves
+            public static readonly int base_id = 15;
             public static ItemList.EquipmentItem Item()
             {
                 ItemList.EquipmentItem item = new ItemList.EquipmentItem
@@ -82,15 +82,15 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 string result = "";
                 switch (Locales.current)
                 {
-                    case Locales.Selected.English: { result = SOSLocales.SubType.en; break; }
-                    case Locales.Selected.French: { result = SOSLocales.SubType.en; break; }
-                    case Locales.Selected.German: { result = SOSLocales.SubType.en; break; }
-                    case Locales.Selected.Russian: { result = SOSLocales.SubType.en; break; }
-                    case Locales.Selected.Portuguese: { result = SOSLocales.SubType.en; break; }
-                    case Locales.Selected.Korean: { result = SOSLocales.SubType.en; break; }
-                    case Locales.Selected.Polish: { result = SOSLocales.SubType.en; break; }
-                    case Locales.Selected.Chinese: { result = SOSLocales.SubType.en; break; }
-                    case Locales.Selected.Spanish: { result = SOSLocales.SubType.en; break; }
+                    case Locales.Selected.English: { result = ESLocales.SubType.en; break; }
+                    case Locales.Selected.French: { result = ESLocales.SubType.en; break; }
+                    case Locales.Selected.German: { result = ESLocales.SubType.en; break; }
+                    case Locales.Selected.Russian: { result = ESLocales.SubType.en; break; }
+                    case Locales.Selected.Portuguese: { result = ESLocales.SubType.en; break; }
+                    case Locales.Selected.Korean: { result = ESLocales.SubType.en; break; }
+                    case Locales.Selected.Polish: { result = ESLocales.SubType.en; break; }
+                    case Locales.Selected.Chinese: { result = ESLocales.SubType.en; break; }
+                    case Locales.Selected.Spanish: { result = ESLocales.SubType.en; break; }
                 }
 
                 return result;
@@ -108,7 +108,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             public static bool AddedToUniqueList = false;
             public static bool AddedToDictionary = false;
             public static Sprite Icon = null;
-            public static readonly ushort unique_id = 422;
+            public static readonly ushort unique_id = 423;
             public static UniqueList.Entry Item()
             {
                 UniqueList.Entry item = new UniqueList.Entry
@@ -130,7 +130,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     baseType = Basic.base_type,
                     subTypes = SubType(),
                     mods = Mods(),
-                    //tooltipDescriptions = TooltipDescription(),
+                    tooltipDescriptions = TooltipDescription(),
                     loreText = Get_Unique_Lore(), //lore,
                     tooltipEntries = TooltipEntries(),
                     oldSubTypeID = 0,
@@ -185,15 +185,15 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 string result = "";
                 switch (Locales.current)
                 {
-                    case Locales.Selected.English: { result = SOSLocales.UniqueName.en; break; }
-                    case Locales.Selected.French: { result = SOSLocales.UniqueName.en; break; }
-                    case Locales.Selected.German: { result = SOSLocales.UniqueName.en; break; }
-                    case Locales.Selected.Russian: { result = SOSLocales.UniqueName.en; break; }
-                    case Locales.Selected.Portuguese: { result = SOSLocales.UniqueName.en; break; }
-                    case Locales.Selected.Korean: { result = SOSLocales.UniqueName.en; break; }
-                    case Locales.Selected.Polish: { result = SOSLocales.UniqueName.en; break; }
-                    case Locales.Selected.Chinese: { result = SOSLocales.UniqueName.en; break; }
-                    case Locales.Selected.Spanish: { result = SOSLocales.UniqueName.en; break; }
+                    case Locales.Selected.English: { result = ESLocales.UniqueName.en; break; }
+                    case Locales.Selected.French: { result = ESLocales.UniqueName.en; break; }
+                    case Locales.Selected.German: { result = ESLocales.UniqueName.en; break; }
+                    case Locales.Selected.Russian: { result = ESLocales.UniqueName.en; break; }
+                    case Locales.Selected.Portuguese: { result = ESLocales.UniqueName.en; break; }
+                    case Locales.Selected.Korean: { result = ESLocales.UniqueName.en; break; }
+                    case Locales.Selected.Polish: { result = ESLocales.UniqueName.en; break; }
+                    case Locales.Selected.Chinese: { result = ESLocales.UniqueName.en; break; }
+                    case Locales.Selected.Spanish: { result = ESLocales.UniqueName.en; break; }
                 }
 
                 return result;
@@ -203,15 +203,15 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 string result = "";
                 switch (Locales.current)
                 {
-                    case Locales.Selected.English: { result = SOSLocales.UniqueDescription.en; break; }
-                    case Locales.Selected.French: { result = SOSLocales.UniqueDescription.en; break; }
-                    case Locales.Selected.Korean: { result = SOSLocales.UniqueDescription.en; break; }
-                    case Locales.Selected.German: { result = SOSLocales.UniqueDescription.en; break; }
-                    case Locales.Selected.Russian: { result = SOSLocales.UniqueDescription.en; break; }
-                    case Locales.Selected.Polish: { result = SOSLocales.UniqueDescription.en; break; }
-                    case Locales.Selected.Portuguese: { result = SOSLocales.UniqueDescription.en; break; }
-                    case Locales.Selected.Chinese: { result = SOSLocales.UniqueDescription.en; break; }
-                    case Locales.Selected.Spanish: { result = SOSLocales.UniqueDescription.en; break; }
+                    case Locales.Selected.English: { result = ESLocales.UniqueDescription.en; break; }
+                    case Locales.Selected.French: { result = ESLocales.UniqueDescription.en; break; }
+                    case Locales.Selected.Korean: { result = ESLocales.UniqueDescription.en; break; }
+                    case Locales.Selected.German: { result = ESLocales.UniqueDescription.en; break; }
+                    case Locales.Selected.Russian: { result = ESLocales.UniqueDescription.en; break; }
+                    case Locales.Selected.Polish: { result = ESLocales.UniqueDescription.en; break; }
+                    case Locales.Selected.Portuguese: { result = ESLocales.UniqueDescription.en; break; }
+                    case Locales.Selected.Chinese: { result = ESLocales.UniqueDescription.en; break; }
+                    case Locales.Selected.Spanish: { result = ESLocales.UniqueDescription.en; break; }
                 }
 
                 return result;
@@ -221,16 +221,16 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 string result = "";
                 switch (Locales.current)
                 {
-                    case Locales.Selected.English: { result = SOSLocales.Lore.en; break; }
-                    case Locales.Selected.French: { result = SOSLocales.Lore.en; break; }
-                    case Locales.Selected.German: { result = SOSLocales.Lore.en; break; }
+                    case Locales.Selected.English: { result = ESLocales.Lore.en; break; }
+                    case Locales.Selected.French: { result = ESLocales.Lore.en; break; }
+                    case Locales.Selected.German: { result = ESLocales.Lore.en; break; }
 
-                    case Locales.Selected.Korean: { result = SOSLocales.Lore.en; break; }
-                    case Locales.Selected.Russian: { result = SOSLocales.Lore.en; break; }
-                    case Locales.Selected.Polish: { result = SOSLocales.Lore.en; break; }
-                    case Locales.Selected.Portuguese: { result = SOSLocales.Lore.en; break; }
-                    case Locales.Selected.Chinese: { result = SOSLocales.Lore.en; break; }
-                    case Locales.Selected.Spanish: { result = SOSLocales.Lore.en; break; }
+                    case Locales.Selected.Korean: { result = ESLocales.Lore.en; break; }
+                    case Locales.Selected.Russian: { result = ESLocales.Lore.en; break; }
+                    case Locales.Selected.Polish: { result = ESLocales.Lore.en; break; }
+                    case Locales.Selected.Portuguese: { result = ESLocales.Lore.en; break; }
+                    case Locales.Selected.Chinese: { result = ESLocales.Lore.en; break; }
+                    case Locales.Selected.Spanish: { result = ESLocales.Lore.en; break; }
                 }
 
                 return result;
@@ -253,26 +253,26 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     property = SP.DodgeRating,
                     tags = AT.None,
                     type = BaseStats.ModType.INCREASED,
-                    maxValue = 1f,
+                    maxValue = 0.7f,
                     value = 0.5f
                 });
                 result.Add(new UniqueItemMod
                 {
                     canRoll = true,
-                    property = SP.Mana,
+                    property = SP.WardGain,
                     tags = AT.None,
-                    type = BaseStats.ModType.ADDED,
-                    maxValue = 80,
-                    value = 50
+                    type = BaseStats.ModType.INCREASED,
+                    maxValue = 0.7f,
+                    value = 0.5f
                 });
                 result.Add(new UniqueItemMod
                 {
                     canRoll = true,
-                    property = SP.Dexterity,
-                    tags = AT.None,
+                    property = SP.Damage,
+                    tags = AT.Lightning,
                     type = BaseStats.ModType.ADDED,
-                    maxValue = 20,
-                    value = 10
+                    maxValue = 50,
+                    value = 30
                 });
                 result.Add(new UniqueItemMod
                 {
@@ -280,26 +280,17 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     property = SP.Intelligence,
                     tags = AT.None,
                     type = BaseStats.ModType.ADDED,
-                    maxValue = 20,
-                    value = 10
+                    maxValue = 25,
+                    value = 15
                 });
                 result.Add(new UniqueItemMod
                 {
                     canRoll = true,
-                    property = SP.FireResistance,
+                    property = SP.LightningResistance,
                     tags = AT.None,
                     type = BaseStats.ModType.INCREASED,
-                    maxValue = 0.15f,
-                    value = 0.1f
-                });
-                result.Add(new UniqueItemMod
-                {
-                    canRoll = true,
-                    property = SP.IncreasedCooldownRecoverySpeed,
-                    tags = AT.None,
-                    type = BaseStats.ModType.INCREASED,
-                    maxValue = 0.3f,
-                    value = 0.15f
+                    maxValue = 0.35f,
+                    value = 0.25f
                 });
 
                 return result;
@@ -312,17 +303,17 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 result.Add(new UniqueModDisplayListEntry(2));
                 result.Add(new UniqueModDisplayListEntry(3));
                 result.Add(new UniqueModDisplayListEntry(4));
-                result.Add(new UniqueModDisplayListEntry(5));
+                result.Add(new UniqueModDisplayListEntry(128));
 
                 return result;
             }
-            /*private static Il2CppSystem.Collections.Generic.List<ItemTooltipDescription> TooltipDescription()
+            private static Il2CppSystem.Collections.Generic.List<ItemTooltipDescription> TooltipDescription()
             {
                 Il2CppSystem.Collections.Generic.List<ItemTooltipDescription> result = new Il2CppSystem.Collections.Generic.List<ItemTooltipDescription>();
                 result.Add(new ItemTooltipDescription { description = Get_Unique_Description() });
 
                 return result;
-            }*/
+            }
             /*private static UniqueList.LegendaryType LegendaryType()
             {
                 UniqueList.LegendaryType legendaryType = UniqueList.LegendaryType.LegendaryPotential;
@@ -357,7 +348,29 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 }
             }
         }
-        public class SOSLocales
+        public class Hooks
+        {
+            [HarmonyPatch(typeof(PlayerLeechTracker), "AddLifeLeech")]
+            public class PlayerLeechTracker_AddLifeLeech
+            {
+                [HarmonyPrefix]
+                static bool Prefix(PlayerLeechTracker __instance, float __0)
+                {
+                    bool r = true;
+                    if ((!Refs_Manager.player_actor.IsNullOrDestroyed()) && (!Refs_Manager.player_protection_class.IsNullOrDestroyed()))
+                    {
+                        if (Refs_Manager.player_actor.itemContainersManager.hasUniqueEquipped(Unique.unique_id))
+                        {
+                            float ward = Refs_Manager.player_protection_class.CurrentWard;
+                            Refs_Manager.player_protection_class.CurrentWard += __0;
+                            r = false;
+                        }
+                    }
+                    return r;
+                }
+            }
+        }
+        public class ESLocales
         {
             private static string basic_subtype_name_key = "Item_SubType_Name_" + Basic.base_type + "_" + Basic.base_id;
             private static string unique_name_key = "Unique_Name_" + Unique.unique_id;
@@ -366,22 +379,22 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
 
             public class SubType
             {
-                public static string en = "SOS body armor";
+                public static string en = "ES glove";
                 //Add all languages here
             }
             public class UniqueName
             {
-                public static string en = "Sands of Silk";
+                public static string en = "Essentia Sanguis";
                 //Add all languages here
             }
             public class UniqueDescription
             {
-                public static string en = "The desert is ever flowing.";
+                public static string en = "Life Leech is Converted to Ward Leech";
                 //Add all languages here
             }
             public class Lore
             {
-                public static readonly string en = "The desert is ever flowing.";
+                public static readonly string en = "The darkest clouds clashed and coupled,\r\ngiving birth to four lightning children of hate.";
                 //Add all languages here
             }
 
