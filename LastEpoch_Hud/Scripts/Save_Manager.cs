@@ -1,8 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using MelonLoader;
+using Newtonsoft.Json;
 using System.IO;
 using UnityEngine;
-using MelonLoader;
-using Il2CppCysharp.Threading.Tasks.Triggers;
 
 namespace LastEpoch_Hud.Scripts
 {
@@ -138,6 +137,10 @@ namespace LastEpoch_Hud.Scripts
                         Enable_Att_Buff = false,
                         Att_Buff_Value = 0f
                     }
+                },
+                Cosmetics =
+                {
+                    Portal = 0 //0 to 38
                 },
                 Items =
                 {
@@ -546,6 +549,7 @@ namespace LastEpoch_Hud.Scripts
                 public ModsNotInHud modsNotInHud;
                 public Login Login;
                 public Character Character;
+                public Cosmetics Cosmetics;
                 public Items Items;
                 public Factions Factions;
                 public Scenes Scenes;
@@ -578,6 +582,10 @@ namespace LastEpoch_Hud.Scripts
             {
                 public Cheats Cheats;
                 public PermanentBuffs PermanentBuffs;
+            }
+            public struct Cosmetics
+            {
+                public ushort Portal;
             }
             public struct Cheats
             {

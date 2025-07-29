@@ -257,7 +257,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Cosmetics
                             if (!eq_pet2.IsNullOrDestroyed()) { eq_pet2.active = false; } //Hide Pet2
 
                             if (eq_portal.IsNullOrDestroyed()) { eq_portal = Functions.GetChild(equippables, "Portal"); }
-                            if (!eq_portal.IsNullOrDestroyed()) { eq_portal.active = false; } //Hide Portal   
+                            if (!eq_portal.IsNullOrDestroyed()) { eq_portal.active = false; } //Hide Portal
 
                             if (eq_profil_image.IsNullOrDestroyed()) { eq_profil_image = Functions.GetChild(equippables, "ProfileImage"); }
                             if (!eq_profil_image.IsNullOrDestroyed()) { eq_profil_image.active = false; } //Hide Profil Image

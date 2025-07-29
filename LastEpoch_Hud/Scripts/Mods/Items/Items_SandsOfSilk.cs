@@ -2,7 +2,6 @@
 using Il2Cpp;
 using Il2CppLE.Services.Models.Items;
 using Il2CppLE.Services.Visuals;
-using Il2CppLE.Services.Visuals.Items;
 using MelonLoader;
 using UnityEngine;
 

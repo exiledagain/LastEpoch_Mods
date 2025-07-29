@@ -1,8 +1,9 @@
-﻿using MelonLoader;
-using UnityEngine;
+﻿using Il2Cpp;
 using Il2CppItemFiltering;
-using Il2Cpp;
 using Il2CppLE.Factions;
+using Il2CppLE.Services.Visuals;
+using MelonLoader;
+using UnityEngine;
 
 namespace LastEpoch_Hud.Scripts
 {
@@ -50,6 +51,7 @@ namespace LastEpoch_Hud.Scripts
         public static MovingPlayer player_moving = null;
         public static AbilityManager ability_manager = null;
         public static FactionTracker faction_tracker = null;
+        public static ClientVisualsService client_visual_service = null;
 
         void Awake()
         {

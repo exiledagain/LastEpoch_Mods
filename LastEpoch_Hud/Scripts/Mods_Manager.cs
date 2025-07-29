@@ -25,12 +25,11 @@ namespace LastEpoch_Hud.Scripts
         GameObject items_mjolner_obj = null;
         GameObject items_sandsofsilk_obj = null;
         GameObject items_essentiasanguis_obj = null;
-        GameObject items_temporalis_obj = null;
+        //GameObject items_temporalis_obj = null;
         GameObject items_crafting_obj = null;
         GameObject minimap_icons_obj = null;
         GameObject monoliths_complete_objectives_obj = null;
         GameObject bank_quad_obj = null;
-        GameObject items_visuals_obj = null;
 
         bool initialized = false;
         bool enable = false;
@@ -127,9 +126,9 @@ namespace LastEpoch_Hud.Scripts
             Mods_Objects.Add(monoliths_complete_objectives_obj);
 
             //Exemple to replace a skin by an other
-            items_visuals_obj = Object.Instantiate(new GameObject { name = "mod_list_items_visuals" }, Vector3.zero, Quaternion.identity);
-            items_visuals_obj.AddComponent<Mods.Cosmetics.Items_Visuals>();
-            Mods_Objects.Add(items_visuals_obj);
+            //items_visuals_obj = Object.Instantiate(new GameObject { name = "mod_list_items_visuals" }, Vector3.zero, Quaternion.identity);
+            //items_visuals_obj.AddComponent<Mods.Cosmetics.Items_Visuals>();
+            //Mods_Objects.Add(items_visuals_obj);
 
             bank_quad_obj = Object.Instantiate(new GameObject { name = "mod_bank_quad" }, Vector3.zero, Quaternion.identity);
             bank_quad_obj.AddComponent<Mods.Bank.Bank_Quad>();
