@@ -54,29 +54,36 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
         public class Assets
         {
             public static bool Loaded = false;
+            public static bool loading = false;
             public static void Load()
             {
-                if ((!Loaded) && (!Hud_Manager.asset_bundle.IsNullOrDestroyed()))
+                if ((!Loaded) && (!Hud_Manager.asset_bundle.IsNullOrDestroyed()) && (!loading))
                 {
-                    foreach (string name in Hud_Manager.asset_bundle.GetAllAssetNames())
+                    loading = true;
+                    try
                     {
-                        if (name.Contains("/headhunter/"))
+                        foreach (string name in Hud_Manager.asset_bundle.GetAllAssetNames())
                         {
-                            if ((Functions.Check_Texture(name)) && (name.Contains("icon")) && (Unique.Icon.IsNullOrDestroyed()))
+                            if (name.Contains("/headhunter/"))
                             {
-                                Texture2D texture = Hud_Manager.asset_bundle.LoadAsset(name).TryCast<Texture2D>();
-                                Unique.Icon = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
-                                //Object.DontDestroyOnLoad(Unique.Icon);
-                            }
-                            else if ((Functions.Check_Json(name)) && (name.Contains("hh_buffs")) && (Config.json.IsNullOrDestroyed()))
-                            {
-                                Config.json = Hud_Manager.asset_bundle.LoadAsset(name).TryCast<TextAsset>();
-                                //Object.DontDestroyOnLoad(Config.json);
+                                if ((Functions.Check_Texture(name)) && (name.Contains("icon")) && (Unique.Icon.IsNullOrDestroyed()))
+                                {
+                                    Texture2D texture = Hud_Manager.asset_bundle.LoadAsset(name).TryCast<Texture2D>();
+                                    Unique.Icon = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
+                                    //Object.DontDestroyOnLoad(Unique.Icon);
+                                }
+                                else if ((Functions.Check_Json(name)) && (name.Contains("hh_buffs")) && (Config.json.IsNullOrDestroyed()))
+                                {
+                                    Config.json = Hud_Manager.asset_bundle.LoadAsset(name).TryCast<TextAsset>();
+                                    //Object.DontDestroyOnLoad(Config.json);
+                                }
                             }
                         }
+                        if ((!Unique.Icon.IsNullOrDestroyed()) && (!Config.json.IsNullOrDestroyed())) { Loaded = true; }
+                        else { Loaded = false; }
                     }
-                    if ((!Unique.Icon.IsNullOrDestroyed()) && (!Config.json.IsNullOrDestroyed())) { Loaded = true; }
-                    else { Loaded = false; }
+                    catch { Main.logger_instance?.Error("Headhunter Asset Error"); }
+                    loading = false;
                 }
             }
         }

@@ -1,5 +1,7 @@
 ﻿using HarmonyLib;
 using Il2Cpp;
+using Il2CppLE.Services.Models.Items;
+using Il2CppLE.Services.Visuals;
 using MelonLoader;
 using UnityEngine;
 
@@ -27,23 +29,30 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
         public class Assets
         {
             public static bool Loaded = false;
+            public static bool loading = false;
             public static void Load()
             {
-                if ((!Loaded) && (!Hud_Manager.asset_bundle.IsNullOrDestroyed()))
+                if ((!Loaded) && (!Hud_Manager.asset_bundle.IsNullOrDestroyed()) && (!loading))
                 {
-                    foreach (string name in Hud_Manager.asset_bundle.GetAllAssetNames())
+                    loading = true;
+                    try
                     {
-                        if (name.Contains("/essentiasanguis/"))
+                        foreach (string name in Hud_Manager.asset_bundle.GetAllAssetNames())
                         {
-                            if ((Functions.Check_Texture(name)) && (name.Contains("icon")) && (Unique.Icon.IsNullOrDestroyed()))
+                            if (name.Contains("/essentiasanguis/"))
                             {
-                                Texture2D texture = Hud_Manager.asset_bundle.LoadAsset(name).TryCast<Texture2D>();
-                                Unique.Icon = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
+                                if ((Functions.Check_Texture(name)) && (name.Contains("icon")) && (Unique.Icon.IsNullOrDestroyed()))
+                                {
+                                    Texture2D texture = Hud_Manager.asset_bundle.LoadAsset(name).TryCast<Texture2D>();
+                                    Unique.Icon = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
+                                }
                             }
                         }
+                        if (!Unique.Icon.IsNullOrDestroyed()) { Loaded = true; }
+                        else { Loaded = false; }
                     }
-                    if (!Unique.Icon.IsNullOrDestroyed()) { Loaded = true; }
-                    else { Loaded = false; }
+                    catch { Main.logger_instance?.Error("Essentia Sanguis Asset Error"); }
+                    loading = false;
                 }
             }
         }
@@ -59,7 +68,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     classRequirement = ItemList.ClassRequirement.None,
                     implicits = implicits(),
                     subClassRequirement = ItemList.SubClassRequirement.None,
-                    cannotDrop = false,
+                    cannotDrop = true,
                     itemTags = ItemLocationTag.None,
                     levelRequirement = 52,
                     name = Get_Subtype_Name(),
@@ -357,6 +366,24 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 }
             }
         }
+        public class Visual
+        {
+            [HarmonyPatch(typeof(ClientVisualsService), "GetItemVisual")]
+            public class ClientVisualsService_GetItemVisual
+            {
+                [HarmonyPrefix]
+                static void Prefix(ClientVisualsService __instance, ref ItemVisualKey __0)
+                {
+                    if ((__0.EquipmentType == EquipmentType.GLOVES) &&
+                        (__0.SubType == Basic.base_id) &&
+                        (__0.UniqueID == Unique.unique_id))
+                    {
+                        __0.SubType = 0;
+                        __0.UniqueID = 22; //Keeper's Gloves
+                    }
+                }
+            }
+        }
         public class Hooks
         {
             [HarmonyPatch(typeof(PlayerLeechTracker), "AddLifeLeech")]
@@ -388,7 +415,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
 
             public class SubType
             {
-                public static string en = "ES glove";
+                public static string en = "Furtive Wraps";
                 //Add all languages here
             }
             public class UniqueName

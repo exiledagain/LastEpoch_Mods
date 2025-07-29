@@ -25,6 +25,7 @@ namespace LastEpoch_Hud.Scripts
         GameObject items_mjolner_obj = null;
         GameObject items_sandsofsilk_obj = null;
         GameObject items_essentiasanguis_obj = null;
+        GameObject items_temporalis_obj = null;
         GameObject items_crafting_obj = null;
         GameObject minimap_icons_obj = null;
         GameObject monoliths_complete_objectives_obj = null;
@@ -104,6 +105,10 @@ namespace LastEpoch_Hud.Scripts
             items_essentiasanguis_obj = Object.Instantiate(new GameObject { name = "Mod_Items_EssentiaSanguis" }, Vector3.zero, Quaternion.identity);
             items_essentiasanguis_obj.AddComponent<Mods.Items.Items_EssentiaSanguis>();
             Mods_Objects.Add(items_essentiasanguis_obj);
+
+            //items_temporalis_obj = Object.Instantiate(new GameObject { name = "Mod_Items_Temporalis" }, Vector3.zero, Quaternion.identity);
+            //items_temporalis_obj.AddComponent<Mods.Items.Items_Temporalis>();
+            //Mods_Objects.Add(items_temporalis_obj);
 
             items_crafting_obj = Object.Instantiate(new GameObject { name = "Mod_Items_Crafting" }, Vector3.zero, Quaternion.identity);
             items_crafting_obj.AddComponent<Mods.Items.Items_Crafting>();
