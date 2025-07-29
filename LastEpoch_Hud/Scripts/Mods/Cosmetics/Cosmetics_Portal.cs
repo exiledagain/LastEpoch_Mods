@@ -23,7 +23,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Cosmetics
             [HarmonyPrefix]
             static void Prefix(ClientVisualsService __instance, ref PortalVisualKey __0)
             {
-                Main.logger_instance.Msg("ClientVisualsService.GetPortalVisual();");
+                //Main.logger_instance.Msg("ClientVisualsService.GetPortalVisual();");
                 Refs_Manager.client_visual_service = __instance;
 
                 if (!Save_Manager.instance.IsNullOrDestroyed())
