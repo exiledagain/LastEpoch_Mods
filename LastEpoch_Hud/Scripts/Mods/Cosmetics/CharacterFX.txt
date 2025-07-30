@@ -1,0 +1,9 @@
+CharacterFX :
+[16:26:20.613] [LastEpoch_Hud] Id = MTX_Character_FX_Test1, Name = TestCharacterFX1
+[16:26:20.613] [LastEpoch_Hud] Id = MTX_Character_FX_Test2, Name = TestCharacterFX2
+[16:26:20.613] [LastEpoch_Hud] Id = MTX_Character_FX_Woven, Name = Woven Effect
+[16:26:20.613] [LastEpoch_Hud] Id = MTX_Character_FX_Jerle, Name = Jerles Effect
+[16:26:20.613] [LastEpoch_Hud] Id = MTX_Character_FX_Test1, Name = TestCharacterFX1
+[16:26:20.613] [LastEpoch_Hud] Id = MTX_Character_FX_Woven, Name = Woven Effect
+[16:26:20.613] [LastEpoch_Hud] Id = MTX_Character_FX_Jerle, Name = Jerles Effect
+[16:26:20.613] [LastEpoch_Hud] Id = MTX_Character_FX_Test2, Name = TestCharacterFX2
