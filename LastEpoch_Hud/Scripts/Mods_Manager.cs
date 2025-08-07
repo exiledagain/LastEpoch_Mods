@@ -9,7 +9,6 @@ namespace LastEpoch_Hud.Scripts
         public Mods_Manager(System.IntPtr ptr) : base(ptr) { }
         public static Mods_Manager instance { get; private set; }
 
-        GameObject cosmetics_skins_obj = null;
         GameObject character_autopotion_obj = null;
         GameObject character_potionreplenishment_obj = null;
         GameObject character_blessings_obj = null;
@@ -30,6 +29,7 @@ namespace LastEpoch_Hud.Scripts
         GameObject minimap_icons_obj = null;
         GameObject monoliths_complete_objectives_obj = null;
         GameObject bank_quad_obj = null;
+        GameObject Cosmetics_offline_obj = null;
 
         bool initialized = false;
         bool enable = false;
@@ -40,10 +40,6 @@ namespace LastEpoch_Hud.Scripts
             instance = this;
             Main.logger_instance?.Msg("Mods Manager : Initialize");
             Il2CppSystem.Collections.Generic.List<GameObject> Mods_Objects = new Il2CppSystem.Collections.Generic.List<GameObject>();
-
-            cosmetics_skins_obj = Object.Instantiate(new GameObject { name = "Mod_Cosmetics_Skins" }, Vector3.zero, Quaternion.identity);
-            cosmetics_skins_obj.AddComponent<Mods.Cosmetics.Skins>();
-            Mods_Objects.Add(cosmetics_skins_obj);
 
             character_autopotion_obj = Object.Instantiate(new GameObject { name = "Mod_Character_AutoPotion" }, Vector3.zero, Quaternion.identity);
             character_autopotion_obj.active = false;
@@ -125,14 +121,13 @@ namespace LastEpoch_Hud.Scripts
             monoliths_complete_objectives_obj.AddComponent<Mods.Monoliths.Monoliths_CompleteObjective>();
             Mods_Objects.Add(monoliths_complete_objectives_obj);
 
-            //Exemple to replace a skin by an other
-            //items_visuals_obj = Object.Instantiate(new GameObject { name = "mod_list_items_visuals" }, Vector3.zero, Quaternion.identity);
-            //items_visuals_obj.AddComponent<Mods.Cosmetics.Items_Visuals>();
-            //Mods_Objects.Add(items_visuals_obj);
-
             bank_quad_obj = Object.Instantiate(new GameObject { name = "mod_bank_quad" }, Vector3.zero, Quaternion.identity);
             bank_quad_obj.AddComponent<Mods.Bank.Bank_Quad>();
             Mods_Objects.Add(bank_quad_obj);
+
+            Cosmetics_offline_obj = Object.Instantiate(new GameObject { name = "mod_cosmetics_offline" }, Vector3.zero, Quaternion.identity);
+            Cosmetics_offline_obj.AddComponent<Mods.Cosmetics.Cosmetics_Offline>();
+            Mods_Objects.Add(Cosmetics_offline_obj);
 
             foreach (GameObject mod in Mods_Objects) { Object.DontDestroyOnLoad(mod); }
             Mods_Objects.Clear();

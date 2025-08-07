@@ -51,7 +51,6 @@ namespace LastEpoch_Hud.Scripts
         public static MovingPlayer player_moving = null;
         public static AbilityManager ability_manager = null;
         public static FactionTracker faction_tracker = null;
-        public static ClientVisualsService client_visual_service = null;
 
         void Awake()
         {
