@@ -94,7 +94,9 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                             else if (min > 6) { min = 6; Save_Manager.instance.data.Items.Drop.AffixCount_Min = 6f; }
                             if (max < 0) { max = 0; Save_Manager.instance.data.Items.Drop.AffixCount_Max = 0f; }
                             else if (max > 6) { max = 6; Save_Manager.instance.data.Items.Drop.AffixCount_Max = 6f; }
-                            __result = (byte)UnityEngine.Random.RandomRangeInt(min, (max + 1)); //Should be replace                            
+
+                            if (min == max) { __result = (byte)min; }
+                            else { __result = (byte)UnityEngine.Random.RandomRangeInt(min, (max + 1)); }
                         }
                     }
                 }

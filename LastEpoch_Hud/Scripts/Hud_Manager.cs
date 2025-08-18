@@ -1,10 +1,12 @@
 ﻿using HarmonyLib;
 using Il2Cpp;
 using Il2CppLE.Data;
+using Il2CppRewired.Components;
 using Il2CppSystem.Collections.Generic;
 using MelonLoader;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -32,6 +34,13 @@ namespace LastEpoch_Hud.Scripts
         private bool exit = false;
         public static bool enable = false; //Used to wait loading (Fix_PlayerLoopHelper)
 
+        //Gamepad
+        public static PlayerMouse virtual_mouse = null;
+        [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint cButtons, uint dwExtraInfo);
+        private const int MOUSEEVENTF_LEFTDOWN = 0x02;
+        private const int MOUSEEVENTF_LEFTUP = 0x04;
+
         void Awake()
         {
             instance = this;
@@ -58,19 +67,48 @@ namespace LastEpoch_Hud.Scripts
                         Update_Hud_Content();
                         hud_object.active = true;
                         Content.Set_Active();
-                        if ((!Refs_Manager.epoch_input_manager.IsNullOrDestroyed()) && (!Hud_Base.Btn_Resume.IsNullOrDestroyed()))
+                        if (!Refs_Manager.epoch_input_manager.IsNullOrDestroyed())
                         {
-                            if (Input.GetKeyDown(KeyCode.Escape)) { exit = true; }
-                            if ((Input.GetKeyUp(KeyCode.Escape)) && (exit)) { Hud_Base.Btn_Resume.onClick.Invoke(); exit = false; }
-                            else { Refs_Manager.epoch_input_manager.forceDisableInput = true; }
+                            if (!Refs_Manager.epoch_input_manager.isControllerActive) //Keyboard
+                            {
+                                if (!Refs_Manager.epoch_input_manager.forceDisableInput) { Refs_Manager.epoch_input_manager.forceDisableInput = true; }
+                                if (!Hud_Base.Btn_Resume.IsNullOrDestroyed())
+                                {
+                                    if (Input.GetKeyDown(KeyCode.Escape)) { exit = true; }
+                                    if ((Input.GetKeyUp(KeyCode.Escape)) && (exit)) { Hud_Base.Btn_Resume.onClick.Invoke(); exit = false; }
+                                }
+                            }
+                            else //Controller
+                            {
+                                if (Refs_Manager.epoch_input_manager.forceDisableInput) { Refs_Manager.epoch_input_manager.forceDisableInput = false; }
+                                if (virtual_mouse.IsNullOrDestroyed()) { virtual_mouse = Refs_Manager.epoch_input_manager.virtualMouse; }
+                                if ((Input.GetKeyDown(KeyCode.Joystick1Button0)) && (!virtual_mouse.IsNullOrDestroyed())) //A
+                                {
+                                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                                    {
+                                        mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, (uint)virtual_mouse.screenPosition.x, (uint)virtual_mouse.screenPosition.y, 0, 0);
+                                    }
+                                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                                    {
+                                        
+                                    }
+                                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                                    {
+                                        
+                                    }
+                                }
+                            }
                         }
                         updating = false;
                     }
                     else if (!updating)
                     {
                         updating = true;
-                        hud_object.active = false;
-                        if (!Refs_Manager.epoch_input_manager.IsNullOrDestroyed()) { Refs_Manager.epoch_input_manager.forceDisableInput = false; }
+                        if (hud_object.active) { hud_object.active = false; }
+                        if (!Refs_Manager.epoch_input_manager.IsNullOrDestroyed())
+                        {
+                            if (Refs_Manager.epoch_input_manager.forceDisableInput) { Refs_Manager.epoch_input_manager.forceDisableInput = false; }                            
+                        }
                         Content.Character.need_update = true;
                         updating = false;
                     }
@@ -1209,20 +1247,13 @@ namespace LastEpoch_Hud.Scripts
                 bool result = false;
                 if (!Refs_Manager.game_uibase.IsNullOrDestroyed())
                 {
-                    GameObject Draw_over_login_canvas = Functions.GetChild(UIBase.instance.gameObject, "Draw Over Login Canvas");
-                    if (!Draw_over_login_canvas.IsNullOrDestroyed())
+                    game_pause_menu = Refs_Manager.game_uibase.menu;
+                    if (!game_pause_menu.IsNullOrDestroyed())
                     {
-                        game_pause_menu = Functions.GetChild(Draw_over_login_canvas, "Menu");
-                        if (!game_pause_menu.IsNullOrDestroyed())
-                        {
-                            Default_PauseMenu_Btns = Functions.GetChild(game_pause_menu, "Menu Image");
-                            Get_Refs();
-                            //Set_Events();
-                            result = true;
-                        }
-                        else { Main.logger_instance.Msg("Get_DefaultPauseMenu : game_pause_menu NOT FOUND"); }                        
+                        Default_PauseMenu_Btns = Functions.GetChild(game_pause_menu, "Menu Image");
+                        Get_Refs();
+                        result = true;
                     }
-                    else { Main.logger_instance.Msg("Get_DefaultPauseMenu : Draw_over_login_canvas NOT FOUND"); }
                 }
 
                 return result;
