@@ -55,6 +55,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Fixs
                 return false;
             }
         }
+        
         [HarmonyPatch(typeof(ItemData), "GetNonSealedPrefixes")]
         public class ItemData_GetNonSealedPrefixes
         {
@@ -67,7 +68,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Fixs
                 foreach (ItemAffix affix in __instance.affixes)
                 {
                     bool remove_affix = false;
-                    if ((affix.affixType == AffixList.AffixType.PREFIX) && (!affix.isSealedAffix))
+                    if ((affix.affixType == AffixList.AffixType.PREFIX) && (!affix.IsSealed))
                     {
                         if (!Verify_AffixID(affix.affixId))
                         {
@@ -104,7 +105,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Fixs
                 foreach (ItemAffix affix in __instance.affixes)
                 {
                     bool remove_affix = false;
-                    if ((affix.affixType == AffixList.AffixType.SUFFIX) && (!affix.isSealedAffix))
+                    if ((affix.affixType == AffixList.AffixType.SUFFIX) && (!affix.IsSealed))
                     {
                         if (!Verify_AffixID(affix.affixId))
                         {

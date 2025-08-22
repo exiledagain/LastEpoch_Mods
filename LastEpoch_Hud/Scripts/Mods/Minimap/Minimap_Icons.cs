@@ -72,9 +72,10 @@ namespace LastEpoch_Hud.Scripts.Mods.Minimap
                 {
                     foreach (Rule rule in Refs_Manager.filter_manager.Filter.rules)
                     {
-                        if ((rule.isEnabled) && (rule.Match(item.TryCast<ItemDataUnpacked>())) &&
-                            (((rule.levelDependent) && (rule.LevelInBounds(Refs_Manager.player_actor.stats.level))) ||
-                            (!rule.levelDependent)))
+                        if ((rule.isEnabled) && (rule.Match(item.TryCast<ItemDataUnpacked>(), Refs_Manager.player_actor.stats.level)))
+                            //&&
+                            //(((rule.levelDependent) && (rule.LevelInBounds(Refs_Manager.player_actor.stats.level))) ||
+                            //(!rule.levelDependent)))
                         {
                             if (rule.type == Rule.RuleOutcome.SHOW)
                             {

@@ -3814,7 +3814,7 @@ namespace LastEpoch_Hud.Scripts
                                         uniqueID = (ushort)item_unique_id,
                                         legendaryPotential = (byte)0,
                                         weaversWill = (byte)0,
-                                        hasSealedAffix = false
+                                        hasSealedRegularAffix = false
                                     };
 
                                     //Random
@@ -6004,7 +6004,7 @@ namespace LastEpoch_Hud.Scripts
                                     affixName = affix.affixName,
                                     affixTitle = affix.affixTitle,
                                     affixType = affix.type,
-                                    isSealedAffix = seal,
+                                    //isSealedAffix = seal,
                                     affixTier = tier,
                                     affixRoll = roll
                                 };
@@ -6024,7 +6024,7 @@ namespace LastEpoch_Hud.Scripts
                                         affixName = affix.affixName,
                                         affixTitle = affix.affixTitle,
                                         affixType = affix.type,
-                                        isSealedAffix = seal,
+                                        //isSealedAffix = seal,
                                         affixTier = tier,
                                         affixRoll = roll
                                     };
@@ -6182,7 +6182,7 @@ namespace LastEpoch_Hud.Scripts
                                 subType = (ushort)item_subtype,
                                 rarity = (byte)ra,                                
                                 forgingPotential = fg,
-                                hasSealedAffix = sa,
+                                hasSealedRegularAffix = sa,
                                 sockets = (byte)an,
                                 affixes = af,
                                 uniqueID = (ushort)item_unique_id,

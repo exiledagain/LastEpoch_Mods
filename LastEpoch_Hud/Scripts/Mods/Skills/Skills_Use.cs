@@ -191,7 +191,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Skills
                                 {
                                     ab.babyScorpionQuantity = Save_Manager.instance.data.Skills.Companion.Scorpion.BabyQuantity;
                                     ab.babyScorpionsToSpawnOnAbilityActivation = Save_Manager.instance.data.Skills.Companion.Scorpion.BabyQuantity;
-                                    ab.increasedBabySpawnRate = 1;
+                                    //ab.increasedBabySpawnRate = 1;
                                 }
                             }
                         }

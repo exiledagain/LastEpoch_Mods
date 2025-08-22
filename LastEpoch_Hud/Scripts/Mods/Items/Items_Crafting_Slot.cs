@@ -77,7 +77,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                             int nb_suffix = 0;
                             foreach (ItemAffix affix in item.affixes)
                             {
-                                if (affix.isSealedAffix)
+                                if (affix.IsSealed)
                                 {
                                     if (Save_Manager.instance.data.Items.CraftingSlot.Enable_Seal_Tier) { affix.affixTier = (byte)Scripts.Save_Manager.instance.data.Items.CraftingSlot.Seal_Tier; }
                                     if (Save_Manager.instance.data.Items.CraftingSlot.Enable_Seal_Value) { affix.affixRoll = (byte)Scripts.Save_Manager.instance.data.Items.CraftingSlot.Seal_Value; }

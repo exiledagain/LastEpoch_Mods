@@ -47,7 +47,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
         }
         private class Unique
         {
-            internal static readonly ushort unique_id = 421;
+            internal static readonly ushort unique_id = 501;
             internal static void Update()
             {
                 if ((LastEpoch_Hud.Locales.current != LastEpoch_Hud.Locales.Selected.Unknow) && (!AddedToUniqueList)) { AddToUniqueList(); }

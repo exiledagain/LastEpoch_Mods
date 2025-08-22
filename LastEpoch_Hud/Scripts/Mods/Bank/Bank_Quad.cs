@@ -191,57 +191,73 @@ namespace LastEpoch_Hud.Scripts.Mods.Bank
             public static string ActiveTabName()
             {
                 string r = "";
-                if (!stash_item_container.IsNullOrDestroyed())
+                try
                 {
-                    int index = stash_item_container.CurrentlyActiveTab;
-                    for (int i = 0; i < stash_item_container.LinkedStash.Tabs.Count; i++)
+                    if (!stash_item_container.IsNullOrDestroyed())
                     {
-                        if (stash_item_container.LinkedStash.Tabs[i].TabId == index)
+                        int index = stash_item_container.CurrentlyActiveTab;
+                        for (int i = 0; i < stash_item_container.LinkedStash.Tabs.Count; i++)
                         {
-                            r = stash_item_container.LinkedStash.Tabs[i].DisplayName;
-                            break;
+                            if (stash_item_container.LinkedStash.Tabs[i].TabId == index)
+                            {
+                                r = stash_item_container.LinkedStash.Tabs[i].DisplayName;
+                                break;
+                            }
                         }
                     }
                 }
+                catch { }
 
                 return r;
             }
             public static string ActiveTabName(int index)
             {
                 string r = "";
-                if (!stash_item_container.IsNullOrDestroyed())
+                try
                 {
-                    for (int i = 0; i < stash_item_container.LinkedStash.Tabs.Count; i++)
+                    if (!stash_item_container.IsNullOrDestroyed())
                     {
-                        if (stash_item_container.LinkedStash.Tabs[i].TabId == index)
+                        for (int i = 0; i < stash_item_container.LinkedStash.Tabs.Count; i++)
                         {
-                            r = stash_item_container.LinkedStash.Tabs[i].DisplayName;
-                            break;
+                            if (stash_item_container.LinkedStash.Tabs[i].TabId == index)
+                            {
+                                r = stash_item_container.LinkedStash.Tabs[i].DisplayName;
+                                break;
+                            }
                         }
                     }
                 }
+                catch { }
 
                 return r;
             }
             public static bool IsQuadStash()
             {
                 bool r = false;
-                string tab_name = ActiveTabName();
-                if (!Save.Data.UserTabs.IsNullOrDestroyed())
+                try
                 {
-                    if ((tab_name != "") && (Save.Data.UserTabs.names.Contains(tab_name))) { r = true; }
+                    string tab_name = ActiveTabName();
+                    if (!Save.Data.UserTabs.IsNullOrDestroyed())
+                    {
+                        if ((tab_name != "") && (Save.Data.UserTabs.names.Contains(tab_name))) { r = true; }
+                    }
                 }
+                catch { }
 
                 return r;
             }
             public static bool IsQuadStash(int index)
             {
                 bool r = false;
-                string tab_name = ActiveTabName(index);
-                if (!Save.Data.UserTabs.IsNullOrDestroyed())
+                try
                 {
-                    if ((tab_name != "") && (Save.Data.UserTabs.names.Contains(tab_name))) { r = true; }
+                    string tab_name = ActiveTabName(index);
+                    if (!Save.Data.UserTabs.IsNullOrDestroyed())
+                    {
+                        if ((tab_name != "") && (Save.Data.UserTabs.names.Contains(tab_name))) { r = true; }
+                    }
                 }
+                catch { }
 
                 return r;
             }

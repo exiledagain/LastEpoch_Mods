@@ -126,7 +126,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             public static bool AddedToUniqueList = false;
             public static bool AddedToDictionary = false;
             public static Sprite Icon = null;
-            public static readonly ushort unique_id = 422;
+            public static readonly ushort unique_id = 502;
             public static UniqueList.Entry Item()
             {
                 UniqueList.Entry item = new UniqueList.Entry

@@ -25,7 +25,7 @@ namespace LastEpoch_Hud.Scripts
         GameObject items_sandsofsilk_obj = null;
         GameObject items_essentiasanguis_obj = null;
         //GameObject items_temporalis_obj = null;
-        GameObject items_crafting_obj = null;
+        //GameObject items_crafting_obj = null;
         GameObject minimap_icons_obj = null;
         GameObject monoliths_complete_objectives_obj = null;
         GameObject bank_quad_obj = null;
@@ -105,9 +105,9 @@ namespace LastEpoch_Hud.Scripts
             //items_temporalis_obj.AddComponent<Mods.Items.Items_Temporalis>();
             //Mods_Objects.Add(items_temporalis_obj);
 
-            items_crafting_obj = Object.Instantiate(new GameObject { name = "Mod_Items_Crafting" }, Vector3.zero, Quaternion.identity);
-            items_crafting_obj.AddComponent<Mods.Items.Items_Crafting>();
-            Mods_Objects.Add(items_crafting_obj);
+            //items_crafting_obj = Object.Instantiate(new GameObject { name = "Mod_Items_Crafting" }, Vector3.zero, Quaternion.identity);
+            //items_crafting_obj.AddComponent<Mods.Items.Items_Crafting>();
+            //Mods_Objects.Add(items_crafting_obj);
 
             character_bank_from_anywhere = Object.Instantiate(new GameObject { name = "Mod_Bank_Anywhere" }, Vector3.zero, Quaternion.identity);
             character_bank_from_anywhere.AddComponent<Mods.Character.Character_Bank_Anywhere>();

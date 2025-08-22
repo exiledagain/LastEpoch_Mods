@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 
 [assembly: MelonInfo(typeof(LastEpoch_Hud.Main), LastEpoch_Hud.Main.mod_name, LastEpoch_Hud.Main.mod_version, "Ash")]
 [assembly: MelonGame(LastEpoch_Hud.Main.company_name, LastEpoch_Hud.Main.game_name)]
+[assembly: MelonColor(1, 150, 20, 175)]
 [assembly: VerifyLoaderVersion(0, 6, 0, true)] //If true, check MelonLoder Minimum version
 
 // Les informations générales relatives à un assembly dépendent de

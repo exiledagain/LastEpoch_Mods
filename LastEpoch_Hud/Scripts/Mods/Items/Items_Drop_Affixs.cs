@@ -49,7 +49,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                             {
                                 foreach (ItemAffix aff in __0.affixes)
                                 {
-                                    if (!aff.isSealedAffix)
+                                    if (!aff.IsSealed)
                                     {
                                         if (Save_Manager.instance.data.Items.Drop.Enable_AffixTiers)
                                         {
