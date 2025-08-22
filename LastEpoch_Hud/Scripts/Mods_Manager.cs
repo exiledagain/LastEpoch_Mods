@@ -29,7 +29,6 @@ namespace LastEpoch_Hud.Scripts
         GameObject minimap_icons_obj = null;
         GameObject monoliths_complete_objectives_obj = null;
         GameObject bank_quad_obj = null;
-        GameObject Cosmetics_offline_obj = null;
 
         bool initialized = false;
         bool enable = false;
@@ -124,10 +123,6 @@ namespace LastEpoch_Hud.Scripts
             bank_quad_obj = Object.Instantiate(new GameObject { name = "mod_bank_quad" }, Vector3.zero, Quaternion.identity);
             bank_quad_obj.AddComponent<Mods.Bank.Bank_Quad>();
             Mods_Objects.Add(bank_quad_obj);
-
-            Cosmetics_offline_obj = Object.Instantiate(new GameObject { name = "mod_cosmetics_offline" }, Vector3.zero, Quaternion.identity);
-            Cosmetics_offline_obj.AddComponent<Mods.Cosmetics.Cosmetics_Offline>();
-            Mods_Objects.Add(Cosmetics_offline_obj);
 
             foreach (GameObject mod in Mods_Objects) { Object.DontDestroyOnLoad(mod); }
             Mods_Objects.Clear();
