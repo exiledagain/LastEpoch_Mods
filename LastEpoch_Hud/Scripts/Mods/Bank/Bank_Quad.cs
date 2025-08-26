@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using Il2Cpp;
 using Il2CppLE.Data;
+using Il2CppLE.UI.MultiPicker;
 using Il2CppTMPro;
 using MelonLoader;
 using Newtonsoft.Json;
@@ -88,6 +89,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Bank
                                     }
                                 }
                             }
+                            else { Save.Data.path = ""; } //fresh character
                         }
                     }
                 }
@@ -137,6 +139,12 @@ namespace LastEpoch_Hud.Scripts.Mods.Bank
                                 }
                             }
                         }
+                    }
+
+                    //Fresh Character
+                    if (Save.Data.path == "")
+                    {
+                        //Main.logger_instance.Msg("");
                     }
 
                     //Update UI

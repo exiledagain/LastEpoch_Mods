@@ -29,6 +29,7 @@ namespace LastEpoch_Hud.Scripts
         GameObject minimap_icons_obj = null;
         GameObject monoliths_complete_objectives_obj = null;
         GameObject bank_quad_obj = null;
+        GameObject craft_max_tier_obj = null;
 
         bool initialized = false;
         bool enable = false;
@@ -123,6 +124,10 @@ namespace LastEpoch_Hud.Scripts
             bank_quad_obj = Object.Instantiate(new GameObject { name = "mod_bank_quad" }, Vector3.zero, Quaternion.identity);
             bank_quad_obj.AddComponent<Mods.Bank.Bank_Quad>();
             Mods_Objects.Add(bank_quad_obj);
+
+            craft_max_tier_obj = Object.Instantiate(new GameObject { name = "mod_craft_max_tier" }, Vector3.zero, Quaternion.identity);
+            craft_max_tier_obj.AddComponent<Mods.Craft.Craft_MaxTier>();
+            Mods_Objects.Add(craft_max_tier_obj);
 
             foreach (GameObject mod in Mods_Objects) { Object.DontDestroyOnLoad(mod); }
             Mods_Objects.Clear();

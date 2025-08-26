@@ -1,13 +1,100 @@
 ﻿using HarmonyLib;
 using Il2Cpp;
+using Il2CppTMPro;
+using MelonLoader;
 using UnityEngine;
 
 namespace LastEpoch_Hud.Scripts.Mods.Craft
 {
-    public class Craft_MaxTier
+    [RegisterTypeInIl2Cpp]
+    public class Craft_MaxTier : MonoBehaviour
     {
+        public Craft_MaxTier(System.IntPtr ptr) : base(ptr) { }
+        public static Craft_MaxTier instance { get; private set; }
+
         public static CraftingSlotManager crafting_slot_manager = null;
         public static ItemData item = null;
+
+        void Awake()
+        {
+            instance = this;
+
+        }
+
+        public static void UpdateAffixs() //Show All Affix
+        {            
+            if ((!item.IsNullOrDestroyed()) && (!crafting_slot_manager.IsNullOrDestroyed()))
+            {
+                int prefix = 0;
+                int suffix = 0;
+                bool seal_primordial = false; //first t8 move to seal primordial (can be a suffix if you craft a suffix first)
+                int seal_primordial_id = -1;
+                foreach (ItemAffix affix in item.affixes)
+                {
+                    bool found = false;                    
+                    AffixSlotForge slot = null;
+                    if ((affix.affixType == AffixList.AffixType.PREFIX) && ((!affix.IsSealed) || (affix.affixTier == 7)))
+                    {
+                        if ((affix.affixTier == 7) && (!seal_primordial))
+                        {
+                            seal_primordial = true;
+                            seal_primordial_id = affix.affixId;
+                        }
+                        else
+                        {
+                            AffixSlotForge.AffixSlotID slot_id = AffixSlotForge.AffixSlotID.PREFIX_ONE;
+                            if (prefix == 1) { slot_id = AffixSlotForge.AffixSlotID.PREFIX_TWO; }
+                            slot = Get.Slot(slot_id);
+                            found = true;
+                            prefix++;
+                        }
+                    }
+                    else if ((affix.affixType == AffixList.AffixType.SUFFIX) && ((!affix.IsSealed) || (affix.affixTier == 7)))
+                    {
+                        if ((affix.affixTier == 7) && (!seal_primordial))
+                        {
+                            seal_primordial = true;
+                            seal_primordial_id = affix.affixId;
+                        }
+                        else
+                        {
+                            AffixSlotForge.AffixSlotID slot_id = AffixSlotForge.AffixSlotID.SUFFIX_ONE;
+                            if (suffix == 1) { slot_id = AffixSlotForge.AffixSlotID.SUFFIX_TWO; }
+                            slot = Get.Slot(slot_id);
+                            found = true;
+                            suffix++;
+                        }
+                    }
+                    if ((found) && (!slot.IsNullOrDestroyed()))
+                    {
+                        UnityEngine.Color color = crafting_slot_manager.defAffixColor; //T1 to T4
+                        if (affix.affixTier == 4) { color = crafting_slot_manager.maxCraftColor; } //T5
+                        else if (affix.affixTier > 4) { color = crafting_slot_manager.exaltColor; } //T6 to T8
+                        slot.SetVisuals(affix, AffixList.instance.GetAffix(affix.affixId), false, color);
+                        slot.gameObject.active = true;
+                    }
+                }
+                if ((prefix == 1) || (suffix == 1))
+                {
+                    foreach (AffixSlotForge slot in crafting_slot_manager.affixSlots)
+                    {
+                        if (((slot.slotID == AffixSlotForge.AffixSlotID.PREFIX_TWO) && (prefix == 1)) ||
+                            ((slot.slotID == AffixSlotForge.AffixSlotID.SUFFIX_TWO) && (suffix == 1)))
+                        {
+                            slot.gameObject.active = true;
+                        }
+                    }
+                }
+                if ((seal_primordial) && (seal_primordial_id > -1) && (!crafting_slot_manager.sealedPrimordialAffixHolder.IsNullOrDestroyed()))
+                {
+                    GameObject seal_primo_name_obj = Functions.GetChild(crafting_slot_manager.sealedPrimordialAffixHolder.gameObject, "AffixName");
+                    if (!seal_primo_name_obj.IsNullOrDestroyed())
+                    {
+                        seal_primo_name_obj.GetComponent<TextMeshProUGUI>().text = AffixList.instance.GetAffixName(seal_primordial_id);
+                    }
+                }
+            }
+        }
 
         public class Get
         {
@@ -46,6 +133,24 @@ namespace LastEpoch_Hud.Scripts.Mods.Craft
 
                 return forgin_cost;
             }
+            public static AffixSlotForge Slot(AffixSlotForge.AffixSlotID slot_id)
+            {
+                AffixSlotForge result = null;
+                if (!crafting_slot_manager.IsNullOrDestroyed())
+                {
+                    foreach (AffixSlotForge slot in crafting_slot_manager.affixSlots)
+                    {
+                        if (slot.slotID == slot_id)
+                        {
+                            result = slot;
+                            break;
+                        }
+                    }                    
+                }
+                else { Main.logger_instance.Error("crafting_slot_manager is null"); }
+
+                return result;
+            }
         }
 
         [HarmonyPatch(typeof(CraftingManager), "OnMainItemChange")]
@@ -63,6 +168,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Craft
                         if (!item_container.content.IsNullOrDestroyed())
                         {
                             item = item_container.content.data;
+                            UpdateAffixs();
                         }
                     }
                 }
@@ -93,8 +199,8 @@ namespace LastEpoch_Hud.Scripts.Mods.Craft
                     if (!crafting_slot_manager.IsNullOrDestroyed()) { crafting_slot_manager.maxForgingPotentialText.text = "<size=13><color=#FF0000>-" + max_forgin_potencial; }
                     if (item.forgingPotential > max_forgin_potencial)
                     {
-                        int max_tier = 6;
-                        if (item.IsPrimordialItem()) { max_tier = 7; }
+                        int max_tier = 7;
+                        //if (item.IsPrimordialItem()) { max_tier = 7; }
                         if (affix_tier < max_tier)
                         {
                             __0 = "Upgrade Affix";
@@ -120,11 +226,21 @@ namespace LastEpoch_Hud.Scripts.Mods.Craft
                     else
                     {
                         int tier = Get.Tier(item, __0);
-                        int max_tier = 6;
-                        if (item.IsPrimordialItem()) { max_tier = 7; }
+                        int max_tier = 7;
+                        //if (item.IsPrimordialItem()) { max_tier = 7; }
                         if ((tier > -1) && (tier < max_tier) && (item.forgingPotential > Get.MaxForginCost(tier))) { __1 = true; }
                     }
                 }
+            }
+        }
+        
+        [HarmonyPatch(typeof(UIBase), "openCraftingPanel")]
+        public class UIBase_openCraftingPanel
+        {
+            [HarmonyPostfix]
+            static void Postfix()
+            {
+                UpdateAffixs();
             }
         }
 
@@ -134,7 +250,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Craft
             [HarmonyPostfix]
             static void Postfix(ref CraftingSlotManager __instance)
             {
-                crafting_slot_manager = __instance;
+                crafting_slot_manager = __instance;                
             }
         }
 
@@ -173,8 +289,8 @@ namespace LastEpoch_Hud.Scripts.Mods.Craft
 
                     int affix_id = __instance.appliedAffixID;
                     int affix_tier = Get.Tier(item, affix_id);
-                    int max_tier = 6;
-                    if (item.IsPrimordialItem()) { max_tier = 7; }
+                    int max_tier = 7;
+                    //if (item.IsPrimordialItem()) { max_tier = 7; }
                     if ((affix_tier > 3) && (affix_tier < max_tier))
                     {
                         bool seal = false;

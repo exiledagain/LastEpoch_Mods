@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using Il2CppLE.Factions;
+using Il2Cpp;
 
 namespace LastEpoch_Hud.Scripts.Mods.Factions.TheWoven
 {
@@ -14,23 +14,15 @@ namespace LastEpoch_Hud.Scripts.Mods.Factions.TheWoven
             else { return false; }
         }
 
-        [HarmonyPatch(typeof(Il2CppLE.Factions.FactionRankPanel), "OnEnable")]
-        public class FactionRankPanel_OnEnable
+        [HarmonyPatch(typeof(LocalTreeData.WeaverTreeData), "getUnspentPoints")]
+        public class WeaverTreeData_getUnspentPoints
         {
             [HarmonyPrefix]
-            static void Prefix(ref Il2CppLE.Factions.FactionRankPanel __instance)
+            static void Prefix(ref LocalTreeData.WeaverTreeData __instance)
             {
                 if (CanRun())
                 {
-                    try
-                    {
-                        FactionRankPanelWeaver fcpw = __instance.TryCast<FactionRankPanelWeaver>();
-                        if (!fcpw.IsNullOrDestroyed())
-                        {
-                            fcpw.weaverTree.unspentPoints = Save_Manager.instance.data.Factions.TheWoven.TreePoints;
-                        }
-                    }
-                    catch { }
+                    __instance.EarnedWeaverPoints = (ushort)Save_Manager.instance.data.Factions.TheWoven.TreePoints;
                 }
             }
         }
