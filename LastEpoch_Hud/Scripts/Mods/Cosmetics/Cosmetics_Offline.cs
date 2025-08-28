@@ -22,7 +22,11 @@ namespace LastEpoch_Hud.Scripts.Mods.Cosmetics
                     if (!cosmetics.IsNullOrDestroyed())
                     {
                         list_id = new Il2CppSystem.Collections.Generic.List<string>();
-                        foreach (Cosmetic cosmetic in cosmetics) { list_id.Add(cosmetic.BackendID); }
+                        foreach (Cosmetic cosmetic in cosmetics)
+                        {
+                            if (!list_id.Contains(cosmetic.BackendID)) { list_id.Add(cosmetic.BackendID); }
+                            else { Main.logger_instance.Error("Cosmetic : " + cosmetic.BackendID + " is duplicate"); }
+                        }
                     }
                 }
                 
