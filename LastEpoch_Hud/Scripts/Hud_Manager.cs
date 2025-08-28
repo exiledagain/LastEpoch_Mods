@@ -633,6 +633,7 @@ namespace LastEpoch_Hud.Scripts
                                             if (Save_Manager.instance.data.Items.Pickup.Enable_AutoSell_FromFilter)
                                             {
                                                 Content.Items.Pickup.autoshatter_hide_toggle.isOn = false;
+                                                Save_Manager.instance.data.Items.Pickup.Enable_AutoShatter_FromFilter = false;
                                             }
                                             break;
                                         }
@@ -642,6 +643,7 @@ namespace LastEpoch_Hud.Scripts
                                             if (Save_Manager.instance.data.Items.Pickup.Enable_AutoShatter_FromFilter)
                                             {
                                                 Content.Items.Pickup.autosell_hide_toggle.isOn = false;
+                                                Save_Manager.instance.data.Items.Pickup.Enable_AutoSell_FromFilter = false;
                                             }
                                             break;
                                         }
