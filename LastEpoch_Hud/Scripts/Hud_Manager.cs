@@ -30,16 +30,20 @@ namespace LastEpoch_Hud.Scripts
         private bool hud_initializing = false;
         private bool data_initializing = false;
 
-        private bool updating = false;
-        private bool exit = false;
+        private bool updating = false;        
         public static bool enable = false; //Used to wait loading (Fix_PlayerLoopHelper)
 
-        //Gamepad
+
+#if WINGAMEPAD
         public static PlayerMouse virtual_mouse = null;
         [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         public static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint cButtons, uint dwExtraInfo);
         private const int MOUSEEVENTF_LEFTDOWN = 0x02;
         private const int MOUSEEVENTF_LEFTUP = 0x04;
+#endif
+#if KEYBOARD
+        private bool exit = false;
+#endif
 
         void Awake()
         {
@@ -67,38 +71,34 @@ namespace LastEpoch_Hud.Scripts
                         Update_Hud_Content();
                         hud_object.active = true;
                         Content.Set_Active();
+
                         if (!Refs_Manager.epoch_input_manager.IsNullOrDestroyed())
                         {
-                            if (!Refs_Manager.epoch_input_manager.isControllerActive) //Keyboard
+#if KEYBOARD
+                            if (!Refs_Manager.epoch_input_manager.forceDisableInput) { Refs_Manager.epoch_input_manager.forceDisableInput = true; }
+                        }
+                        if (Input.GetKeyDown(KeyCode.Escape)) { exit = true; }
+                        if (!Hud_Base.Btn_Resume.IsNullOrDestroyed())
+                        {
+                            if ((Input.GetKeyUp(KeyCode.Escape)) && (exit))
                             {
-                                if (!Refs_Manager.epoch_input_manager.forceDisableInput) { Refs_Manager.epoch_input_manager.forceDisableInput = true; }
-                                if (!Hud_Base.Btn_Resume.IsNullOrDestroyed())
-                                {
-                                    if (Input.GetKeyDown(KeyCode.Escape)) { exit = true; }
-                                    if ((Input.GetKeyUp(KeyCode.Escape)) && (exit)) { Hud_Base.Btn_Resume.onClick.Invoke(); exit = false; }
-                                }
-                            }
-                            else //Controller
-                            {
-                                if (Refs_Manager.epoch_input_manager.forceDisableInput) { Refs_Manager.epoch_input_manager.forceDisableInput = false; }
-                                if (virtual_mouse.IsNullOrDestroyed()) { virtual_mouse = Refs_Manager.epoch_input_manager.virtualMouse; }
-                                if ((Input.GetKeyDown(KeyCode.Joystick1Button0)) && (!virtual_mouse.IsNullOrDestroyed())) //A
-                                {
-                                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                                    {
-                                        mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, (uint)virtual_mouse.screenPosition.x, (uint)virtual_mouse.screenPosition.y, 0, 0);
-                                    }
-                                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                                    {
-                                        
-                                    }
-                                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                                    {
-                                        
-                                    }
-                                }
+                                Hud_Base.Btn_Resume.onClick.Invoke();
+                                exit = false;
                             }
                         }
+#endif
+#if WINGAMEPAD
+                            if (Refs_Manager.epoch_input_manager.forceDisableInput) { Refs_Manager.epoch_input_manager.forceDisableInput = false; }
+                            if (virtual_mouse.IsNullOrDestroyed()) { virtual_mouse = Refs_Manager.epoch_input_manager.virtualMouse; }
+                        }
+                        if ((Input.GetKeyDown(KeyCode.Joystick1Button0)) && (!virtual_mouse.IsNullOrDestroyed())) //A
+                        {
+                            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                            {
+                                mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, (uint)virtual_mouse.screenPosition.x, (uint)virtual_mouse.screenPosition.y, 0, 0);
+                            }
+                        }
+#endif
                         updating = false;
                     }
                     else if (!updating)
@@ -107,7 +107,7 @@ namespace LastEpoch_Hud.Scripts
                         if (hud_object.active) { hud_object.active = false; }
                         if (!Refs_Manager.epoch_input_manager.IsNullOrDestroyed())
                         {
-                            if (Refs_Manager.epoch_input_manager.forceDisableInput) { Refs_Manager.epoch_input_manager.forceDisableInput = false; }                            
+                            if (Refs_Manager.epoch_input_manager.forceDisableInput) { Refs_Manager.epoch_input_manager.forceDisableInput = false; }
                         }
                         Content.Character.need_update = true;
                         updating = false;

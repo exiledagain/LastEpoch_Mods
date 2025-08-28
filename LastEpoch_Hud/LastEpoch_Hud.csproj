@@ -6,12 +6,20 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <BaseOutputPath>..\Build</BaseOutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Configurations>Keyboard;WinGamepad</Configurations>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Keyboard|AnyCPU' ">
   <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'WinGamepad|AnyCPU' ">
   <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Keyboard|net6.0|AnyCPU'">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='WinGamepad|net6.0|AnyCPU'">
+    <DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <Reference Include="AssetsTools.NET">
@@ -154,9 +162,6 @@
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Last Epoch\MelonLoader\Il2CppAssemblies\UnityEngine.UIModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Scripts\Mods\Items\Items_Temporalis.txt" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Lib.Harmony" Version="2.3.1.1" />

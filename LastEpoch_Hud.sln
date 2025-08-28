@@ -7,14 +7,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LastEpoch_Hud", "LastEpoch_
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
+		Keyboard|Any CPU = Keyboard|Any CPU
+		WinGamepad|Any CPU = WinGamepad|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FDDA6FB9-B165-44BB-988A-A6979F74EC43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FDDA6FB9-B165-44BB-988A-A6979F74EC43}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FDDA6FB9-B165-44BB-988A-A6979F74EC43}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FDDA6FB9-B165-44BB-988A-A6979F74EC43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDDA6FB9-B165-44BB-988A-A6979F74EC43}.Keyboard|Any CPU.ActiveCfg = Keyboard|Any CPU
+		{FDDA6FB9-B165-44BB-988A-A6979F74EC43}.Keyboard|Any CPU.Build.0 = Keyboard|Any CPU
+		{FDDA6FB9-B165-44BB-988A-A6979F74EC43}.WinGamepad|Any CPU.ActiveCfg = WinGamepad|Any CPU
+		{FDDA6FB9-B165-44BB-988A-A6979F74EC43}.WinGamepad|Any CPU.Build.0 = WinGamepad|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
