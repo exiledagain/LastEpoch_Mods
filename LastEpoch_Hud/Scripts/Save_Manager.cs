@@ -201,6 +201,7 @@ namespace LastEpoch_Hud.Scripts
                         Enable_AutoStore_Timer = false,
                         AutoStore_Timer = 10,
                         Enable_AutoSell_FromFilter = false,
+                        Enable_AutoShatter_FromFilter = false,
                         Enable_RangePickup = false,
                         Enable_HideMaterialsNotifications = false
                     },
@@ -727,6 +728,7 @@ namespace LastEpoch_Hud.Scripts
                 public int AutoStore_Timer;
 
                 public bool Enable_AutoSell_FromFilter;
+                public bool Enable_AutoShatter_FromFilter;
 
                 public bool Enable_RangePickup;
                 public bool Enable_HideMaterialsNotifications;
