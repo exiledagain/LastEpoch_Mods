@@ -30,6 +30,7 @@ namespace LastEpoch_Hud.Scripts
         GameObject monoliths_complete_objectives_obj = null;
         GameObject bank_quad_obj = null;
         GameObject craft_max_tier_obj = null;
+        GameObject twohanded_with_shield_obj = null;
 
         bool initialized = false;
         bool enable = false;
@@ -100,6 +101,10 @@ namespace LastEpoch_Hud.Scripts
             items_essentiasanguis_obj = Object.Instantiate(new GameObject { name = "Mod_Items_EssentiaSanguis" }, Vector3.zero, Quaternion.identity);
             items_essentiasanguis_obj.AddComponent<Mods.Items.Items_EssentiaSanguis>();
             Mods_Objects.Add(items_essentiasanguis_obj);
+
+            twohanded_with_shield_obj = Object.Instantiate(new GameObject { name = "Mod_TwoHanded_with_Shield" }, Vector3.zero, Quaternion.identity);
+            twohanded_with_shield_obj.AddComponent<Mods.Character.Character_TwoHandedShield>();
+            Mods_Objects.Add(twohanded_with_shield_obj);
 
             //items_temporalis_obj = Object.Instantiate(new GameObject { name = "Mod_Items_Temporalis" }, Vector3.zero, Quaternion.identity);
             //items_temporalis_obj.AddComponent<Mods.Items.Items_Temporalis>();

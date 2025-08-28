@@ -51,6 +51,7 @@ namespace LastEpoch_Hud.Scripts
         public static MovingPlayer player_moving = null;
         public static AbilityManager ability_manager = null;
         public static FactionTracker faction_tracker = null;
+        public static CharacterMutator character_mutator = null;
 
         void Awake()
         {
@@ -121,6 +122,7 @@ namespace LastEpoch_Hud.Scripts
                 if ((player_moving.IsNullOrDestroyed()) && (!player_actor.IsNullOrDestroyed())) { player_moving = player_actor.gameObject.GetComponent<MovingPlayer>(); }
                 if ((player_protection_class.IsNullOrDestroyed()) && (!player_actor.IsNullOrDestroyed())) { player_protection_class = player_actor.gameObject.GetComponent<ProtectionClass>(); }
                 if ((health_potion.IsNullOrDestroyed()) && (!player_actor.IsNullOrDestroyed())) { health_potion = player_actor.gameObject.GetComponent<HealthPotion>(); }
+                if ((character_mutator.IsNullOrDestroyed()) && (!player_actor.IsNullOrDestroyed())) { character_mutator = player_actor.gameObject.GetComponent<CharacterMutator>(); }
                 if (player_stats.IsNullOrDestroyed()) { player_stats = PlayerFinder.getLocalPlayerStats(); }
                 if (exp_tracker.IsNullOrDestroyed()) { exp_tracker = PlayerFinder.getExperienceTracker(); }
                 if (player_treedata.IsNullOrDestroyed()) { player_treedata = PlayerFinder.getLocalTreeData(); }
@@ -128,7 +130,6 @@ namespace LastEpoch_Hud.Scripts
                 if (player_golbal_data_tracker.IsNullOrDestroyed()) { player_golbal_data_tracker = PlayerFinder.getGlobalDataTracker(); }
                 if ((filter_manager.IsNullOrDestroyed()) && (!ItemFilterManager.Instance.IsNullOrDestroyed())) { filter_manager = ItemFilterManager.Instance; }
                 if ((camera_manager.IsNullOrDestroyed()) && (!CameraManager.instance.IsNullOrDestroyed())) { camera_manager = CameraManager.instance; }
-
             }
             else
             {

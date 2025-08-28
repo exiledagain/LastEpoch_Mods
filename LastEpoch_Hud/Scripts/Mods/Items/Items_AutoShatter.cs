@@ -20,8 +20,6 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     {
                         if (item.Data.Count > 4)
                         {
-                            byte type = item.Data[3];
-                            byte subtype = item.Data[4];
                             if ((item.Data[3] == RuneOfShatter_Type) && (item.Data[4] == RuneOfShatter_Subtype))
                             {
                                 result = item.Quantity;
@@ -44,8 +42,6 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     {
                         if (item.Data.Count > 4)
                         {
-                            byte type = item.Data[3];
-                            byte subtype = item.Data[4];
                             if ((item.Data[3] == RuneOfShatter_Type) && (item.Data[4] == RuneOfShatter_Subtype))
                             {
                                 item.Quantity--;
