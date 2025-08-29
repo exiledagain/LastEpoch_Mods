@@ -627,26 +627,8 @@ namespace LastEpoch_Hud.Scripts
                                     case "Toggle_Items_Pickup_AutoStore_OnDrop": { Save_Manager.instance.data.Items.Pickup.Enable_AutoStore_OnDrop = __instance.isOn; break; }
                                     case "Toggle_Items_Pickup_AutoStore_OnInventoryOpen": { Save_Manager.instance.data.Items.Pickup.Enable_AutoStore_OnInventoryOpen = __instance.isOn; break; }
                                     case "Toggle_Items_Pickup_AutoStore_Timer": { Save_Manager.instance.data.Items.Pickup.Enable_AutoStore_Timer = __instance.isOn; break; }
-                                    case "Toggle_Items_Pickup_AutoSell_FromFilter":
-                                        {
-                                            Save_Manager.instance.data.Items.Pickup.Enable_AutoSell_FromFilter = __instance.isOn;
-                                            if (Save_Manager.instance.data.Items.Pickup.Enable_AutoSell_FromFilter)
-                                            {
-                                                Content.Items.Pickup.autoshatter_hide_toggle.isOn = false;
-                                                Save_Manager.instance.data.Items.Pickup.Enable_AutoShatter_FromFilter = false;
-                                            }
-                                            break;
-                                        }
-                                    case "Toggle_Items_Pickup_AutoShatter_FromFilter":
-                                        {
-                                            Save_Manager.instance.data.Items.Pickup.Enable_AutoShatter_FromFilter = __instance.isOn;
-                                            if (Save_Manager.instance.data.Items.Pickup.Enable_AutoShatter_FromFilter)
-                                            {
-                                                Content.Items.Pickup.autosell_hide_toggle.isOn = false;
-                                                Save_Manager.instance.data.Items.Pickup.Enable_AutoSell_FromFilter = false;
-                                            }
-                                            break;
-                                        }
+                                    case "Toggle_Items_Pickup_AutoSell_FromFilter": { Save_Manager.instance.data.Items.Pickup.Enable_AutoSell_FromFilter = __instance.isOn; break; }
+                                    case "Toggle_Items_Pickup_AutoShatter_FromFilter": { Save_Manager.instance.data.Items.Pickup.Enable_AutoShatter_FromFilter = __instance.isOn; break; }
                                     case "Toggle_Items_Pickup_Range_Pickup": { Save_Manager.instance.data.Items.Pickup.Enable_RangePickup = __instance.isOn; break; }
                                     case "Toggle_Items_Pickup_Hide_Notifications": { Save_Manager.instance.data.Items.Pickup.Enable_HideMaterialsNotifications = __instance.isOn; break; }
 
@@ -3276,17 +3258,7 @@ namespace LastEpoch_Hud.Scripts
                             Pickup.autostore_materials_Timer_slider.value = Save_Manager.instance.data.Items.Pickup.AutoStore_Timer;
 
                             Pickup.autosell_hide_toggle.isOn = Save_Manager.instance.data.Items.Pickup.Enable_AutoSell_FromFilter;
-                            if (Pickup.autosell_hide_toggle.isOn)
-                            {
-                                Pickup.autoshatter_hide_toggle.isOn = false;
-                                Save_Manager.instance.data.Items.Pickup.Enable_AutoShatter_FromFilter = false;
-                            }
                             Pickup.autoshatter_hide_toggle.isOn = Save_Manager.instance.data.Items.Pickup.Enable_AutoShatter_FromFilter;
-                            if (Pickup.autoshatter_hide_toggle.isOn)
-                            {
-                                Pickup.autosell_hide_toggle.isOn = false;
-                                Save_Manager.instance.data.Items.Pickup.Enable_AutoSell_FromFilter = false;
-                            }
 
                             Pickup.range_pickup_toggle.isOn = Save_Manager.instance.data.Items.Pickup.Enable_RangePickup;
                             Pickup.hide_materials_notifications_toggle.isOn = Save_Manager.instance.data.Items.Pickup.Enable_HideMaterialsNotifications;
