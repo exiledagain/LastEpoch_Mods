@@ -14,12 +14,13 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
 
         public static bool Updating = false;
         public static string SceneName = "";
+
+        //AutoShatter
         public static byte RuneOfShatter_Type = 102;
         public static byte RuneOfShatter_Subtype = 0;
         public static System.Collections.Generic.List<Il2CppSystem.Collections.Generic.List<ItemAffix>> affix_queue = null;
         public static int ShatterIndex = 0;
-
-        //Random
+        public static bool Use_RuneOfShattering = true; //False if we don't want to use Rune of Shattering
         public static int Shatter_Chance = 100; //chance for an item to be shatter (%)
         public static int ShatterAffix_Chance = 100; //chance for an affix to be shatter(%)
         public static int ShatterTier_Chance = 100; //quantity by tier (%) // ex : a tier 8 affix with 100% ShatterTier_Chance = drop 8 affix
@@ -181,13 +182,13 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                                 {
                                     //AutoShatter
                                     bool auto_shatter = false;
-                                    if ((Save_Manager.instance.data.Items.Pickup.Enable_AutoShatter_FromFilter) && (Get_RuneOfShatterCount() > 0) && (item.affixes.Count > 0))
+                                    if ((Save_Manager.instance.data.Items.Pickup.Enable_AutoShatter_FromFilter) && ((Get_RuneOfShatterCount() > 0) || (!Use_RuneOfShattering)) && (item.affixes.Count > 0))
                                     {
                                         int rand = UnityEngine.Random.RandomRangeInt(0, 100);
                                         if (rand < Shatter_Chance)
                                         {
                                             affix_queue.Add(item.affixes);
-                                            Decrease_RuneOfShatter();
+                                            if (Use_RuneOfShattering) { Decrease_RuneOfShatter(); }                                            
                                             auto_shatter = true;
                                             result = false;
                                         }
