@@ -12,12 +12,17 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
         public Items_AutoPickup_Items(System.IntPtr ptr) : base(ptr) { }
         public static Items_AutoPickup_Items instance { get; private set; }
 
+        public static bool Updating = false;
         public static string SceneName = "";
         public static byte RuneOfShatter_Type = 102;
         public static byte RuneOfShatter_Subtype = 0;
         public static System.Collections.Generic.List<Il2CppSystem.Collections.Generic.List<ItemAffix>> affix_queue = null;
         public static int ShatterIndex = 0;
-        public static bool Updating = false;
+
+        //Random
+        public static int Shatter_Chance = 100; //chance for an item to be shatter (%)
+        public static int ShatterAffix_Chance = 100; //chance for an affix to be shatter(%)
+        public static int ShatterTier_Chance = 100; //quantity by tier (%) // ex : a tier 8 affix with 100% ShatterTier_Chance = drop 8 affix
 
         void Awake()
         {
@@ -40,8 +45,18 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     ShatterIndex++;
                     foreach (ItemAffix affix in affixs)
                     {
-
-                        Drop_Affix(affix.affixId, (affix.affixTier + 1)); }
+                        int affix_rand = UnityEngine.Random.RandomRangeInt(0, 100);
+                        if (affix_rand < ShatterAffix_Chance)
+                        {
+                            int quantity = 0;
+                            for (int i = 0; i < (affix.affixTier + 1); i++)
+                            {
+                                int tier_rand = UnityEngine.Random.RandomRangeInt(0, 100);
+                                if (tier_rand < ShatterTier_Chance) { quantity++; }
+                            }
+                            Drop_Affix(affix.affixId, quantity);
+                        }
+                    }
                     Updating = false;
                 }
             }
@@ -125,8 +140,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     {
                         __1.rarity = 4;
                         __1.RefreshIDAndValues();
-                    }
-                    //AutoPickup / AutoShatter / AutoSell                    
+                    }                   
                     ItemDataUnpacked item = __1.TryCast<ItemDataUnpacked>();
                     if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!item.IsNullOrDestroyed()))
                     {
@@ -157,6 +171,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                                         }
                                     }
                                 }
+                                //AutoPickup
                                 if ((FilterShow) && (Save_Manager.instance.data.Items.Pickup.Enable_AutoPickup_FromFilter))
                                 {
                                     bool pickup = ItemContainersManager.Instance.attemptToPickupItem(__1, __0.position());
@@ -164,13 +179,21 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                                 }
                                 else if (!FilterShow)
                                 {
+                                    //AutoShatter
+                                    bool auto_shatter = false;
                                     if ((Save_Manager.instance.data.Items.Pickup.Enable_AutoShatter_FromFilter) && (Get_RuneOfShatterCount() > 0) && (item.affixes.Count > 0))
                                     {
-                                        affix_queue.Add(item.affixes);
-                                        Decrease_RuneOfShatter();
-                                        result = false;
+                                        int rand = UnityEngine.Random.RandomRangeInt(0, 100);
+                                        if (rand < Shatter_Chance)
+                                        {
+                                            affix_queue.Add(item.affixes);
+                                            Decrease_RuneOfShatter();
+                                            auto_shatter = true;
+                                            result = false;
+                                        }
                                     }
-                                    else if (Save_Manager.instance.data.Items.Pickup.Enable_AutoSell_FromFilter)
+                                    //AutoSell
+                                    if ((Save_Manager.instance.data.Items.Pickup.Enable_AutoSell_FromFilter) && (!auto_shatter))
                                     {
                                         __0.goldTracker.modifyGold(item.VendorSaleValue);
                                         result = false;
