@@ -30,6 +30,7 @@ namespace LastEpoch_Hud.Scripts
         GameObject craft_max_tier_obj = null;
         GameObject twohanded_with_shield_obj = null;
         GameObject items_autopickup_obj = null;
+        GameObject timebeast_spawn_obj = null;
 
         bool initialized = false;
         bool enable = false;
@@ -128,6 +129,10 @@ namespace LastEpoch_Hud.Scripts
             craft_max_tier_obj = Object.Instantiate(new GameObject { name = "mod_craft_max_tier" }, Vector3.zero, Quaternion.identity);
             craft_max_tier_obj.AddComponent<Mods.Craft.Craft_MaxTier>();
             Mods_Objects.Add(craft_max_tier_obj);
+
+            timebeast_spawn_obj = Object.Instantiate(new GameObject { name = "mod_time_beast_spawn" }, Vector3.zero, Quaternion.identity);
+            timebeast_spawn_obj.AddComponent<Mods.TimeBeast.TimeBeast_Spawn>();
+            Mods_Objects.Add(timebeast_spawn_obj);
 
             foreach (GameObject mod in Mods_Objects) { Object.DontDestroyOnLoad(mod); }
             Mods_Objects.Clear();
