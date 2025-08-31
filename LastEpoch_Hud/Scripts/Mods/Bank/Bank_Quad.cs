@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using Il2Cpp;
 using Il2CppLE.Data;
-using Il2CppLE.UI.MultiPicker;
 using Il2CppTMPro;
 using MelonLoader;
 using Newtonsoft.Json;
@@ -48,70 +47,77 @@ namespace LastEpoch_Hud.Scripts.Mods.Bank
         }
         void Update()
         {
-            if (!Refs_Manager.game_uibase.IsNullOrDestroyed())
+            if (Scenes.IsGameScene())
             {
-                if (!Scenes.IsGameScene())
+                Get.Refs();
+                UpdateUI();
+            }
+            else { stash_panel = null; }
+        }
+
+        public static void UpdateUI()
+        {
+            if ((!stash_panel.IsNullOrDestroyed()) && (!stash_item_container.IsNullOrDestroyed()))
+            {
+                if (stash_panel.isOpen)
                 {
-                    if (!stash_panel.IsNullOrDestroyed()) { stash_panel = null; } //Reset
-
-                    if ((Refs_Manager.game_uibase.characterSelectOpen) && (!Refs_Manager.game_uibase.characterSelectPanel.IsNullOrDestroyed()))
+                    if (backup_active_tab != stash_item_container.CurrentlyActiveTab) //Tab Changed
                     {
-                        GameObject char_selection_game_object = Refs_Manager.game_uibase.characterSelectPanel.instance;
-                        if (!char_selection_game_object.IsNullOrDestroyed())
+                        backup_active_tab = stash_item_container.CurrentlyActiveTab;
+                        if (!stash_grid_image.IsNullOrDestroyed())
                         {
-                            CharacterSelect char_select = char_selection_game_object.GetComponent<CharacterSelect>();
-                            LocalCharacterSlots local_slots = char_selection_game_object.GetComponent<LocalCharacterSlots>();
-
-                            if ((!char_select.IsNullOrDestroyed()) && (!local_slots.IsNullOrDestroyed()))
-                            {
-                                if (char_select.currentState == CharacterSelect.CharacterSelectState.LoadCharacter)
-                                {
-                                    int index = char_select.SelectedCharacterIndex;
-                                    if ((index > -1) && (index != character_index) && (index < local_slots.characterSlots.Count))
-                                    {
-                                        character_index = index;
-                                        Cycle cycle = local_slots.characterSlots[index].Cycle;
-                                        string solo_char_name = "";
-                                        StashType stashType = StashType.Softcore;
-
-                                        if (local_slots.characterSlots[index].SoloChallenge)
-                                        {
-                                            solo_char_name = local_slots.characterSlots[index].CharacterName;
-                                            Save.Data.path = Save.Data.base_path + cycle.ToString() + @"\" + solo_char_name + @"\";
-                                        }
-                                        else
-                                        {
-                                            if (local_slots.characterSlots[index].Hardcore) { stashType = StashType.Hardcore; }
-                                            else { stashType = StashType.Softcore; }
-                                            Save.Data.path = Save.Data.base_path + cycle.ToString() + @"\" + stashType.ToString() + @"\";
-                                        }
-                                        Save.Data.Load();
-                                    }
-                                }
-                            }
-                            else { Save.Data.path = ""; } //fresh character
+                            if (Get.IsQuadStash()) { stash_grid_image.sprite = quad_grid; }
+                            else { stash_grid_image.sprite = default_grid; }
                         }
                     }
                 }
-                else
+                else { backup_active_tab = -1; }
+            }
+            if (!configure_tab_ui.IsNullOrDestroyed())
+            {
+                if ((open_configure) && (configure_tab_ui.gameObject.active)) //DoOnce
                 {
-                    //Get Refs
+                    open_configure = false;
+                    configure_stash_name_backup = configure_tab_ui.nameInputTMP.text; //set backup name
+                    if (!configure_stash_toggle_title.IsNullOrDestroyed())
+                    {
+                        if (configure_stash_toggle_title.text != toggle_str)
+                        {
+                            configure_stash_toggle_title.text = toggle_str;
+                        }
+                    }
+                    if (!configure_stash_toggle_explanation.IsNullOrDestroyed())
+                    {
+                        if (configure_stash_toggle_explanation.text != toggle_explain_str)
+                        {
+                            configure_stash_toggle_explanation.text = toggle_explain_str;
+                        }
+                    }
+                    if (!configure_stash_toggle.IsNullOrDestroyed())
+                    {
+                        configure_stash_toggle.isOn = Save.Data.UserTabs.names.Contains(configure_tab_ui.nameInputTMP.text);
+                    }
+                }
+            }
+        }
+
+        public class Get
+        {
+            public static void Refs()
+            {
+                if (!Refs_Manager.game_uibase.IsNullOrDestroyed())
+                {
                     if ((!Refs_Manager.game_uibase.stashPanel.IsNullOrDestroyed()) && (stash_panel.IsNullOrDestroyed()))
                     {
                         stash_panel = Refs_Manager.game_uibase.stashPanel;
                     }
-                    if ((!stash_panel.IsNullOrDestroyed()) && (/*(stash_item_container_ui.IsNullOrDestroyed()) ||*/ (stash_grid_image.IsNullOrDestroyed()) || (default_grid.IsNullOrDestroyed())))
+                    if ((!stash_panel.IsNullOrDestroyed()) && ((stash_grid_image.IsNullOrDestroyed()) || (default_grid.IsNullOrDestroyed())))
                     {
                         if (!stash_panel.instance.IsNullOrDestroyed())
                         {
                             GameObject left_obj = Functions.GetChild(stash_panel.instance, "left-container");
                             if (!left_obj.IsNullOrDestroyed())
                             {
-                                /*if (stash_item_container_ui.IsNullOrDestroyed())
-                                {
-                                    GameObject stash_obj = Functions.GetChild(left_obj, "Stash");
-                                    if (!stash_obj.IsNullOrDestroyed()) {  stash_item_container_ui = stash_obj.GetComponent<StashItemContainerUI>(); }
-                                }*/
                                 if (stash_grid_image.IsNullOrDestroyed())
                                 {
                                     GameObject grid_obj = Functions.GetChild(left_obj, "grid-img");
@@ -140,62 +146,8 @@ namespace LastEpoch_Hud.Scripts.Mods.Bank
                             }
                         }
                     }
-
-                    //Fresh Character
-                    if (Save.Data.path == "")
-                    {
-                        //Main.logger_instance.Msg("");
-                    }
-
-                    //Update UI
-                    if ((!stash_panel.IsNullOrDestroyed()) && (!stash_item_container.IsNullOrDestroyed()))
-                    {
-                        if (stash_panel.isOpen)
-                        {
-                            if (backup_active_tab != stash_item_container.CurrentlyActiveTab) //Tab Changed
-                            {
-                                backup_active_tab = stash_item_container.CurrentlyActiveTab;
-                                if (!stash_grid_image.IsNullOrDestroyed())
-                                {
-                                    if (Get.IsQuadStash()) { stash_grid_image.sprite = quad_grid; }
-                                    else { stash_grid_image.sprite = default_grid; }
-                                }
-                            }
-                        }
-                        else { backup_active_tab = -1; }
-                    }
-                    if (!configure_tab_ui.IsNullOrDestroyed())
-                    {
-                        if ((open_configure) && (configure_tab_ui.gameObject.active)) //DoOnce
-                        {
-                            open_configure = false;
-                            configure_stash_name_backup = configure_tab_ui.nameInputTMP.text; //set backup name
-                            if (!configure_stash_toggle_title.IsNullOrDestroyed())
-                            {
-                                if (configure_stash_toggle_title.text != toggle_str)
-                                {
-                                    configure_stash_toggle_title.text = toggle_str;
-                                }                                
-                            }
-                            if (!configure_stash_toggle_explanation.IsNullOrDestroyed())
-                            {
-                                if (configure_stash_toggle_explanation.text != toggle_explain_str)
-                                {
-                                    configure_stash_toggle_explanation.text = toggle_explain_str;
-                                }                                
-                            }
-                            if ((!Save.Data.UserTabs.IsNullOrDestroyed()) && (!configure_stash_toggle.IsNullOrDestroyed()))
-                            {
-                                configure_stash_toggle.isOn = Save.Data.UserTabs.names.Contains(configure_tab_ui.nameInputTMP.text);
-                            }
-                        }
-                    }
                 }
             }
-        }
-
-        public class Get
-        {
             public static string ActiveTabName()
             {
                 string r = "";
@@ -341,6 +293,31 @@ namespace LastEpoch_Hud.Scripts.Mods.Bank
         }
         public class Hooks
         {
+            [HarmonyPatch(typeof(LocalCharacterSlots), "LoadCharacterByData")]
+            public class LocalCharacterSlots_LoadCharacterByData
+            {
+                [HarmonyPrefix]
+                static void Prefix(ref LocalCharacterSlots __instance, Il2CppLE.Data.CharacterData __0)
+                {
+                    Cycle cycle = __0.Cycle;
+                    string solo_char_name = "";
+                    StashType stashType = StashType.Softcore;
+
+                    if (__0.SoloChallenge)
+                    {
+                        solo_char_name = __0.CharacterName;
+                        Save.Data.path = Save.Data.base_path + cycle.ToString() + @"\" + solo_char_name + @"\";
+                    }
+                    else
+                    {
+                        if (__0.Hardcore) { stashType = StashType.Hardcore; }
+                        else { stashType = StashType.Softcore; }
+                        Save.Data.path = Save.Data.base_path + cycle.ToString() + @"\" + stashType.ToString() + @"\";
+                    }
+                    Save.Data.Load();
+                }
+            }
+
             [HarmonyPatch(typeof(StashItemContainerUI), "Awake")]
             public class StashItemContainerUI_Awake
             {
@@ -649,7 +626,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Bank
                         if (save)
                         {
                             Save.Data.Save();
-                            Save.Data.Load();
+                            //Save.Data.Load();
                         }
                         if ((update_containers) && (!stash_item_container.IsNullOrDestroyed()))
                         {
