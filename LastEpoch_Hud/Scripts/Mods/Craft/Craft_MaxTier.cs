@@ -18,7 +18,6 @@ namespace LastEpoch_Hud.Scripts.Mods.Craft
         void Awake()
         {
             instance = this;
-
         }
 
         public static void UpdateAffixs() //Show All Affix
@@ -152,7 +151,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Craft
                 return result;
             }
         }
-
+        
         [HarmonyPatch(typeof(CraftingManager), "OnMainItemChange")]
         public class CraftingManager_OnMainItemChange
         {
@@ -191,7 +190,8 @@ namespace LastEpoch_Hud.Scripts.Mods.Craft
             [HarmonyPostfix]
             static void Postfix(ref CraftingManager __instance, ref bool __result, ref System.String __0, ref System.Boolean __1, ref System.Boolean __2, ref System.String __3)
             {
-                if ((__0.Contains("This affix has already reached")) && (!item.IsNullOrDestroyed()))
+                //Main.logger_instance.Msg("CraftingManager:CheckForgeCapability(); __0 = " + __0);
+                if ((__0 == Craft_Locales.affix_is_maxed) && (!item.IsNullOrDestroyed()))
                 {
                     int affix_id = __instance.appliedAffixID;
                     int affix_tier = Get.Tier(item, affix_id);
@@ -199,9 +199,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Craft
                     if (!crafting_slot_manager.IsNullOrDestroyed()) { crafting_slot_manager.maxForgingPotentialText.text = "<size=13><color=#FF0000>-" + max_forgin_potencial; }
                     if (item.forgingPotential > max_forgin_potencial)
                     {
-                        int max_tier = 7;
-                        //if (item.IsPrimordialItem()) { max_tier = 7; }
-                        if (affix_tier < max_tier)
+                        if (affix_tier < 7) //T8
                         {
                             __0 = "Upgrade Affix";
                             __1 = false;
@@ -226,9 +224,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Craft
                     else
                     {
                         int tier = Get.Tier(item, __0);
-                        int max_tier = 7;
-                        //if (item.IsPrimordialItem()) { max_tier = 7; }
-                        if ((tier > -1) && (tier < max_tier) && (item.forgingPotential > Get.MaxForginCost(tier))) { __1 = true; }
+                        if ((tier > -1) && (tier < 7) && (item.forgingPotential > Get.MaxForginCost(tier))) { __1 = true; }
                     }
                 }
             }
@@ -266,7 +262,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Craft
                     bool glyph_of_hope = false;                             //25% no forgin potencial cost                 
                     bool glyph_of_chaos = false;                            //Change affix
                     bool glyph_of_order = false;                            //don't roll when upgrade
-                    bool glyph_of_despair = false;                          //50% chance to seal (don't work well)
+                    //bool glyph_of_despair = false;                          //50% chance to seal (don't work well)
                     bool glyph_of_envy = false;                             //Change subtype
 
                     OneItemContainer glyph_container = __instance.GetSupport();
@@ -280,7 +276,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Craft
                                 case 0: { glyph_of_hope = true; break; }
                                 case 1: { glyph_of_chaos = true; break; }
                                 case 2: { glyph_of_order = true; break; }
-                                case 3: { glyph_of_despair = true; break; }
+                                //case 3: { glyph_of_despair = true; break; }
                                 case 5: { glyph_of_envy = true; break; }
 
                             }
@@ -289,16 +285,14 @@ namespace LastEpoch_Hud.Scripts.Mods.Craft
 
                     int affix_id = __instance.appliedAffixID;
                     int affix_tier = Get.Tier(item, affix_id);
-                    int max_tier = 7;
-                    //if (item.IsPrimordialItem()) { max_tier = 7; }
-                    if ((affix_tier > 3) && (affix_tier < max_tier))
+                    if ((affix_tier > 3) && (affix_tier < 7))
                     {
                         bool seal = false;
-                        if (glyph_of_despair)
+                        /*if (glyph_of_despair)
                         {
                             //int roll = Random.RandomRangeInt(0, 2); //50% (0-1)
                             //if (roll == 0) { seal = true; }
-                        }
+                        }*/
                         if (seal)
                         {
                             int index = 0;

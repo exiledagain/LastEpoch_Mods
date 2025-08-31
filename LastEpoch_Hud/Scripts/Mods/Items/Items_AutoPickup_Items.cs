@@ -20,10 +20,6 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
         public static byte RuneOfShatter_Subtype = 0;
         public static System.Collections.Generic.List<Il2CppSystem.Collections.Generic.List<ItemAffix>> affix_queue = null;
         public static int ShatterIndex = 0;
-        public static bool Use_RuneOfShattering = true; //False if we don't want to use Rune of Shattering
-        public static int Shatter_Chance = 100; //chance for an item to be shatter (%)
-        public static int ShatterAffix_Chance = 100; //chance for an affix to be shatter(%)
-        public static int ShatterTier_Chance = 100; //quantity by tier (%) // ex : a tier 8 affix with 100% ShatterTier_Chance = drop 8 affix
 
         void Awake()
         {
@@ -47,15 +43,15 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     foreach (ItemAffix affix in affixs)
                     {
                         int affix_rand = UnityEngine.Random.RandomRangeInt(0, 100);
-                        if (affix_rand < ShatterAffix_Chance)
+                        if (affix_rand < Save_Manager.instance.data.Items.Pickup.AutoShatter_Affix_Chance)
                         {
                             int quantity = 0;
                             for (int i = 0; i < (affix.affixTier + 1); i++)
                             {
                                 int tier_rand = UnityEngine.Random.RandomRangeInt(0, 100);
-                                if (tier_rand < ShatterTier_Chance) { quantity++; }
+                                if (tier_rand < Save_Manager.instance.data.Items.Pickup.AutoShatter_Quantity_Chance) { quantity++; }
                             }
-                            Drop_Affix(affix.affixId, quantity);
+                            if (quantity > 0) { Drop_Affix(affix.affixId, quantity); }
                         }
                     }
                     Updating = false;
@@ -182,15 +178,21 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                                 {
                                     //AutoShatter
                                     bool auto_shatter = false;
-                                    if ((Save_Manager.instance.data.Items.Pickup.Enable_AutoShatter_FromFilter) && ((Get_RuneOfShatterCount() > 0) || (!Use_RuneOfShattering)) && (item.affixes.Count > 0))
+                                    if ((Save_Manager.instance.data.Items.Pickup.Enable_AutoShatter_FromFilter) && (item.affixes.Count > 0))
                                     {
-                                        int rand = UnityEngine.Random.RandomRangeInt(0, 100);
-                                        if (rand < Shatter_Chance)
+                                        bool use_rune = Save_Manager.instance.data.Items.Pickup.Enable_AutoShatter_UseRune;
+                                        if (((use_rune) && (Get_RuneOfShatterCount() > 0)) || (!use_rune)) { auto_shatter = true; }
+                                        else { Main.logger_instance.Error("Can't AutoShatter because Rune of shatter count = 0"); }
+                                        if (auto_shatter)
                                         {
-                                            affix_queue.Add(item.affixes);
-                                            if (Use_RuneOfShattering) { Decrease_RuneOfShatter(); }                                            
-                                            auto_shatter = true;
-                                            result = false;
+                                            int rand = UnityEngine.Random.RandomRangeInt(0, 100);
+                                            if (rand < Save_Manager.instance.data.Items.Pickup.AutoShatter_Chance)
+                                            {
+                                                affix_queue.Add(item.affixes);
+                                                if (use_rune) { Decrease_RuneOfShatter(); }                                                
+                                                result = false;
+                                            }
+                                            else { auto_shatter = false; }
                                         }
                                     }
                                     //AutoSell
