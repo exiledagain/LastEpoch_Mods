@@ -62,7 +62,10 @@ namespace LastEpoch_Hud.Scripts
                 ModVersion = Main.mod_version,
                 KeyBinds =
                 {
-                    BankStashs = KeyCode.F3
+                    SpawnMysteriousRift = KeyCode.F1,
+                    SpawnRiftBeast = KeyCode.F2,
+                    BankStashs = KeyCode.F3,
+                    SummonBeast = KeyCode.F4                    
                 },
                 modsNotInHud =
                 {
@@ -138,6 +141,11 @@ namespace LastEpoch_Hud.Scripts
                         Enable_Att_Buff = false,
                         Att_Buff_Value = 0f
                     }
+                },
+                Summon =
+                {
+                    Enable_GodMode = false,
+                    Enable_Forever = false
                 },
                 Cosmetics =
                 {
@@ -271,8 +279,8 @@ namespace LastEpoch_Hud.Scripts
                     Headhunter =
                     {
                         enable = true,
-                        BaseDrop = true,
-                        UniqueDrop = true,
+                        //BaseDrop = true,
+                        //UniqueDrop = true,
                         MinGenerated = 1,
                         MaxGenerated = 5,
                         BuffDuration = 20f,
@@ -555,6 +563,7 @@ namespace LastEpoch_Hud.Scripts
                 public ModsNotInHud modsNotInHud;
                 public Login Login;
                 public Character Character;
+                public Summon Summon;
                 public Cosmetics Cosmetics;
                 public Items Items;
                 public Factions Factions;
@@ -565,6 +574,9 @@ namespace LastEpoch_Hud.Scripts
             //KeyBinds
             public struct KeyBinds
             {
+                public UnityEngine.KeyCode SpawnMysteriousRift;
+                public UnityEngine.KeyCode SpawnRiftBeast;
+                public UnityEngine.KeyCode SummonBeast;
                 public UnityEngine.KeyCode BankStashs;
             }
             //Options not in hud (you have to set in defaultconfig before build)
@@ -653,7 +665,12 @@ namespace LastEpoch_Hud.Scripts
                 public bool Enable_Att_Buff;
                 public float Att_Buff_Value;
             }
-
+            //Summon
+            public struct Summon
+            {
+                public bool Enable_GodMode;
+                public bool Enable_Forever;
+            }
             //Items
             public struct Items
             {
@@ -821,8 +838,8 @@ namespace LastEpoch_Hud.Scripts
                 public float AddValue;
                 public float IncreasedValue;
                 public bool WeaverWill;
-                public bool BaseDrop;
-                public bool UniqueDrop;
+                //public bool BaseDrop;
+                //public bool UniqueDrop;
             }
             public struct Mjolner
             {

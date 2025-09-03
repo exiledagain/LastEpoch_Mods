@@ -31,6 +31,9 @@ namespace LastEpoch_Hud.Scripts
         GameObject twohanded_with_shield_obj = null;
         GameObject items_autopickup_obj = null;
         GameObject timebeast_spawn_obj = null;
+        //GameObject runeprison_spawn_obj = null;
+        GameObject summon_godmode_obj = null;
+        GameObject summon_forever_obj = null;
 
         bool initialized = false;
         bool enable = false;
@@ -130,9 +133,21 @@ namespace LastEpoch_Hud.Scripts
             craft_max_tier_obj.AddComponent<Mods.Craft.Craft_MaxTier>();
             Mods_Objects.Add(craft_max_tier_obj);
 
-            timebeast_spawn_obj = Object.Instantiate(new GameObject { name = "mod_time_beast_spawn" }, Vector3.zero, Quaternion.identity);
-            timebeast_spawn_obj.AddComponent<Mods.TimeBeast.TimeBeast_Spawn>();
+            timebeast_spawn_obj = Object.Instantiate(new GameObject { name = "mod_spawn_time_beast" }, Vector3.zero, Quaternion.identity);
+            timebeast_spawn_obj.AddComponent<Mods.Spawn.TimeBeast>();
             Mods_Objects.Add(timebeast_spawn_obj);
+
+            summon_godmode_obj = Object.Instantiate(new GameObject { name = "mod_summon_godmode" }, Vector3.zero, Quaternion.identity);
+            summon_godmode_obj.AddComponent<Mods.Summon.Summon_GodMode>();
+            Mods_Objects.Add(summon_godmode_obj);
+
+            summon_forever_obj = Object.Instantiate(new GameObject { name = "mod_summon_forever" }, Vector3.zero, Quaternion.identity);
+            summon_forever_obj.AddComponent<Mods.Summon.Summon_Forever>();
+            Mods_Objects.Add(summon_forever_obj);
+
+            /*runeprison_spawn_obj = Object.Instantiate(new GameObject { name = "mod_spawn_rune_prison" }, Vector3.zero, Quaternion.identity);
+            runeprison_spawn_obj.AddComponent<Mods.Spawn.RunePrison>();
+            Mods_Objects.Add(runeprison_spawn_obj);*/
 
             foreach (GameObject mod in Mods_Objects) { Object.DontDestroyOnLoad(mod); }
             Mods_Objects.Clear();

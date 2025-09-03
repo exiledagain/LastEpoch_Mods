@@ -20,6 +20,8 @@ namespace LastEpoch_Hud.Scripts.Mods.Skills
 
                     if (!ability.IsNullOrDestroyed())
                     {
+                        //Main.logger_instance.Msg("Ability = " + ability.abilityName);
+
                         if (Save_Manager.instance.data.Skills.Enable_RemoveChannelCost) { ability.channelCost = 0f; }
                         if (Save_Manager.instance.data.Skills.Enable_RemoveManaCost)
                         {
@@ -56,6 +58,8 @@ namespace LastEpoch_Hud.Scripts.Mods.Skills
                     
                     if (!il2cpp_type.IsNullOrDestroyed())
                     {
+                        //Main.logger_instance.Msg("Mutator = " + il2cpp_type.ToString());
+
                         //Use Switch(il2cpp_type.ToString()) instead of if for better result (== is bad)
 
                         //ErasingStrike : Fix ManaCost

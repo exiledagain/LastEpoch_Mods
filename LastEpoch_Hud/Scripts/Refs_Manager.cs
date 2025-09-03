@@ -52,6 +52,8 @@ namespace LastEpoch_Hud.Scripts
         public static AbilityManager ability_manager = null;
         public static FactionTracker faction_tracker = null;
         public static CharacterMutator character_mutator = null;
+        public static UsingAbilityPlayer using_ability_player = null;
+        public static SummonTracker summon_tracker = null;
 
         void Awake()
         {
@@ -121,6 +123,8 @@ namespace LastEpoch_Hud.Scripts
                 if (player_health.IsNullOrDestroyed()) { player_health = PlayerFinder.getLocalPlayerHealth(); }
                 if ((player_moving.IsNullOrDestroyed()) && (!player_actor.IsNullOrDestroyed())) { player_moving = player_actor.gameObject.GetComponent<MovingPlayer>(); }
                 if ((player_protection_class.IsNullOrDestroyed()) && (!player_actor.IsNullOrDestroyed())) { player_protection_class = player_actor.gameObject.GetComponent<ProtectionClass>(); }
+                if ((using_ability_player.IsNullOrDestroyed()) && (!player_actor.IsNullOrDestroyed())) { using_ability_player = player_actor.gameObject.GetComponent<UsingAbilityPlayer>(); }
+                if ((summon_tracker.IsNullOrDestroyed()) && (!player_actor.IsNullOrDestroyed())) { summon_tracker = player_actor.gameObject.GetComponent<SummonTracker>(); }
                 if ((health_potion.IsNullOrDestroyed()) && (!player_actor.IsNullOrDestroyed())) { health_potion = player_actor.gameObject.GetComponent<HealthPotion>(); }
                 if ((character_mutator.IsNullOrDestroyed()) && (!player_actor.IsNullOrDestroyed())) { character_mutator = player_actor.gameObject.GetComponent<CharacterMutator>(); }
                 if (player_stats.IsNullOrDestroyed()) { player_stats = PlayerFinder.getLocalPlayerStats(); }
