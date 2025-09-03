@@ -17,15 +17,14 @@ namespace LastEpoch_Hud.Scripts.Mods.Mobs
             }
             else { return false; }
         }
-
-        //[HarmonyPatch(typeof(SpawnerPlacementManager), "Start")] //Patched by https://github.com/RolandSolymosi
-       // The Start of SpawnerPlacementManager still return access violation exception with ML 6+ interop dll 
-        [HarmonyPatch(typeof(SpawnerPlacementManager), "RollSpawners")]
+        
+        [HarmonyPatch(typeof(SpawnerPlacementManager), "RollSpawners", new System.Type[] { typeof(SpawnerPlacementRoom.SpawnerRuntimeConfig) })] //LastEpocj 1.3.2
         public class SpawnerPlacementManager_RollSpawners
         {
             [HarmonyPrefix]
             public static void Prefix(ref SpawnerPlacementManager __instance)
             {
+                Main.logger_instance.Msg("SpawnerPlacementManager.RollSpawners(SpawnerPlacementRoom.SpawnerRuntimeConfig);");
                 if (CanRun())
                 {
                     __instance.defaultSpawnerDensity = Save_Manager.instance.data.Character.Cheats.DensityMultiplier;

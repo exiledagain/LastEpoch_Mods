@@ -838,8 +838,6 @@ namespace LastEpoch_Hud.Scripts
                 public float AddValue;
                 public float IncreasedValue;
                 public bool WeaverWill;
-                //public bool BaseDrop;
-                //public bool UniqueDrop;
             }
             public struct Mjolner
             {
