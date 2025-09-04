@@ -469,7 +469,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 int NbBuff = Random.Range(Save_Manager.instance.data.Items.Headhunter.MinGenerated, Save_Manager.instance.data.Items.Headhunter.MaxGenerated + 1);
                 for (int i = 0; i < NbBuff; i++)
                 {
-                    Actor playerActor = PlayerFinder.getPlayerActor();
+                    //Actor playerActor = PlayerFinder.getPlayerActor();
                     Buff random_buff = Generate_Random_HHBuff();
                     int max_addvalue = Max_Stack;
                     int max_increasedvalue = Max_Stack;
@@ -487,42 +487,59 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     if (!found) { Main.logger_instance?.Msg("Error : Property " + random_buff.name + " Not Found"); }
                     if (random_buff != null)
                     {
-                        float old_value = 0;
-                        string BuffToRemove = "";
-                        foreach (Buff player_buff in playerActor.statBuffs.buffs)
+                        //player
+                        UpdateBuff(PlayerFinder.getPlayerActor(), random_buff, max_addvalue, max_increasedvalue);
+                        
+                        //Summons
+                        if (!Refs_Manager.summon_tracker.IsNullOrDestroyed())
                         {
-                            if (player_buff.name.Contains(random_buff.name))
+                            foreach (Summoned summon in Refs_Manager.summon_tracker.summons)
                             {
-                                BuffToRemove = player_buff.name;
-                                float new_value = 0;
-                                if (!GetIsIncrease(player_buff))
-                                {
-                                    old_value = player_buff.stat.addedValue;
-                                    if (old_value < max_addvalue)
-                                    {
-                                        new_value = old_value + Save_Manager.instance.data.Items.Headhunter.AddValue;
-                                    }
-                                    else { new_value = max_addvalue; }
-                                    random_buff.stat.addedValue = new_value;
-                                }
-                                else
-                                {
-                                    old_value = player_buff.stat.increasedValue;
-                                    if (old_value < max_increasedvalue)
-                                    {
-                                        new_value = old_value + Save_Manager.instance.data.Items.Headhunter.IncreasedValue;
-                                    }
-                                    else { new_value = max_increasedvalue; }
-                                    random_buff.stat.increasedValue = new_value;
-                                }
-                                break;
+                                UpdateBuff(summon.actor, random_buff, max_addvalue, max_increasedvalue);
                             }
                         }
-                        if (BuffToRemove != null) { playerActor.statBuffs.removeBuffsWithName(BuffToRemove); }
-                        playerActor.statBuffs.addBuff(random_buff.remainingDuration, random_buff.stat.property,
-                            random_buff.stat.addedValue, random_buff.stat.increasedValue, random_buff.stat.moreValues,
-                            random_buff.stat.tags, random_buff.stat.specialTag, random_buff.name);
                     }
+                }
+            }
+            public static void UpdateBuff(Actor actor, Buff random_buff, int max_addvalue, int max_increasedvalue)
+            {
+                if (!actor.IsNullOrDestroyed())
+                {
+                    float old_value = 0;
+                    string BuffToRemove = "";
+                    foreach (Buff buff in actor.statBuffs.buffs)
+                    {
+                        if (buff.name.Contains(random_buff.name))
+                        {
+                            BuffToRemove = buff.name;
+                            float new_value = 0;
+                            if (!GetIsIncrease(buff))
+                            {
+                                old_value = buff.stat.addedValue;
+                                if (old_value < max_addvalue)
+                                {
+                                    new_value = old_value + Save_Manager.instance.data.Items.Headhunter.AddValue;
+                                }
+                                else { new_value = max_addvalue; }
+                                random_buff.stat.addedValue = new_value;
+                            }
+                            else
+                            {
+                                old_value = buff.stat.increasedValue;
+                                if (old_value < max_increasedvalue)
+                                {
+                                    new_value = old_value + Save_Manager.instance.data.Items.Headhunter.IncreasedValue;
+                                }
+                                else { new_value = max_increasedvalue; }
+                                random_buff.stat.increasedValue = new_value;
+                            }
+                            break;
+                        }
+                    }
+                    if (BuffToRemove != null) { actor.statBuffs.removeBuffsWithName(BuffToRemove); }
+                    actor.statBuffs.addBuff(random_buff.remainingDuration, random_buff.stat.property,
+                        random_buff.stat.addedValue, random_buff.stat.increasedValue, random_buff.stat.moreValues,
+                        random_buff.stat.tags, random_buff.stat.specialTag, random_buff.name);
                 }
             }
             public static void Generate_HH_BuffsList()
