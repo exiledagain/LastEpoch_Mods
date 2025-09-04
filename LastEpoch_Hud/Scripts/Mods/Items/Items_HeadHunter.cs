@@ -469,7 +469,6 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 int NbBuff = Random.Range(Save_Manager.instance.data.Items.Headhunter.MinGenerated, Save_Manager.instance.data.Items.Headhunter.MaxGenerated + 1);
                 for (int i = 0; i < NbBuff; i++)
                 {
-                    //Actor playerActor = PlayerFinder.getPlayerActor();
                     Buff random_buff = Generate_Random_HHBuff();
                     int max_addvalue = Max_Stack;
                     int max_increasedvalue = Max_Stack;

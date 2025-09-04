@@ -1,7 +1,7 @@
-﻿using MelonLoader;
+﻿using Il2Cpp;
+using MelonLoader;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Il2Cpp;
 
 namespace LastEpoch_Hud.Scripts.Mods.Character
 {
@@ -10,8 +10,6 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
     {
         public static Character_PermanentBuffs instance { get; private set; }
         public Character_PermanentBuffs(System.IntPtr ptr) : base(ptr) { }
-
-        
 
         public struct PermanentBuff
         {
@@ -261,16 +259,21 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
         }
         private void RemoveBuffs()
         {
-            if (!Refs_Manager.player_actor.IsNullOrDestroyed())
+            RemoveBuffsFromActor(Refs_Manager.player_actor); //Player
+            if (!Refs_Manager.summon_tracker.IsNullOrDestroyed())//Summons
             {
-                System.Collections.Generic.List<string> player_buffs = new System.Collections.Generic.List<string>();
-                foreach (Buff player_buff in Refs_Manager.player_actor.statBuffs.buffs)
-                {
-                    player_buffs.Add(player_buff.name);
-                }
+                foreach (Summoned summon in Refs_Manager.summon_tracker.summons) { RemoveBuffsFromActor(summon.actor); }
+            }
+        }
+        private void RemoveBuffsFromActor(Actor actor)
+        {
+            if (!actor.IsNullOrDestroyed())
+            {
+                System.Collections.Generic.List<string> buffs = new System.Collections.Generic.List<string>();
+                foreach (Buff buff in actor.statBuffs.buffs) { buffs.Add(buff.name); }
                 foreach (PermanentBuff permanent_buff in Buffs)
                 {
-                    if (player_buffs.Contains(permanent_buff.Name)) { Refs_Manager.player_actor.statBuffs.removeBuffsWithName(permanent_buff.Name); }
+                    if (buffs.Contains(permanent_buff.Name)) { actor.statBuffs.removeBuffsWithName(permanent_buff.Name); }
                 }
             }
         }
