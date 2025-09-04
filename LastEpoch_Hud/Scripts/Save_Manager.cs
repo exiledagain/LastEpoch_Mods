@@ -145,11 +145,8 @@ namespace LastEpoch_Hud.Scripts
                 Summon =
                 {
                     Enable_GodMode = false,
-                    Enable_Forever = false
-                },
-                Cosmetics =
-                {
-                    Portal = 0 //0 to 38
+                    Enable_Forever = false,
+                    Enable_DontCollide = false
                 },
                 Items =
                 {
@@ -279,8 +276,6 @@ namespace LastEpoch_Hud.Scripts
                     Headhunter =
                     {
                         enable = true,
-                        //BaseDrop = true,
-                        //UniqueDrop = true,
                         MinGenerated = 1,
                         MaxGenerated = 5,
                         BuffDuration = 20f,
@@ -379,6 +374,10 @@ namespace LastEpoch_Hud.Scripts
                             Spirits_Of_Fire = 0
                         },
                         Enable_Islands = false
+                    },
+                    harbringers =
+                    {
+                        Enable_AltarWithoutKey = false
                     }
                 },
                 Skills =
@@ -563,8 +562,7 @@ namespace LastEpoch_Hud.Scripts
                 public ModsNotInHud modsNotInHud;
                 public Login Login;
                 public Character Character;
-                public Summon Summon;
-                public Cosmetics Cosmetics;
+                public Summon Summon;                
                 public Items Items;
                 public Factions Factions;
                 public Scenes Scenes;
@@ -579,7 +577,8 @@ namespace LastEpoch_Hud.Scripts
                 public UnityEngine.KeyCode SummonBeast;
                 public UnityEngine.KeyCode BankStashs;
             }
-            //Options not in hud (you have to set in defaultconfig before build)
+            
+            //Options not in hud
             public struct ModsNotInHud
             {
                 public bool Enable_PotionResplenishment;
@@ -589,21 +588,18 @@ namespace LastEpoch_Hud.Scripts
                 public bool Shrines_Override;
                 public int Shrines_Override_id;
             }
+            
             //Login
             public struct Login
             {
-                //public bool Enable_Mods;
                 public bool Enable_AutoLoginOffline;
             }
+            
             //Character
             public struct Character
             {
                 public Cheats Cheats;
                 public PermanentBuffs PermanentBuffs;
-            }
-            public struct Cosmetics
-            {
-                public ushort Portal;
             }
             public struct Cheats
             {
@@ -665,12 +661,15 @@ namespace LastEpoch_Hud.Scripts
                 public bool Enable_Att_Buff;
                 public float Att_Buff_Value;
             }
+            
             //Summon
             public struct Summon
             {
                 public bool Enable_GodMode;
                 public bool Enable_Forever;
+                public bool Enable_DontCollide;
             }
+            
             //Items
             public struct Items
             {
@@ -876,6 +875,7 @@ namespace LastEpoch_Hud.Scripts
                 public Dungeons Dungeons;
                 public Minimap Minimap;
                 public Monoliths Monoliths;
+                public Harbringers harbringers;
             }
             public struct Camera
             {
@@ -957,6 +957,10 @@ namespace LastEpoch_Hud.Scripts
                 public int The_Last_Ruins;
                 public int The_Age_Of_Winter;
                 public int Spirits_Of_Fire;
+            }
+            public struct Harbringers
+            {
+                public bool Enable_AltarWithoutKey;
             }
 
             //Skills

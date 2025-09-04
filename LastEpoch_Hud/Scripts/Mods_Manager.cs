@@ -34,6 +34,7 @@ namespace LastEpoch_Hud.Scripts
         //GameObject runeprison_spawn_obj = null;
         GameObject summon_godmode_obj = null;
         GameObject summon_forever_obj = null;
+        GameObject summon_collider_obj = null;
 
         bool initialized = false;
         bool enable = false;
@@ -144,6 +145,10 @@ namespace LastEpoch_Hud.Scripts
             summon_forever_obj = Object.Instantiate(new GameObject { name = "mod_summon_forever" }, Vector3.zero, Quaternion.identity);
             summon_forever_obj.AddComponent<Mods.Summon.Summon_Forever>();
             Mods_Objects.Add(summon_forever_obj);
+
+            summon_collider_obj = Object.Instantiate(new GameObject { name = "mod_summon_collider" }, Vector3.zero, Quaternion.identity);
+            summon_collider_obj.AddComponent<Mods.Summon.Summon_Collider>();
+            Mods_Objects.Add(summon_collider_obj);
 
             /*runeprison_spawn_obj = Object.Instantiate(new GameObject { name = "mod_spawn_rune_prison" }, Vector3.zero, Quaternion.identity);
             runeprison_spawn_obj.AddComponent<Mods.Spawn.RunePrison>();

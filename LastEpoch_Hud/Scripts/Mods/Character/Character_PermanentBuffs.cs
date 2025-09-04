@@ -220,13 +220,10 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
             if (!Starting)
             {                
                 Starting = true;
-                if (!Refs_Manager.player_actor.IsNullOrDestroyed())
+                if ((!Refs_Manager.player_actor.IsNullOrDestroyed()) && (!Refs_Manager.summon_tracker.IsNullOrDestroyed()))
                 {
                     System.Collections.Generic.List<string> player_buffs = new System.Collections.Generic.List<string>();
-                    foreach (Buff player_buff in Refs_Manager.player_actor.statBuffs.buffs)
-                    {
-                        player_buffs.Add(player_buff.name);
-                    }
+                    foreach (Buff player_buff in Refs_Manager.player_actor.statBuffs.buffs) { player_buffs.Add(player_buff.name); }
                     foreach (PermanentBuff permanent_buff in Buffs)
                     {
                         if (player_buffs.Contains(permanent_buff.Name)) { Refs_Manager.player_actor.statBuffs.removeBuffsWithName(permanent_buff.Name); }
@@ -237,6 +234,23 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
                             if (permanent_buff.Type == Buff_Type.Add) { add = permanent_buff.Value; }
                             else { increase = permanent_buff.Value; }
                             Refs_Manager.player_actor.statBuffs.addBuff(Buff_Duration, permanent_buff.Propertie, add, increase, null, AT.None, 0, permanent_buff.Name);
+                        }
+                    }
+                    foreach (Summoned summon in Refs_Manager.summon_tracker.summons)
+                    {
+                        System.Collections.Generic.List<string> minion_buffs = new System.Collections.Generic.List<string>();
+                        foreach (Buff minion_buff in summon.actor.statBuffs.buffs) { minion_buffs.Add(minion_buff.name); }
+                        foreach (PermanentBuff permanent_buff in Buffs)
+                        {
+                            if (minion_buffs.Contains(permanent_buff.Name)) { summon.actor.statBuffs.removeBuffsWithName(permanent_buff.Name); }
+                            if (permanent_buff.Toggle)
+                            {
+                                float add = 0;
+                                float increase = 0;
+                                if (permanent_buff.Type == Buff_Type.Add) { add = permanent_buff.Value; }
+                                else { increase = permanent_buff.Value; }
+                                summon.actor.statBuffs.addBuff(Buff_Duration, permanent_buff.Propertie, add, increase, null, AT.None, 0, permanent_buff.Name);
+                            }
                         }
                     }
                     StartTime = System.DateTime.Now;

@@ -24,7 +24,6 @@ namespace LastEpoch_Hud.Scripts.Mods.Mobs
             [HarmonyPrefix]
             public static void Prefix(ref SpawnerPlacementManager __instance)
             {
-                Main.logger_instance.Msg("SpawnerPlacementManager.RollSpawners(SpawnerPlacementRoom.SpawnerRuntimeConfig);");
                 if (CanRun())
                 {
                     __instance.defaultSpawnerDensity = Save_Manager.instance.data.Character.Cheats.DensityMultiplier;
