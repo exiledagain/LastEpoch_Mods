@@ -1,12 +1,10 @@
 ﻿using HarmonyLib;
 using Il2Cpp;
 using Il2CppLE.Data;
-using Il2CppRewired.Components;
 using Il2CppSystem.Collections.Generic;
 using MelonLoader;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -166,6 +164,7 @@ namespace LastEpoch_Hud.Scripts
                         Content.Skills.Set_Active(false);
 
                         Content.OdlForceDrop.Get_Refs();
+                        Content.OdlForceDrop.Init_BeastDropdown();
                         Content.OdlForceDrop.Set_Events();
                         Content.OdlForceDrop.Set_Active(false);
 
@@ -459,15 +458,151 @@ namespace LastEpoch_Hud.Scripts
                     
                     Content.OdlForceDrop.unique_mods.active = Content.OdlForceDrop.unique_mods_enable;
                     Content.OdlForceDrop.unique_mods_border.active = Content.OdlForceDrop.unique_mods_enable;
-                    if (!Content.OdlForceDrop.unique_mods_enable) { Content.OdlForceDrop.unique_mods_roll = false; }
-                    Content.OdlForceDrop.unique_mod_0.active = Content.OdlForceDrop.unique_mods_roll;
-                    Content.OdlForceDrop.unique_mod_1.active = Content.OdlForceDrop.unique_mods_roll;
-                    Content.OdlForceDrop.unique_mod_2.active = Content.OdlForceDrop.unique_mods_roll;
-                    Content.OdlForceDrop.unique_mod_3.active = Content.OdlForceDrop.unique_mods_roll;
-                    Content.OdlForceDrop.unique_mod_4.active = Content.OdlForceDrop.unique_mods_roll;
-                    Content.OdlForceDrop.unique_mod_5.active = Content.OdlForceDrop.unique_mods_roll;
-                    Content.OdlForceDrop.unique_mod_6.active = Content.OdlForceDrop.unique_mods_roll;
-                    Content.OdlForceDrop.unique_mod_7.active = Content.OdlForceDrop.unique_mods_roll;
+                    if (!Content.OdlForceDrop.unique_mods_enable)
+                    {
+                        Content.OdlForceDrop.unique_mods_roll_0 = false;
+                        Content.OdlForceDrop.unique_mods_roll_1 = false;
+                        Content.OdlForceDrop.unique_mods_roll_2 = false;
+                        Content.OdlForceDrop.unique_mods_roll_3 = false;
+                        Content.OdlForceDrop.unique_mods_roll_4 = false;
+                        Content.OdlForceDrop.unique_mods_roll_5 = false;
+                        Content.OdlForceDrop.unique_mods_roll_6 = false;
+                        Content.OdlForceDrop.unique_mods_roll_7 = false;
+
+                        Content.OdlForceDrop.nb_evolution.active = false;
+                        Content.OdlForceDrop.beast_evolution_border.active = false;
+                        Content.OdlForceDrop.beast_evolution_0_enable = false;
+                        Content.OdlForceDrop.beast_evolution_1_enable = false;
+                        Content.OdlForceDrop.beast_evolution_2_enable = false;
+                        Content.OdlForceDrop.beast_evolution_3_enable = false;
+                        Content.OdlForceDrop.beast_evolution_4_enable = false;
+                        Content.OdlForceDrop.beast_evolution_5_enable = false;
+                        Content.OdlForceDrop.beast_evolution_6_enable = false;
+                    }
+                    else if (Content.OdlForceDrop.item_unique_id == 444)
+                    {
+                        //Content.OdlForceDrop.unique_mods_roll_0 = true;
+                        Content.OdlForceDrop.unique_mods_roll_1 = false;
+                        Content.OdlForceDrop.unique_mods_roll_2 = false;
+                        Content.OdlForceDrop.unique_mods_roll_3 = false;
+                        Content.OdlForceDrop.unique_mods_roll_4 = false;
+                        Content.OdlForceDrop.unique_mods_roll_5 = false;
+                        Content.OdlForceDrop.unique_mods_roll_6 = false;
+                        Content.OdlForceDrop.unique_mods_roll_7 = false;
+
+                        Content.OdlForceDrop.nb_evolution.active = true;
+                        Content.OdlForceDrop.beast_evolution_border.active = true;
+                        Content.OdlForceDrop.beast_evolution_0_enable = true;
+                        Content.OdlForceDrop.beast_evolution_1_enable = true;
+                        Content.OdlForceDrop.beast_evolution_2_enable = true;
+                        Content.OdlForceDrop.beast_evolution_3_enable = true;
+                        Content.OdlForceDrop.beast_evolution_4_enable = true;
+                        Content.OdlForceDrop.beast_evolution_5_enable = true;
+                        Content.OdlForceDrop.beast_evolution_6_enable = true;
+                    }
+                    else
+                    {
+                        if (Content.OdlForceDrop.unique_mods_dropdown.value == 0)
+                        {
+                            Content.OdlForceDrop.unique_mods_roll_0 = false;
+                            Content.OdlForceDrop.unique_mods_roll_1 = false;
+                            Content.OdlForceDrop.unique_mods_roll_2 = false;
+                            Content.OdlForceDrop.unique_mods_roll_3 = false;
+                            Content.OdlForceDrop.unique_mods_roll_4 = false;
+                            Content.OdlForceDrop.unique_mods_roll_5 = false;
+                            Content.OdlForceDrop.unique_mods_roll_6 = false;
+                            Content.OdlForceDrop.unique_mods_roll_7 = false;
+                        }
+                        else
+                        {
+                            Content.OdlForceDrop.unique_mods_roll_0 = true;
+                            Content.OdlForceDrop.unique_mods_roll_1 = true;
+                            Content.OdlForceDrop.unique_mods_roll_2 = true;
+                            Content.OdlForceDrop.unique_mods_roll_3 = true;
+                            Content.OdlForceDrop.unique_mods_roll_4 = true;
+                            Content.OdlForceDrop.unique_mods_roll_5 = true;
+                            Content.OdlForceDrop.unique_mods_roll_6 = true;
+                            Content.OdlForceDrop.unique_mods_roll_7 = true;
+                        }
+
+                        Content.OdlForceDrop.nb_evolution.active = false;
+                        Content.OdlForceDrop.beast_evolution_border.active = false;
+                        Content.OdlForceDrop.beast_evolution_0_enable = false;
+                        Content.OdlForceDrop.beast_evolution_1_enable = false;
+                        Content.OdlForceDrop.beast_evolution_2_enable = false;
+                        Content.OdlForceDrop.beast_evolution_3_enable = false;
+                        Content.OdlForceDrop.beast_evolution_4_enable = false;
+                        Content.OdlForceDrop.beast_evolution_5_enable = false;
+                        Content.OdlForceDrop.beast_evolution_6_enable = false;
+                    }
+                    
+                    Content.OdlForceDrop.unique_mod_0.active = Content.OdlForceDrop.unique_mods_roll_0;
+                    Content.OdlForceDrop.unique_mod_1.active = Content.OdlForceDrop.unique_mods_roll_1;
+                    Content.OdlForceDrop.unique_mod_2.active = Content.OdlForceDrop.unique_mods_roll_2;
+                    Content.OdlForceDrop.unique_mod_3.active = Content.OdlForceDrop.unique_mods_roll_3;
+                    Content.OdlForceDrop.unique_mod_4.active = Content.OdlForceDrop.unique_mods_roll_4;
+                    Content.OdlForceDrop.unique_mod_5.active = Content.OdlForceDrop.unique_mods_roll_5;
+                    Content.OdlForceDrop.unique_mod_6.active = Content.OdlForceDrop.unique_mods_roll_6;
+                    Content.OdlForceDrop.unique_mod_7.active = Content.OdlForceDrop.unique_mods_roll_7;
+
+                    Content.OdlForceDrop.beast_evolution_0.active = Content.OdlForceDrop.beast_evolution_0_enable;
+                    Content.OdlForceDrop.beast_evolution_1.active = Content.OdlForceDrop.beast_evolution_1_enable;
+                    Content.OdlForceDrop.beast_evolution_2.active = Content.OdlForceDrop.beast_evolution_2_enable;
+                    Content.OdlForceDrop.beast_evolution_3.active = Content.OdlForceDrop.beast_evolution_3_enable;
+                    Content.OdlForceDrop.beast_evolution_4.active = Content.OdlForceDrop.beast_evolution_4_enable;
+                    Content.OdlForceDrop.beast_evolution_5.active = Content.OdlForceDrop.beast_evolution_5_enable;
+                    Content.OdlForceDrop.beast_evolution_6.active = Content.OdlForceDrop.beast_evolution_6_enable;
+
+                    if (Content.OdlForceDrop.beast_evolution_0_enable)
+                    {
+                        if (Content.OdlForceDrop.beast_evolution_0_dropdown.value == 0) { Content.OdlForceDrop.beast_evolution_select_0_enable = false; }
+                        else { Content.OdlForceDrop.beast_evolution_select_0_enable = true; }
+                    }
+                    else { Content.OdlForceDrop.beast_evolution_select_0_enable = false; }
+                    if (Content.OdlForceDrop.beast_evolution_1_enable)
+                    {
+                        if (Content.OdlForceDrop.beast_evolution_1_dropdown.value == 0) { Content.OdlForceDrop.beast_evolution_select_1_enable = false; }
+                        else { Content.OdlForceDrop.beast_evolution_select_1_enable = true; }
+                    }
+                    else { Content.OdlForceDrop.beast_evolution_select_1_enable = false; }
+                    if (Content.OdlForceDrop.beast_evolution_2_enable)
+                    {
+                        if (Content.OdlForceDrop.beast_evolution_2_dropdown.value == 0) { Content.OdlForceDrop.beast_evolution_select_2_enable = false; }
+                        else { Content.OdlForceDrop.beast_evolution_select_2_enable = true; }
+                    }
+                    else { Content.OdlForceDrop.beast_evolution_select_2_enable = false; }
+                    if (Content.OdlForceDrop.beast_evolution_3_enable)
+                    {
+                        if (Content.OdlForceDrop.beast_evolution_3_dropdown.value == 0) { Content.OdlForceDrop.beast_evolution_select_3_enable = false; }
+                        else { Content.OdlForceDrop.beast_evolution_select_3_enable = true; }
+                    }
+                    else { Content.OdlForceDrop.beast_evolution_select_3_enable = false; }
+                    if (Content.OdlForceDrop.beast_evolution_4_enable)
+                    {
+                        if (Content.OdlForceDrop.beast_evolution_4_dropdown.value == 0) { Content.OdlForceDrop.beast_evolution_select_4_enable = false; }
+                        else { Content.OdlForceDrop.beast_evolution_select_4_enable = true; }
+                    }
+                    else { Content.OdlForceDrop.beast_evolution_select_4_enable = false; }
+                    if (Content.OdlForceDrop.beast_evolution_5_enable)
+                    {
+                        if (Content.OdlForceDrop.beast_evolution_5_dropdown.value == 0) { Content.OdlForceDrop.beast_evolution_select_5_enable = false; }
+                        else { Content.OdlForceDrop.beast_evolution_select_5_enable = true; }
+                    }
+                    else { Content.OdlForceDrop.beast_evolution_select_5_enable = false; }
+                    if (Content.OdlForceDrop.beast_evolution_6_enable)
+                    {
+                        if (Content.OdlForceDrop.beast_evolution_6_dropdown.value == 0) { Content.OdlForceDrop.beast_evolution_select_6_enable = false; }
+                        else { Content.OdlForceDrop.beast_evolution_select_6_enable = true; }
+                    }
+                    else { Content.OdlForceDrop.beast_evolution_select_6_enable = false; }
+
+                    Content.OdlForceDrop.beast_evolution_select_0.active = Content.OdlForceDrop.beast_evolution_select_0_enable;
+                    Content.OdlForceDrop.beast_evolution_select_1.active = Content.OdlForceDrop.beast_evolution_select_1_enable;
+                    Content.OdlForceDrop.beast_evolution_select_2.active = Content.OdlForceDrop.beast_evolution_select_2_enable;
+                    Content.OdlForceDrop.beast_evolution_select_3.active = Content.OdlForceDrop.beast_evolution_select_3_enable;
+                    Content.OdlForceDrop.beast_evolution_select_4.active = Content.OdlForceDrop.beast_evolution_select_4_enable;
+                    Content.OdlForceDrop.beast_evolution_select_5.active = Content.OdlForceDrop.beast_evolution_select_5_enable;
+                    Content.OdlForceDrop.beast_evolution_select_6.active = Content.OdlForceDrop.beast_evolution_select_6_enable;
 
                     Content.OdlForceDrop.legenday_potencial.active = Content.OdlForceDrop.legenday_potencial_enable;
                     Content.OdlForceDrop.legenday_potencial_border.active = Content.OdlForceDrop.legenday_potencial_enable;
@@ -5042,51 +5177,124 @@ namespace LastEpoch_Hud.Scripts
 
                 //Unique mods
                 public static bool unique_mods_enable = false;
-                public static bool unique_mods_roll = false;
                 public static GameObject unique_mods = null;
                 public static GameObject unique_mods_border = null;
                 public static Dropdown unique_mods_dropdown = null;
 
+                public static bool unique_mods_roll_0 = false;
                 public static GameObject unique_mod_0 = null;
                 public static Text unique_mod_0_Text = null;
                 public static Slider unique_mod_0_slider = null;
                 public static readonly System.Action<float> unique_mod_0_Action = new System.Action<float>(SetUniqueMod_0);
 
+                public static bool unique_mods_roll_1 = false;
                 public static GameObject unique_mod_1 = null;
                 public static Text unique_mod_1_Text = null;
                 public static Slider unique_mod_1_slider = null;
                 public static readonly System.Action<float> unique_mod_1_Action = new System.Action<float>(SetUniqueMod_1);
 
+                public static bool unique_mods_roll_2 = false;
                 public static GameObject unique_mod_2 = null;
                 public static Text unique_mod_2_Text = null;
                 public static Slider unique_mod_2_slider = null;
                 public static readonly System.Action<float> unique_mod_2_Action = new System.Action<float>(SetUniqueMod_2);
 
+                public static bool unique_mods_roll_3 = false;
                 public static GameObject unique_mod_3 = null;
                 public static Text unique_mod_3_Text = null;
                 public static Slider unique_mod_3_slider = null;
                 public static readonly System.Action<float> unique_mod_3_Action = new System.Action<float>(SetUniqueMod_3);
 
+                public static bool unique_mods_roll_4 = false;
                 public static GameObject unique_mod_4 = null;
                 public static Text unique_mod_4_Text = null;
                 public static Slider unique_mod_4_slider = null;
                 public static readonly System.Action<float> unique_mod_4_Action = new System.Action<float>(SetUniqueMod_4);
 
+                public static bool unique_mods_roll_5 = false;
                 public static GameObject unique_mod_5 = null;
                 public static Text unique_mod_5_Text = null;
                 public static Slider unique_mod_5_slider = null;
                 public static readonly System.Action<float> unique_mod_5_Action = new System.Action<float>(SetUniqueMod_5);
 
+                public static bool unique_mods_roll_6 = false;
                 public static GameObject unique_mod_6 = null;
                 public static Text unique_mod_6_Text = null;
                 public static Slider unique_mod_6_slider = null;
                 public static readonly System.Action<float> unique_mod_6_Action = new System.Action<float>(SetUniqueMod_6);
 
+                public static bool unique_mods_roll_7 = false;
                 public static GameObject unique_mod_7 = null;
                 public static Text unique_mod_7_Text = null;
                 public static Slider unique_mod_7_slider = null;
                 public static readonly System.Action<float> unique_mod_7_Action = new System.Action<float>(SetUniqueMod_7);
-                                
+
+                //Beast Evolutions
+                public static GameObject beast_evolution_border = null;
+                public static int evo_count = 0;
+
+                public static GameObject nb_evolution = null;
+                public static Text nb_evolution_Text = null;
+                public static Slider nb_evolution_slider = null;
+                public static readonly System.Action<float> nb_evolution_Action = new System.Action<float>(SetNbEvolution);
+
+                public static bool beast_evolution_0_enable = false;
+                public static GameObject beast_evolution_0 = null;
+                public static Dropdown beast_evolution_0_dropdown = null;
+                public static int beast_evolution_0_select = 0;
+                public static bool beast_evolution_select_0_enable = false;
+                public static GameObject beast_evolution_select_0 = null;
+                public static Dropdown beast_evolution_0_select_dropdown = null;
+
+                public static bool beast_evolution_1_enable = false;
+                public static GameObject beast_evolution_1 = null;
+                public static Dropdown beast_evolution_1_dropdown = null;
+                public static int beast_evolution_1_select = 0;
+                public static bool beast_evolution_select_1_enable = false;
+                public static GameObject beast_evolution_select_1 = null;
+                public static Dropdown beast_evolution_1_select_dropdown = null;
+
+                public static bool beast_evolution_2_enable = false;
+                public static GameObject beast_evolution_2 = null;
+                public static Dropdown beast_evolution_2_dropdown = null;
+                public static int beast_evolution_2_select = 0;
+                public static bool beast_evolution_select_2_enable = false;
+                public static GameObject beast_evolution_select_2 = null;
+                public static Dropdown beast_evolution_2_select_dropdown = null;
+
+                public static bool beast_evolution_3_enable = false;
+                public static GameObject beast_evolution_3 = null;
+                public static Dropdown beast_evolution_3_dropdown = null;
+                public static int beast_evolution_3_select = 0;
+                public static bool beast_evolution_select_3_enable = false;
+                public static GameObject beast_evolution_select_3 = null;
+                public static Dropdown beast_evolution_3_select_dropdown = null;
+
+                public static bool beast_evolution_4_enable = false;
+                public static GameObject beast_evolution_4 = null;
+                public static Dropdown beast_evolution_4_dropdown = null;
+                public static int beast_evolution_4_select = 0;
+                public static bool beast_evolution_select_4_enable = false;
+                public static GameObject beast_evolution_select_4 = null;
+                public static Dropdown beast_evolution_4_select_dropdown = null;
+
+                public static bool beast_evolution_5_enable = false;
+                public static GameObject beast_evolution_5 = null;
+                public static Dropdown beast_evolution_5_dropdown = null;
+                public static int beast_evolution_5_select = 0;
+                public static bool beast_evolution_select_5_enable = false;
+                public static GameObject beast_evolution_select_5 = null;
+                public static Dropdown beast_evolution_5_select_dropdown = null;
+
+                public static bool beast_evolution_6_enable = false;
+                public static GameObject beast_evolution_6 = null;
+                public static Dropdown beast_evolution_6_dropdown = null;
+                public static int beast_evolution_6_select = 0;
+                public static bool beast_evolution_select_6_enable = false;
+                public static GameObject beast_evolution_select_6 = null;
+                public static Dropdown beast_evolution_6_select_dropdown = null;
+
+                //Legendary Potencial
                 public static UniqueList.LegendaryType item_legendary_type = UniqueList.LegendaryType.LegendaryPotential;
 
                 public static bool legenday_potencial_enable = false;
@@ -5099,6 +5307,7 @@ namespace LastEpoch_Hud.Scripts
                 public static Slider legenday_potencial_slider = null;
                 public static readonly System.Action<float> legenday_potencial_Action = new System.Action<float>(SetLegendayPotencial);
 
+                //Weaver will
                 public static bool weaver_will_enable = false;
                 public static bool weaver_will_roll = false;
                 public static GameObject weaver_will = null;
@@ -5109,12 +5318,14 @@ namespace LastEpoch_Hud.Scripts
                 public static Slider weaver_will_slider = null;
                 public static readonly System.Action<float> weaver_will_Action = new System.Action<float>(SetWeaverWill);
 
+                //Quantity
                 public static bool quantity_enable = false;
                 public static GameObject quantity = null;
                 public static GameObject quantity_border = null;
                 public static Text quantity_text = null;
                 public static Slider forcedrop_quantity_slider = null;
 
+                //Drop button
                 public static Button forcedrop_drop_button = null;
                 public static bool btn_enable = false;
                 public static readonly System.Action Drop_OnClick_Action = new System.Action(Drop);
@@ -5275,6 +5486,40 @@ namespace LastEpoch_Hud.Scripts
                                 unique_mod_7_Text = Functions.Get_TextInPanel(left_base_content, "UniqueMod_7", "Value");
                                 unique_mod_7_slider = Functions.Get_SliderInPanel(left_base_content, "UniqueMod_7", "Slider");
 
+                                nb_evolution = Functions.GetChild(left_base_content, "Nb_Evo");
+                                nb_evolution_Text = Functions.Get_TextInPanel(left_base_content, "Nb_Evo", "Value");
+                                nb_evolution_slider = Functions.Get_SliderInPanel(left_base_content, "Nb_Evo", "Slider");
+
+                                beast_evolution_border = Functions.GetChild(left_base_content, "BeastEvolBorder");
+                                beast_evolution_0 = Functions.GetChild(left_base_content, "Enable_BeastEvo_0");
+                                beast_evolution_0_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Enable_BeastEvo_0", "Dropdown", new System.Action<int>((_) => { EnableBeastEvolution_0(); }));
+                                beast_evolution_select_0 = Functions.GetChild(left_base_content, "BeastEvo_0");
+                                beast_evolution_0_select_dropdown = Functions.Get_DopboxInPanel(left_base_content, "BeastEvo_0", "Dropdown", new System.Action<int>((_) => { SelectBeastEvolution_0(); }));
+                                beast_evolution_1 = Functions.GetChild(left_base_content, "Enable_BeastEvo_1");
+                                beast_evolution_1_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Enable_BeastEvo_1", "Dropdown", new System.Action<int>((_) => { EnableBeastEvolution_1(); }));
+                                beast_evolution_select_1 = Functions.GetChild(left_base_content, "BeastEvo_1");
+                                beast_evolution_1_select_dropdown = Functions.Get_DopboxInPanel(left_base_content, "BeastEvo_1", "Dropdown", new System.Action<int>((_) => { SelectBeastEvolution_1(); }));
+                                beast_evolution_2 = Functions.GetChild(left_base_content, "Enable_BeastEvo_2");
+                                beast_evolution_2_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Enable_BeastEvo_2", "Dropdown", new System.Action<int>((_) => { EnableBeastEvolution_2(); }));
+                                beast_evolution_select_2 = Functions.GetChild(left_base_content, "BeastEvo_2");
+                                beast_evolution_2_select_dropdown = Functions.Get_DopboxInPanel(left_base_content, "BeastEvo_2", "Dropdown", new System.Action<int>((_) => { SelectBeastEvolution_2(); }));
+                                beast_evolution_3 = Functions.GetChild(left_base_content, "Enable_BeastEvo_3");
+                                beast_evolution_3_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Enable_BeastEvo_3", "Dropdown", new System.Action<int>((_) => { EnableBeastEvolution_3(); }));
+                                beast_evolution_select_3 = Functions.GetChild(left_base_content, "BeastEvo_3");
+                                beast_evolution_3_select_dropdown = Functions.Get_DopboxInPanel(left_base_content, "BeastEvo_3", "Dropdown", new System.Action<int>((_) => { SelectBeastEvolution_3(); }));
+                                beast_evolution_4 = Functions.GetChild(left_base_content, "Enable_BeastEvo_4");
+                                beast_evolution_4_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Enable_BeastEvo_4", "Dropdown", new System.Action<int>((_) => { EnableBeastEvolution_4(); }));
+                                beast_evolution_select_4 = Functions.GetChild(left_base_content, "BeastEvo_4");
+                                beast_evolution_4_select_dropdown = Functions.Get_DopboxInPanel(left_base_content, "BeastEvo_4", "Dropdown", new System.Action<int>((_) => { SelectBeastEvolution_4(); }));
+                                beast_evolution_5 = Functions.GetChild(left_base_content, "Enable_BeastEvo_5");
+                                beast_evolution_5_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Enable_BeastEvo_5", "Dropdown", new System.Action<int>((_) => { EnableBeastEvolution_5(); }));
+                                beast_evolution_select_5 = Functions.GetChild(left_base_content, "BeastEvo_5");
+                                beast_evolution_5_select_dropdown = Functions.Get_DopboxInPanel(left_base_content, "BeastEvo_5", "Dropdown", new System.Action<int>((_) => { SelectBeastEvolution_5(); }));
+                                beast_evolution_6 = Functions.GetChild(left_base_content, "Enable_BeastEvo_6");
+                                beast_evolution_6_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Enable_BeastEvo_6", "Dropdown", new System.Action<int>((_) => { EnableBeastEvolution_6(); }));
+                                beast_evolution_select_6 = Functions.GetChild(left_base_content, "BeastEvo_6");
+                                beast_evolution_6_select_dropdown = Functions.Get_DopboxInPanel(left_base_content, "BeastEvo_6", "Dropdown", new System.Action<int>((_) => { SelectBeastEvolution_6(); }));
+
                                 legenday_potencial = Functions.GetChild(left_base_content, "EnableLegendaryPotencial");
                                 legenday_potencial_border = Functions.GetChild(left_base_content, "LegendaryPotencialBorder");
                                 legenday_potencial_dropdown = Functions.Get_DopboxInPanel(left_base_content, "EnableLegendaryPotencial", "Dropdown", new System.Action<int>((_) => { EnableLegendaryPotencial(); }));
@@ -5366,6 +5611,37 @@ namespace LastEpoch_Hud.Scripts
                         if (!error) { initialized = true; }
                     }
                 }
+                public static void Init_BeastDropdown()
+                {
+                    TimeBeastData time_beast_data = null;
+                    foreach (TimeBeastData data in Resources.FindObjectsOfTypeAll<TimeBeastData>())
+                    {
+                        time_beast_data = data;
+                        break;
+                    }
+                    if (!time_beast_data.IsNullOrDestroyed())
+                    {
+                        System.Collections.Generic.List<string> evos = new System.Collections.Generic.List<string>();
+                        foreach (TimeBeastData.AdaptationData adaptation in time_beast_data.adaptationData) { evos.Add(adaptation.displayName); }
+                        evo_count = evos.Count;
+                        Dropdown[] beast_dropdowns =
+                        {
+                            beast_evolution_0_select_dropdown,
+                            beast_evolution_1_select_dropdown,
+                            beast_evolution_2_select_dropdown,
+                            beast_evolution_3_select_dropdown,
+                            beast_evolution_4_select_dropdown,
+                            beast_evolution_5_select_dropdown,
+                            beast_evolution_6_select_dropdown
+                        };
+                        foreach (Dropdown dropdown in beast_dropdowns)
+                        {
+                            dropdown.options.Clear();
+                            foreach (string s in evos) { dropdown.options.Add(new Dropdown.OptionData(s)); }
+                        }
+                    }
+                    else { Main.logger_instance.Error("TimeBeastData not found"); }
+                }
                 public static void Set_Events()
                 {
                     if (!forcedrop_drop_button.IsNullOrDestroyed())
@@ -5403,6 +5679,7 @@ namespace LastEpoch_Hud.Scripts
                         Events.Set_Slider_Event(unique_mod_5_slider, unique_mod_5_Action);
                         Events.Set_Slider_Event(unique_mod_6_slider, unique_mod_6_Action);
                         Events.Set_Slider_Event(unique_mod_7_slider, unique_mod_7_Action);
+                        Events.Set_Slider_Event(nb_evolution_slider, nb_evolution_Action);
                         Events.Set_Slider_Event(legenday_potencial_slider, legenday_potencial_Action);
                         Events.Set_Slider_Event(weaver_will_slider, weaver_will_Action);
                                                 
@@ -5860,8 +6137,82 @@ namespace LastEpoch_Hud.Scripts
                     int index = unique_mods_dropdown.value;
                     if (index < unique_mods_dropdown.options.Count)
                     {
-                        if (index == 1) { unique_mods_roll = true; }
-                        else { unique_mods_roll = false; }
+                        if (index == 1)
+                        {
+                            if (item_unique_id != 444)
+                            {
+                                unique_mods_roll_0 = true;
+                                unique_mods_roll_1 = true;
+                                unique_mods_roll_2 = true;
+                                unique_mods_roll_3 = true;
+                                unique_mods_roll_4 = true;
+                                unique_mods_roll_5 = true;
+                                unique_mods_roll_6 = true;
+                                unique_mods_roll_7 = true;
+
+                                beast_evolution_0_enable = false;
+                                beast_evolution_1_enable = false;
+                                beast_evolution_2_enable = false;
+                                beast_evolution_3_enable = false;
+                                beast_evolution_4_enable = false;
+                                beast_evolution_5_enable = false;
+
+                                beast_evolution_select_0_enable = false;
+                                beast_evolution_select_1_enable = false;
+                                beast_evolution_select_2_enable = false;
+                                beast_evolution_select_3_enable = false;
+                                beast_evolution_select_4_enable = false;
+                                beast_evolution_select_5_enable = false;
+                            }
+                            else
+                            {
+                                unique_mods_roll_0 = true;
+                                unique_mods_roll_1 = false;
+                                unique_mods_roll_2 = true;
+                                unique_mods_roll_3 = false;
+                                unique_mods_roll_4 = false;
+                                unique_mods_roll_5 = false;
+                                unique_mods_roll_6 = false;
+                                unique_mods_roll_7 = false;
+
+                                beast_evolution_0_enable = true;
+                                beast_evolution_1_enable = true;
+                                beast_evolution_2_enable = true;
+                                beast_evolution_3_enable = true;
+                                beast_evolution_4_enable = true;
+                                beast_evolution_5_enable = true;
+
+                                EnableBeastEvolution_0();
+                                EnableBeastEvolution_1();
+                                EnableBeastEvolution_2();
+                                EnableBeastEvolution_3();
+                                EnableBeastEvolution_4();
+                                EnableBeastEvolution_5();
+                            }
+                        }
+                        else
+                        {
+                            unique_mods_roll_0 = false;
+                            unique_mods_roll_1 = false;
+                            unique_mods_roll_2 = false;
+                            unique_mods_roll_3 = false;
+                            unique_mods_roll_4 = false;
+                            unique_mods_roll_5 = false;
+
+                            beast_evolution_0_enable = false;
+                            beast_evolution_1_enable = false;
+                            beast_evolution_2_enable = false;
+                            beast_evolution_3_enable = false;
+                            beast_evolution_4_enable = false;
+                            beast_evolution_5_enable = false;
+
+                            beast_evolution_select_0_enable = false;
+                            beast_evolution_select_1_enable = false;
+                            beast_evolution_select_2_enable = false;
+                            beast_evolution_select_3_enable = false;
+                            beast_evolution_select_4_enable = false;
+                            beast_evolution_select_5_enable = false;
+                        }
                     }
                 }
                 public static void SetUniqueMod_0(float f)
@@ -5904,6 +6255,132 @@ namespace LastEpoch_Hud.Scripts
                     int result = System.Convert.ToInt32((unique_mod_7_slider.value / 255) * 100);
                     unique_mod_7_Text.text = result.ToString() + " %";
                 }
+
+                public static void SetNbEvolution(float f)
+                {
+                    int result = System.Convert.ToInt32(nb_evolution_slider.value);
+                    nb_evolution_Text.text = result.ToString();
+                }
+                public static void EnableBeastEvolution_0()
+                {
+                    int index = beast_evolution_0_dropdown.value;
+                    if (index < beast_evolution_0_dropdown.options.Count)
+                    {
+                        if (index == 1) { beast_evolution_0_enable = true; }
+                        else { beast_evolution_0_enable = false; }
+                    }
+                }
+                public static void SelectBeastEvolution_0()
+                {
+                    int index = beast_evolution_0_select_dropdown.value;
+                    if (index < beast_evolution_0_select_dropdown.options.Count)
+                    {
+                        beast_evolution_0_select = index;
+                    }
+                }
+                public static void EnableBeastEvolution_1()
+                {
+                    int index = beast_evolution_1_dropdown.value;
+                    if (index < beast_evolution_1_dropdown.options.Count)
+                    {
+                        if (index == 1) { beast_evolution_1_enable = true; }
+                        else { beast_evolution_1_enable = false; }
+                    }
+                }
+                public static void SelectBeastEvolution_1()
+                {
+                    int index = beast_evolution_1_select_dropdown.value;
+                    if (index < beast_evolution_1_select_dropdown.options.Count)
+                    {
+                        beast_evolution_1_select = index;
+                    }
+                }
+                public static void EnableBeastEvolution_2()
+                {
+                    int index = beast_evolution_2_dropdown.value;
+                    if (index < beast_evolution_2_dropdown.options.Count)
+                    {
+                        if (index == 1) { beast_evolution_2_enable = true; }
+                        else { beast_evolution_2_enable = false; }
+                    }
+                }
+                public static void SelectBeastEvolution_2()
+                {
+                    int index = beast_evolution_2_select_dropdown.value;
+                    if (index < beast_evolution_2_select_dropdown.options.Count)
+                    {
+                        beast_evolution_2_select = index;
+                    }
+                }
+                public static void EnableBeastEvolution_3()
+                {
+                    int index = beast_evolution_3_dropdown.value;
+                    if (index < beast_evolution_3_dropdown.options.Count)
+                    {
+                        if (index == 1) { beast_evolution_3_enable = true; }
+                        else { beast_evolution_3_enable = false; }
+                    }
+                }
+                public static void SelectBeastEvolution_3()
+                {
+                    int index = beast_evolution_3_select_dropdown.value;
+                    if (index < beast_evolution_3_select_dropdown.options.Count)
+                    {
+                        beast_evolution_3_select = index;
+                    }
+                }
+                public static void EnableBeastEvolution_4()
+                {
+                    int index = beast_evolution_4_dropdown.value;
+                    if (index < beast_evolution_4_dropdown.options.Count)
+                    {
+                        if (index == 1) { beast_evolution_4_enable = true; }
+                        else { beast_evolution_4_enable = false; }
+                    }
+                }
+                public static void SelectBeastEvolution_4()
+                {
+                    int index = beast_evolution_4_select_dropdown.value;
+                    if (index < beast_evolution_4_select_dropdown.options.Count)
+                    {
+                        beast_evolution_4_select = index;
+                    }
+                }
+                public static void EnableBeastEvolution_5()
+                {
+                    int index = beast_evolution_5_dropdown.value;
+                    if (index < beast_evolution_5_dropdown.options.Count)
+                    {
+                        if (index == 1) { beast_evolution_5_enable = true; }
+                        else { beast_evolution_5_enable = false; }
+                    }
+                }
+                public static void SelectBeastEvolution_5()
+                {
+                    int index = beast_evolution_5_select_dropdown.value;
+                    if (index < beast_evolution_5_select_dropdown.options.Count)
+                    {
+                        beast_evolution_5_select = index;
+                    }
+                }
+                public static void EnableBeastEvolution_6()
+                {
+                    int index = beast_evolution_6_dropdown.value;
+                    if (index < beast_evolution_6_dropdown.options.Count)
+                    {
+                        if (index == 1) { beast_evolution_6_enable = true; }
+                        else { beast_evolution_6_enable = false; }
+                    }
+                }
+                public static void SelectBeastEvolution_6()
+                {
+                    int index = beast_evolution_6_select_dropdown.value;
+                    if (index < beast_evolution_6_select_dropdown.options.Count)
+                    {
+                        beast_evolution_6_select = index;
+                    }
+                }
+
                 public static void EnableLegendaryPotencial()
                 {
                     int index = legenday_potencial_dropdown.value;
@@ -6254,23 +6731,52 @@ namespace LastEpoch_Hud.Scripts
                             //Set Unique mods
                             if (item.isUniqueSetOrLegendary())
                             {
-                                if (unique_mods_roll)
+                                if (item_unique_id != 444)
                                 {
-                                    item.uniqueRolls[0] = (byte)unique_mod_0_slider.value;
-                                    item.uniqueRolls[1] = (byte)unique_mod_1_slider.value;
-                                    item.uniqueRolls[2] = (byte)unique_mod_2_slider.value;
-                                    item.uniqueRolls[3] = (byte)unique_mod_3_slider.value;
-                                    item.uniqueRolls[4] = (byte)unique_mod_4_slider.value;
-                                    item.uniqueRolls[5] = (byte)unique_mod_5_slider.value;
-                                    item.uniqueRolls[6] = (byte)unique_mod_6_slider.value;
-                                    item.uniqueRolls[7] = (byte)unique_mod_7_slider.value;
-                                }
-                                else //Random
-                                {
-                                    for (int k = 0; k < item.uniqueRolls.Count; k++)
+                                    if (unique_mods_dropdown.value == 1)
                                     {
-                                        item.uniqueRolls[k] = (byte)Random.RandomRange(0f, 255f);
+                                        item.uniqueRolls[0] = (byte)unique_mod_0_slider.value;
+                                        item.uniqueRolls[1] = (byte)unique_mod_1_slider.value;
+                                        item.uniqueRolls[2] = (byte)unique_mod_2_slider.value;
+                                        item.uniqueRolls[3] = (byte)unique_mod_3_slider.value;
+                                        item.uniqueRolls[4] = (byte)unique_mod_4_slider.value;
+                                        item.uniqueRolls[5] = (byte)unique_mod_5_slider.value;
+                                        item.uniqueRolls[6] = (byte)unique_mod_6_slider.value;
+                                        item.uniqueRolls[7] = (byte)unique_mod_7_slider.value;
                                     }
+                                    else
+                                    {
+                                        for (int k = 0; k < item.uniqueRolls.Count; k++)
+                                        {
+                                            item.uniqueRolls[k] = (byte)Random.RandomRange(0f, 255f);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (unique_mods_dropdown.value == 1) { item.uniqueRolls[0] = (byte)unique_mod_0_slider.value; }
+                                    else { item.uniqueRolls[0] = (byte)Random.RandomRange(0f, 255f); }
+                                    if (beast_evolution_0_dropdown.value == 0) { item.uniqueRolls[1] = (byte)Random.RandomRangeInt(1, evo_count); }
+                                    else { item.uniqueRolls[1] = (byte)beast_evolution_0_select_dropdown.value; }                                    
+                                    if (beast_evolution_1_dropdown.value == 0) { item.uniqueRolls[2] = (byte)Random.RandomRangeInt(1, evo_count); }
+                                    else { item.uniqueRolls[2] = (byte)beast_evolution_1_select_dropdown.value; }                                    
+                                    if (beast_evolution_2_dropdown.value == 0) { item.uniqueRolls[3] = (byte)Random.RandomRangeInt(1, evo_count); }
+                                    else { item.uniqueRolls[3] = (byte)beast_evolution_2_select_dropdown.value; }                                    
+                                    if (beast_evolution_3_dropdown.value == 0) { item.uniqueRolls[4] = (byte)Random.RandomRangeInt(1, evo_count); }
+                                    else { item.uniqueRolls[4] = (byte)beast_evolution_3_select_dropdown.value; }                                    
+                                    if (beast_evolution_4_dropdown.value == 0) { item.uniqueRolls[5] = (byte)Random.RandomRangeInt(1, evo_count); }
+                                    else { item.uniqueRolls[5] = (byte)beast_evolution_4_select_dropdown.value; }                                    
+                                    if (beast_evolution_5_dropdown.value == 0) { item.uniqueRolls[6] = (byte)Random.RandomRangeInt(1, evo_count); }
+                                    else { item.uniqueRolls[6] = (byte)beast_evolution_5_select_dropdown.value; }
+                                    if (beast_evolution_6_dropdown.value == 0) { item.uniqueRolls[7] = (byte)Random.RandomRangeInt(1, evo_count); }
+                                    else { item.uniqueRolls[7] = (byte)beast_evolution_6_select_dropdown.value; }
+
+                                    int unique_roll = item.uniqueRolls[0];
+                                    int m = 0;
+                                    if (unique_roll > 8) { m = unique_roll / 8; }
+                                    int nb_evo = unique_roll - (8 * m);
+                                    int nb_evolutions = (int)nb_evolution_slider.value;
+                                    if (nb_evo != nb_evolutions) { item.uniqueRolls[0] = (byte)((m * 8) + nb_evolutions); }
                                 }
                             }
                             item.RefreshIDAndValues(); //Refresh item for implicits and unique mods
