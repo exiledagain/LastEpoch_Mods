@@ -1,10 +1,12 @@
 ﻿using HarmonyLib;
 using Il2Cpp;
 using Il2CppLE.Data;
+using Il2CppRewired.Components; //Gamepad
 using Il2CppSystem.Collections.Generic;
 using MelonLoader;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices; //Gamepad
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -3887,7 +3889,7 @@ namespace LastEpoch_Hud.Scripts
                                                 ((item_rarity == 8) && (unique.isSetItem))))
                                             {
                                                 string name = unique.displayName;
-                                                if (name == "") { name = unique.name; }
+                                                if (name == "Pearls of the Swine") { name = unique.name; } // if item's displayName is "Pearls of the Swine", use unique.name instead of unique.displayName (https://github.com/BruceShih/LastEpoch_Mods/commits/master/)
                                                 options.Add(new Dropdown.OptionData { text = name });
                                             }
                                         }
@@ -5102,6 +5104,8 @@ namespace LastEpoch_Hud.Scripts
                 public static Slider affix_0_tier_slider = null;
                 public static readonly System.Action<float> affix_0_tier_Action = new System.Action<float>(SetAffix_0_Tier);
                 public static Text affix_0_value_text = null;
+                public static Toggle affix_0_random_toggle = null;
+                public static readonly System.Action<bool> Affix_0_RandomRoll_Toggle_Action = new System.Action<bool>(Set_Affix_0_RandomRoll_Enable);
                 public static Slider affix_0_value_slider = null;
                 public static readonly System.Action<float> affix_0_value_Action = new System.Action<float>(SetAffix_0_Value);
 
@@ -5116,6 +5120,8 @@ namespace LastEpoch_Hud.Scripts
                 public static Slider affix_1_tier_slider = null;
                 public static readonly System.Action<float> affix_1_tier_Action = new System.Action<float>(SetAffix_1_Tier);
                 public static Text affix_1_value_text = null;
+                public static Toggle affix_1_random_toggle = null;
+                public static readonly System.Action<bool> Affix_1_RandomRoll_Toggle_Action = new System.Action<bool>(Set_Affix_1_RandomRoll_Enable);
                 public static Slider affix_1_value_slider = null;
                 public static readonly System.Action<float> affix_1_value_Action = new System.Action<float>(SetAffix_1_Value);
 
@@ -5130,6 +5136,8 @@ namespace LastEpoch_Hud.Scripts
                 public static Slider affix_2_tier_slider = null;
                 public static readonly System.Action<float> affix_2_tier_Action = new System.Action<float>(SetAffix_2_Tier);
                 public static Text affix_2_value_text = null;
+                public static Toggle affix_2_random_toggle = null;
+                public static readonly System.Action<bool> Affix_2_RandomRoll_Toggle_Action = new System.Action<bool>(Set_Affix_2_RandomRoll_Enable);
                 public static Slider affix_2_value_slider = null;
                 public static readonly System.Action<float> affix_2_value_Action = new System.Action<float>(SetAffix_2_Value);
 
@@ -5144,6 +5152,8 @@ namespace LastEpoch_Hud.Scripts
                 public static Slider affix_3_tier_slider = null;
                 public static readonly System.Action<float> affix_3_tier_Action = new System.Action<float>(SetAffix_3_Tier);
                 public static Text affix_3_value_text = null;
+                public static Toggle affix_3_random_toggle = null;
+                public static readonly System.Action<bool> Affix_3_RandomRoll_Toggle_Action = new System.Action<bool>(Set_Affix_3_RandomRoll_Enable);
                 public static Slider affix_3_value_slider = null;
                 public static readonly System.Action<float> affix_3_value_Action = new System.Action<float>(SetAffix_3_Value);
 
@@ -5158,6 +5168,8 @@ namespace LastEpoch_Hud.Scripts
                 public static Slider affix_4_tier_slider = null;
                 public static readonly System.Action<float> affix_4_tier_Action = new System.Action<float>(SetAffix_4_Tier);
                 public static Text affix_4_value_text = null;
+                public static Toggle affix_4_random_toggle = null;
+                public static readonly System.Action<bool> Affix_4_RandomRoll_Toggle_Action = new System.Action<bool>(Set_Affix_4_RandomRoll_Enable);
                 public static Slider affix_4_value_slider = null;
                 public static readonly System.Action<float> affix_4_value_Action = new System.Action<float>(SetAffix_4_Value);
 
@@ -5172,6 +5184,8 @@ namespace LastEpoch_Hud.Scripts
                 public static Slider affix_5_tier_slider = null;
                 public static readonly System.Action<float> affix_5_tier_Action = new System.Action<float>(SetAffix_5_Tier);
                 public static Text affix_5_value_text = null;
+                public static Toggle affix_5_random_toggle = null;
+                public static readonly System.Action<bool> Affix_5_RandomRoll_Toggle_Action = new System.Action<bool>(Set_Affix_5_RandomRoll_Enable);
                 public static Slider affix_5_value_slider = null;
                 public static readonly System.Action<float> affix_5_value_Action = new System.Action<float>(SetAffix_5_Value);
 
@@ -5415,47 +5429,59 @@ namespace LastEpoch_Hud.Scripts
                                 if (affixs_numbers_text.IsNullOrDestroyed()) { Main.logger_instance.Error("affixs_numbers_text is null"); }
                                 affixs_numbers_slider = Functions.Get_SliderInPanel(left_base_content, "AffixsNb", "Slider");
                                 if (affixs_numbers_slider.IsNullOrDestroyed()) { Main.logger_instance.Error("affixs_numbers_slider is null"); }
+                                
                                 affix_0 = Functions.GetChild(left_base_content, "Affix_0");
                                 affix_0_button = Functions.Get_ButtonInPanel(affix_0, "Button");
                                 affix_0_select_text = Functions.Get_TextInButton(affix_0, "Button", "Text");
-                                affix_0_tier_text = Functions.Get_TextInPanel(left_base_content, "Affix_0", "TierValue");
+                                affix_0_tier_text = Functions.Get_TextInPanel(affix_0, "Tier", "Value");
                                 affix_0_tier_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_0", "TierSlider");
-                                affix_0_value_text = Functions.Get_TextInPanel(left_base_content, "Affix_0", "Value");
+                                affix_0_value_text = Functions.Get_TextInPanel(affix_0, "Roll", "Value");
+                                affix_0_random_toggle = Functions.Get_ToggleInPanel(affix_0, "RandomRoll", "Toggle_Random");
                                 affix_0_value_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_0", "ValueSlider");
+                                
                                 affix_1 = Functions.GetChild(left_base_content, "Affix_1");
                                 affix_1_button = Functions.Get_ButtonInPanel(affix_1, "Button");
                                 affix_1_select_text = Functions.Get_TextInButton(affix_1, "Button", "Text");
-                                affix_1_tier_text = Functions.Get_TextInPanel(left_base_content, "Affix_1", "TierValue");
+                                affix_1_tier_text = Functions.Get_TextInPanel(affix_1, "Tier", "Value");
                                 affix_1_tier_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_1", "TierSlider");
-                                affix_1_value_text = Functions.Get_TextInPanel(left_base_content, "Affix_1", "Value");
+                                affix_1_value_text = Functions.Get_TextInPanel(affix_1, "Roll", "Value");
+                                affix_1_random_toggle = Functions.Get_ToggleInPanel(affix_1, "RandomRoll", "Toggle_Random");
                                 affix_1_value_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_1", "ValueSlider");
+                                
                                 affix_2 = Functions.GetChild(left_base_content, "Affix_2");
                                 affix_2_button = Functions.Get_ButtonInPanel(affix_2, "Button");
                                 affix_2_select_text = Functions.Get_TextInButton(affix_2, "Button", "Text");
-                                affix_2_tier_text = Functions.Get_TextInPanel(left_base_content, "Affix_2", "TierValue");
+                                affix_2_tier_text = Functions.Get_TextInPanel(affix_2, "Tier", "Value");
                                 affix_2_tier_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_2", "TierSlider");
-                                affix_2_value_text = Functions.Get_TextInPanel(left_base_content, "Affix_2", "Value");
+                                affix_2_value_text = Functions.Get_TextInPanel(affix_2, "Roll", "Value");
+                                affix_2_random_toggle = Functions.Get_ToggleInPanel(affix_2, "RandomRoll", "Toggle_Random");
                                 affix_2_value_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_2", "ValueSlider");
+                                
                                 affix_3 = Functions.GetChild(left_base_content, "Affix_3");
                                 affix_3_button = Functions.Get_ButtonInPanel(affix_3, "Button");
                                 affix_3_select_text = Functions.Get_TextInButton(affix_3, "Button", "Text");
-                                affix_3_tier_text = Functions.Get_TextInPanel(left_base_content, "Affix_3", "TierValue");
+                                affix_3_tier_text = Functions.Get_TextInPanel(affix_3, "Tier", "Value");
                                 affix_3_tier_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_3", "TierSlider");
-                                affix_3_value_text = Functions.Get_TextInPanel(left_base_content, "Affix_3", "Value");
+                                affix_3_value_text = Functions.Get_TextInPanel(affix_3, "Roll", "Value");
+                                affix_3_random_toggle = Functions.Get_ToggleInPanel(affix_3, "RandomRoll", "Toggle_Random");
                                 affix_3_value_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_3", "ValueSlider");
+                                
                                 affix_4 = Functions.GetChild(left_base_content, "Affix_4");
                                 affix_4_button = Functions.Get_ButtonInPanel(affix_4, "Button");
                                 affix_4_select_text = Functions.Get_TextInButton(affix_4, "Button", "Text");
-                                affix_4_tier_text = Functions.Get_TextInPanel(left_base_content, "Affix_4", "TierValue");
+                                affix_4_tier_text = Functions.Get_TextInPanel(affix_4, "Tier", "Value");
                                 affix_4_tier_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_4", "TierSlider");
-                                affix_4_value_text = Functions.Get_TextInPanel(left_base_content, "Affix_4", "Value");
+                                affix_4_value_text = Functions.Get_TextInPanel(affix_4, "Roll", "Value");
+                                affix_4_random_toggle = Functions.Get_ToggleInPanel(affix_4, "RandomRoll", "Toggle_Random");
                                 affix_4_value_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_4", "ValueSlider");
+                                
                                 affix_5 = Functions.GetChild(left_base_content, "Affix_5");
                                 affix_5_button = Functions.Get_ButtonInPanel(affix_5, "Button");
                                 affix_5_select_text = Functions.Get_TextInButton(affix_5, "Button", "Text");
-                                affix_5_tier_text = Functions.Get_TextInPanel(left_base_content, "Affix_5", "TierValue");
+                                affix_5_tier_text = Functions.Get_TextInPanel(affix_5, "Tier", "Value");
                                 affix_5_tier_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_5", "TierSlider");
-                                affix_5_value_text = Functions.Get_TextInPanel(left_base_content, "Affix_5", "Value");
+                                affix_5_value_text = Functions.Get_TextInPanel(affix_5, "Roll", "Value");
+                                affix_5_random_toggle = Functions.Get_ToggleInPanel(affix_5, "RandomRoll", "Toggle_Random");
                                 affix_5_value_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_5", "ValueSlider");
 
                                 unique_mods = Functions.GetChild(left_base_content, "EnableUniqueMods");
@@ -5655,21 +5681,27 @@ namespace LastEpoch_Hud.Scripts
                         Events.Set_Slider_Event(seal_value_slider, seal_value_Action);                                                
                         Events.Set_Button_Event(affix_0_button, affix_0_OnClick_Action);
                         Events.Set_Slider_Event(affix_0_tier_slider, affix_0_tier_Action);
+                        Events.Set_Toggle_Event(affix_0_random_toggle, Affix_0_RandomRoll_Toggle_Action);
                         Events.Set_Slider_Event(affix_0_value_slider, affix_0_value_Action);
                         Events.Set_Button_Event(affix_1_button, affix_1_OnClick_Action);
                         Events.Set_Slider_Event(affix_1_tier_slider, affix_1_tier_Action);
+                        Events.Set_Toggle_Event(affix_1_random_toggle, Affix_1_RandomRoll_Toggle_Action);
                         Events.Set_Slider_Event(affix_1_value_slider, affix_1_value_Action);
                         Events.Set_Button_Event(affix_2_button, affix_2_OnClick_Action);
                         Events.Set_Slider_Event(affix_2_tier_slider, affix_2_tier_Action);
+                        Events.Set_Toggle_Event(affix_2_random_toggle, Affix_2_RandomRoll_Toggle_Action);
                         Events.Set_Slider_Event(affix_2_value_slider, affix_2_value_Action);
                         Events.Set_Button_Event(affix_3_button, affix_3_OnClick_Action);
                         Events.Set_Slider_Event(affix_3_tier_slider, affix_3_tier_Action);
+                        Events.Set_Toggle_Event(affix_3_random_toggle, Affix_3_RandomRoll_Toggle_Action);
                         Events.Set_Slider_Event(affix_3_value_slider, affix_3_value_Action);
                         Events.Set_Button_Event(affix_4_button, affix_4_OnClick_Action);
                         Events.Set_Slider_Event(affix_4_tier_slider, affix_4_tier_Action);
+                        Events.Set_Toggle_Event(affix_4_random_toggle, Affix_4_RandomRoll_Toggle_Action);
                         Events.Set_Slider_Event(affix_4_value_slider, affix_4_value_Action);
                         Events.Set_Button_Event(affix_5_button, affix_5_OnClick_Action);
                         Events.Set_Slider_Event(affix_5_tier_slider, affix_5_tier_Action);
+                        Events.Set_Toggle_Event(affix_5_random_toggle, Affix_5_RandomRoll_Toggle_Action);
                         Events.Set_Slider_Event(affix_5_value_slider, affix_5_value_Action);
                         Events.Set_Slider_Event(unique_mod_0_slider, unique_mod_0_Action);
                         Events.Set_Slider_Event(unique_mod_1_slider, unique_mod_1_Action);
@@ -5895,8 +5927,8 @@ namespace LastEpoch_Hud.Scripts
                                             (((item_rarity == 7) && (!unique.isSetItem)) ||
                                             ((item_rarity == 8) && (unique.isSetItem))))
                                         {
-                                            string name = unique.displayName;
-                                            if (name == "") { name = unique.name; }
+                                            string name = unique.displayName;                                            
+                                            if (name == "Pearls of the Swine") { name = unique.name; } // if item's displayName is "Pearls of the Swine", use unique.name instead of unique.displayName (https://github.com/BruceShih/LastEpoch_Mods/commits/master/)
                                             options.Add(new Dropdown.OptionData { text = name });
                                         }
                                     }
@@ -6057,6 +6089,16 @@ namespace LastEpoch_Hud.Scripts
                     int t = System.Convert.ToInt32(affix_0_tier_slider.value) + 1;
                     affix_0_tier_text.text = t.ToString();
                 }
+                private static void Set_Affix_0_RandomRoll_Enable(bool enable)
+                {
+                    affix_0_value_slider.interactable = !affix_0_random_toggle.isOn;
+                    if (affix_0_random_toggle.isOn) { affix_0_value_text.text = "Random"; }
+                    else
+                    {
+                        int result = System.Convert.ToInt32((affix_0_value_slider.value / 255) * 100);
+                        affix_0_value_text.text = result.ToString() + " %";
+                    }
+                }
                 public static void SetAffix_0_Value(float f)
                 {
                     int result = System.Convert.ToInt32((affix_0_value_slider.value / 255) * 100);
@@ -6070,6 +6112,16 @@ namespace LastEpoch_Hud.Scripts
                 {
                     int t = System.Convert.ToInt32(affix_1_tier_slider.value) + 1;
                     affix_1_tier_text.text = t.ToString();
+                }
+                private static void Set_Affix_1_RandomRoll_Enable(bool enable)
+                {
+                    affix_1_value_slider.interactable = !affix_1_random_toggle.isOn;
+                    if (affix_1_random_toggle.isOn) { affix_1_value_text.text = "Random"; }
+                    else
+                    {
+                        int result = System.Convert.ToInt32((affix_1_value_slider.value / 255) * 100);
+                        affix_1_value_text.text = result.ToString() + " %";
+                    }
                 }
                 public static void SetAffix_1_Value(float f)
                 {
@@ -6085,6 +6137,16 @@ namespace LastEpoch_Hud.Scripts
                     int t = System.Convert.ToInt32(affix_2_tier_slider.value) + 1;
                     affix_2_tier_text.text = t.ToString();
                 }
+                private static void Set_Affix_2_RandomRoll_Enable(bool enable)
+                {
+                    affix_2_value_slider.interactable = !affix_2_random_toggle.isOn;
+                    if (affix_2_random_toggle.isOn) { affix_2_value_text.text = "Random"; }
+                    else
+                    {
+                        int result = System.Convert.ToInt32((affix_2_value_slider.value / 255) * 100);
+                        affix_2_value_text.text = result.ToString() + " %";
+                    }
+                }
                 public static void SetAffix_2_Value(float f)
                 {
                     int result = System.Convert.ToInt32((affix_2_value_slider.value / 255) * 100);
@@ -6098,6 +6160,16 @@ namespace LastEpoch_Hud.Scripts
                 {
                     int t = System.Convert.ToInt32(affix_3_tier_slider.value) + 1;
                     affix_3_tier_text.text = t.ToString();
+                }
+                private static void Set_Affix_3_RandomRoll_Enable(bool enable)
+                {
+                    affix_3_value_slider.interactable = !affix_3_random_toggle.isOn;
+                    if (affix_3_random_toggle.isOn) { affix_3_value_text.text = "Random"; }
+                    else
+                    {
+                        int result = System.Convert.ToInt32((affix_3_value_slider.value / 255) * 100);
+                        affix_3_value_text.text = result.ToString() + " %";
+                    }
                 }
                 public static void SetAffix_3_Value(float f)
                 {
@@ -6113,6 +6185,16 @@ namespace LastEpoch_Hud.Scripts
                     int t = System.Convert.ToInt32(affix_4_tier_slider.value) + 1;
                     affix_4_tier_text.text = t.ToString();
                 }
+                private static void Set_Affix_4_RandomRoll_Enable(bool enable)
+                {
+                    affix_4_value_slider.interactable = !affix_4_random_toggle.isOn;
+                    if (affix_4_random_toggle.isOn) { affix_4_value_text.text = "Random"; }
+                    else
+                    {
+                        int result = System.Convert.ToInt32((affix_4_value_slider.value / 255) * 100);
+                        affix_4_value_text.text = result.ToString() + " %";
+                    }
+                }
                 public static void SetAffix_4_Value(float f)
                 {
                     int result = System.Convert.ToInt32((affix_4_value_slider.value / 255) * 100);
@@ -6126,6 +6208,16 @@ namespace LastEpoch_Hud.Scripts
                 {
                     int t = System.Convert.ToInt32(affix_5_tier_slider.value) + 1;
                     affix_5_tier_text.text = t.ToString();
+                }
+                private static void Set_Affix_5_RandomRoll_Enable(bool enable)
+                {
+                    affix_5_value_slider.interactable = !affix_5_random_toggle.isOn;
+                    if (affix_5_random_toggle.isOn) { affix_5_value_text.text = "Random"; }
+                    else
+                    {
+                        int result = System.Convert.ToInt32((affix_5_value_slider.value / 255) * 100);
+                        affix_5_value_text.text = result.ToString() + " %";
+                    }
                 }
                 public static void SetAffix_5_Value(float f)
                 {
@@ -6637,27 +6729,69 @@ namespace LastEpoch_Hud.Scripts
                                 System.Collections.Generic.List<ItemAffix> new_affixes = new System.Collections.Generic.List<ItemAffix>();
                                 if (affix_0_id > -1)
                                 {
-                                    new_affixes.Add(MakeAffix(affix_0_id, (byte)affix_0_tier_slider.value, (byte)affix_0_value_slider.value, false));
+                                    if (affix_0_random_toggle.isOn)
+                                    {
+                                        new_affixes.Add(MakeAffix(affix_0_id, (byte)affix_0_tier_slider.value, (byte)Random.Range(0f, 255f), false));
+                                    }
+                                    else
+                                    {
+                                        new_affixes.Add(MakeAffix(affix_0_id, (byte)affix_0_tier_slider.value, (byte)affix_0_value_slider.value, false));
+                                    }
                                 }
                                 if (affix_1_id > -1)
                                 {
-                                    new_affixes.Add(MakeAffix(affix_1_id, (byte)affix_1_tier_slider.value, (byte)affix_1_value_slider.value, false));
+                                    if (affix_1_random_toggle.isOn)
+                                    {
+                                        new_affixes.Add(MakeAffix(affix_1_id, (byte)affix_1_tier_slider.value, (byte)Random.Range(0f, 255f), false));
+                                    }
+                                    else
+                                    {
+                                        new_affixes.Add(MakeAffix(affix_1_id, (byte)affix_1_tier_slider.value, (byte)affix_1_value_slider.value, false));
+                                    }                                        
                                 }
                                 if (affix_2_id > -1)
                                 {
-                                    new_affixes.Add(MakeAffix(affix_2_id, (byte)affix_2_tier_slider.value, (byte)affix_2_value_slider.value, false));
+                                    if (affix_2_random_toggle.isOn)
+                                    {
+                                        new_affixes.Add(MakeAffix(affix_2_id, (byte)affix_2_tier_slider.value, (byte)Random.Range(0f, 255f), false));
+                                    }
+                                    else
+                                    {
+                                        new_affixes.Add(MakeAffix(affix_2_id, (byte)affix_2_tier_slider.value, (byte)affix_2_value_slider.value, false));
+                                    }                                        
                                 }
                                 if (affix_3_id > -1)
                                 {
-                                    new_affixes.Add(MakeAffix(affix_3_id, (byte)affix_3_tier_slider.value, (byte)affix_3_value_slider.value, false));
+                                    if (affix_3_random_toggle.isOn)
+                                    {
+                                        new_affixes.Add(MakeAffix(affix_3_id, (byte)affix_3_tier_slider.value, (byte)Random.Range(0f, 255f), false));
+                                    }
+                                    else
+                                    {
+                                        new_affixes.Add(MakeAffix(affix_3_id, (byte)affix_3_tier_slider.value, (byte)affix_3_value_slider.value, false));
+                                    }                                        
                                 }
                                 if (affix_4_id > -1)
                                 {
-                                    new_affixes.Add(MakeAffix(affix_4_id, (byte)affix_4_tier_slider.value, (byte)affix_4_value_slider.value, false));
+                                    if (affix_4_random_toggle.isOn)
+                                    {
+                                        new_affixes.Add(MakeAffix(affix_4_id, (byte)affix_4_tier_slider.value, (byte)Random.Range(0f, 255f), false));
+                                    }
+                                    else
+                                    {
+                                        new_affixes.Add(MakeAffix(affix_4_id, (byte)affix_4_tier_slider.value, (byte)affix_4_value_slider.value, false));
+                                    }                                        
                                 }
                                 if (affix_5_id > -1)
                                 {
-                                    new_affixes.Add(MakeAffix(affix_5_id, (byte)affix_5_tier_slider.value, (byte)affix_5_value_slider.value, false));
+                                    if (affix_5_random_toggle.isOn)
+                                    {
+                                        new_affixes.Add(MakeAffix(affix_5_id, (byte)affix_5_tier_slider.value, (byte)Random.Range(0f, 255f), false));
+                                    }
+                                    else
+                                    {
+                                        new_affixes.Add(MakeAffix(affix_5_id, (byte)affix_5_tier_slider.value, (byte)affix_5_value_slider.value, false));
+                                    }                                        
                                 }
                                 
                                 byte new_count = 0;
