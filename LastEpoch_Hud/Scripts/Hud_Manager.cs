@@ -3889,8 +3889,7 @@ namespace LastEpoch_Hud.Scripts
                                                 ((item_rarity == 8) && (unique.isSetItem))))
                                             {
                                                 string name = unique.displayName;
-                                                if (name == "") { name = unique.name; }
-                                                if (name == "Pearls of the Swine") { name = unique.name; } // if item's displayName is "Pearls of the Swine", use unique.name instead of unique.displayName
+                                                if ((name == "") || (name == "Pearls of the Swine")) { name = unique.name; } // if item's displayName is "Pearls of the Swine", use unique.name instead of unique.displayName
                                                 options.Add(new Dropdown.OptionData { text = name });
                                             }
                                         }
@@ -5936,8 +5935,7 @@ namespace LastEpoch_Hud.Scripts
                                             ((item_rarity == 8) && (unique.isSetItem))))
                                         {
                                             string name = unique.displayName;
-                                            if (name == "") { name = unique.name; }
-                                            if (name == "Pearls of the Swine") { name = unique.name; } // if item's displayName is "Pearls of the Swine", use unique.name instead of unique.displayName
+                                            if ((name == "") || (name == "Pearls of the Swine")) { name = unique.name; } // if item's displayName is "Pearls of the Swine", use unique.name instead of unique.displayName
                                             options.Add(new Dropdown.OptionData { text = name });
                                         }
                                     }
