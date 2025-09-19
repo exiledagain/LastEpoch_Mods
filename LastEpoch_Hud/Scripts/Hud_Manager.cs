@@ -5004,7 +5004,8 @@ namespace LastEpoch_Hud.Scripts
                 //Type
                 public static int type_size = 24;
                 public static Dropdown type_dropdown = null;
-                public static int item_type = -1;               
+                public static int item_type = -1;
+                public static EquipmentType item_equipmenttype = EquipmentType.ARCTUS_LENS;
                 public static bool Type_Initialized = false;
                 public static bool Initializing_type = false;
 
@@ -5354,6 +5355,11 @@ namespace LastEpoch_Hud.Scripts
                 public static readonly System.Action Resfresh_OnClick_Action = new System.Action(InitializeShardsView);
 
                 //Shards View
+                public static readonly UnityEngine.Color color_red = new UnityEngine.Color(0.8980392f, 0.2705882f, 0f, 1f); //!naturally             
+                public static readonly UnityEngine.Color color_yellow = new UnityEngine.Color(1f, 0.9607843f, 0.6078432f, 1f); //prefix
+                public static readonly UnityEngine.Color color_blue = new UnityEngine.Color(0f, 0.8784314f, 1f, 1f); //suffix / idol
+                public static readonly UnityEngine.Color color_green = new UnityEngine.Color(0.07058824f, 0.8980392f, 0f, 1f); //special
+
                 public static GameObject shard_prefab = null;
                 public static readonly string shard_btn_name = "ShardBtn_";
                 public static bool shard_initialized = false;
@@ -5785,6 +5791,7 @@ namespace LastEpoch_Hud.Scripts
                                 if (item.BaseTypeName == type_str)
                                 {
                                     item_type = item.baseTypeID;
+                                    item_equipmenttype = item.type;
                                     found = true;
                                     break;
                                 }
@@ -6551,7 +6558,9 @@ namespace LastEpoch_Hud.Scripts
                             (((filter_by_class) && (affix.classSpecificity == wanted_class)) || (!filter_by_class))
                             )
                         {
-                            AddShardInView(affix.affixId, affix.affixName);
+                            bool naturally = false;
+                            if (affix.canRollOn.Contains(item_equipmenttype)) { naturally = true; }
+                            AddShardInView(affix.affixId, affix.affixName, affix.type, affix_idol, naturally);
                         }
                     }
                     foreach (AffixList.MultiAffix affix in AffixList.instance.multiAffixes)
@@ -6565,7 +6574,9 @@ namespace LastEpoch_Hud.Scripts
                             (((filter_by_class) && (affix.classSpecificity == wanted_class)) || (!filter_by_class))
                             )
                         {
-                            AddShardInView(affix.affixId, affix.affixName);
+                            bool naturally = false;
+                            if (affix.canRollOn.Contains(item_equipmenttype)) { naturally = true; }
+                            AddShardInView(affix.affixId, affix.affixName, affix.type, affix_idol, naturally);
                         }
                     }
                     shard_initialized = true;
@@ -6575,10 +6586,9 @@ namespace LastEpoch_Hud.Scripts
                     foreach (GameObject go in Functions.GetAllChild(center_content))
                     {
                         Destroy(go);
-                    }
-                        
+                    }                        
                 }
-                public static void AddShardInView(int id, string name)
+                public static void AddShardInView(int id, string name, AffixList.AffixType affix_type, bool idol, bool naturally)
                 {
                     GameObject g = Object.Instantiate(shard_prefab, Vector3.zero, Quaternion.identity);
                     g.transform.SetParent(center_content.transform);
@@ -6591,6 +6601,16 @@ namespace LastEpoch_Hud.Scripts
                     GameObject shard_name_object = Functions.GetChild(shard_btn_object, "shard_name");
                     Text shard_name = shard_name_object.GetComponent<Text>();
                     shard_name.text = name.ToString();
+                    UnityEngine.Color color_id = color_red;
+                    if (naturally) { color_id = color_green; }
+                    shard_id.color = color_id;
+                    UnityEngine.Color color_name = color_blue;
+                    if (!idol)
+                    {
+                        if (affix_type == AffixList.AffixType.PREFIX) { color_name = color_yellow; }
+                        else if (affix_type == AffixList.AffixType.SPECIAL) { color_name = color_green; }
+                    }
+                    shard_name.color = color_name;
                 }
                 public static void SelectShard(int id, string name)
                 {
