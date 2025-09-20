@@ -44,6 +44,14 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
                 }
             }
         }
+        public static void GetAddAncienBonesX10000()
+        {
+            if ((!Refs_Manager.ground_item_manager.IsNullOrDestroyed()) &&
+                (!Refs_Manager.player_actor.IsNullOrDestroyed()))
+            {
+                Refs_Manager.ground_item_manager.dropAncientBoneForPlayer(Refs_Manager.player_actor, 10000, Refs_Manager.player_actor.position(), false, false);
+            }
+        }
         private static void ForceDrop(int type, int subtype, int quantity)
         {
             if ((!Refs_Manager.ground_item_manager.IsNullOrDestroyed()) &&
