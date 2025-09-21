@@ -12,6 +12,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
         public static Items_Herald_Ice instance { get; private set; }
         public Items_Herald_Ice(System.IntPtr ptr) : base(ptr) { }
         public static Ability ability = null;
+        public static GameObject prefab_obj = null;
         bool InGame = false;
 
         void Awake()
@@ -30,6 +31,12 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             if (!Events.OnMinionKillEvent_Initialized) { Events.Init_OnMinionKillEvent(); }
             if (Scenes.IsGameScene())
             {
+                if ((prefab_obj.IsNullOrDestroyed()) && (!AOE.Initialize_prefab))
+                {
+                    AOE.Initialize_prefab = true;
+                    prefab_obj = AOE.GetPrefab();
+                    AOE.Initialize_prefab = false;
+                }
                 if (ability.IsNullOrDestroyed()) { AOE.GetAbility(); }
             }
         }
@@ -420,6 +427,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
         public class AOE
         {
             public static bool Initialize_ability = false;
+            public static bool Initialize_prefab = false;
             public static void GetAbility()
             {
                 if (!Initialize_ability)
@@ -429,42 +437,64 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     {
                         foreach (Ability ab in Resources.FindObjectsOfTypeAll<Ability>())
                         {
-                            if (ab.abilityName == "Maggot Explosion")
+                            if (ab.abilityName == "Avalanche")
                             {
-                                //Get only vfx then make a new Ability Here
-
-                                /*ability = new Ability();
-                                ability.abilityName = "Herald of Ice";
-                                ability.tags = AT.Cold;
-                                ability.playerCastVfx = PlayerCastVfxID.Cold;*/
-
-                                /*ability = Object.Instantiate(ab, Vector3.zero, Quaternion.identity);
-                                ability.abilityName = "Herald of Ice";                                
-                                ability.tags = AT.Cold;
-                                ability.playerCastVfx = PlayerCastVfxID.Cold;*/
-                                ability = ab;
+                                ability = new Ability
+                                {
+                                    name = "Herald of Ice",
+                                    abilityName = "Herald of Ice",
+                                    abilityObjectRotation = Ability.AbilityObjectRotation.FacingTarget,
+                                    abilityObjectType = Ability.AbilityObjectType.Default,
+                                    animation = AbilityAnimation.Cast,
+                                    attachCastingVFXToCaster = true,
+                                    attributeScaling = new Il2CppSystem.Collections.Generic.List<Ability.AttributeScaling>(),
+                                    baseMovementAnimationLength = 1f,
+                                    castingVFXPositioning = CastingVFXPositioning.Default,
+                                    description = "",
+                                    manaCost = 0f,
+                                    moveOrAttackFallback = Ability.MoveOrAttackFallback.Wait,
+                                    speedMultiplier = 1f,
+                                    speedScaler = SP.CastSpeed,
+                                    tags = ab.tags,
+                                    useDelay = 0.4f,
+                                    useDuration = 0.75f
+                                };
                                 break;
                             }
                         }
-                        if (!ability.IsNullOrDestroyed())
-                        {
-                            if (!Refs_Manager.player_actor.abilityList.abilities.Contains(ability))
-                            {
-                                Refs_Manager.player_actor.abilityList.abilities.Add(ability);
-                            }
-                            GameObject prefab = ability.abilityPrefab;
-                            if (!prefab.IsNullOrDestroyed())
-                            {
-                                SphereCollider collider = prefab.GetComponent<UnityEngine.SphereCollider>();
-                                if (!collider.IsNullOrDestroyed())
-                                {
-                                    collider.radius = 255;
-                                }
-                            }
-
-                        }
                     }
                     Initialize_ability = false;
+                }
+            }
+            public static GameObject GetPrefab()
+            {
+                GameObject prefab = null;
+                foreach (Ability ab in Resources.FindObjectsOfTypeAll<Ability>())
+                {
+                    if (ab.abilityName == "Maggot Explosion")
+                    {
+                        prefab = Object.Instantiate(ab.abilityPrefab, Vector3.zero, Quaternion.identity);
+                        prefab.active = false;
+                        SphereCollider collider = prefab.GetComponent<UnityEngine.SphereCollider>();
+                        if (!collider.IsNullOrDestroyed()) { collider.radius = 3f; }
+                        CreateVfxOnDeath vfx_on_death = prefab.GetComponent<CreateVfxOnDeath>();
+                        if (!vfx_on_death.IsNullOrDestroyed()) { vfx_on_death.increasedRadius = 5.25f; }
+                        break;
+                    }
+                }
+
+                return prefab;
+            }
+            public static void Launch(GameObject actor, Vector3 target_position)
+            {
+                if ((!ability.IsNullOrDestroyed()) && (!prefab_obj.IsNullOrDestroyed()))
+                {
+                    if (ability.abilityPrefab.IsNullOrDestroyed()) { ability.abilityPrefab = Object.Instantiate(prefab_obj, Vector3.zero, Quaternion.identity); }
+                    if (!ability.abilityPrefab.IsNullOrDestroyed())
+                    {
+                        ability.abilityPrefab.active = true;
+                        ability.CastAfterDelay(actor.GetComponent<AbilityObjectConstructor>(), target_position, target_position, 0f);
+                    }
                 }
             }
         }
@@ -491,10 +521,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             {
                 if ((!Refs_Manager.player_actor.IsNullOrDestroyed()) && (!ability.IsNullOrDestroyed())) //&& (!ability_constructor.IsNullOrDestroyed()))
                 {
-                    if (Unique.Equipped())
-                    {
-                        ability.CastAfterDelay(Refs_Manager.player_actor.gameObject.GetComponent<AbilityObjectConstructor>(), Refs_Manager.player_actor.position(), killedActor.position(),0f);
-                    }
+                    if (Unique.Equipped()) { AOE.Launch(Refs_Manager.player_actor.gameObject, killedActor.position()); }
                 }
             }
 
@@ -519,10 +546,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             {
                 if ((!Refs_Manager.player_actor.IsNullOrDestroyed()) && (!ability.IsNullOrDestroyed())) //&& (!ability_constructor.IsNullOrDestroyed()))
                 {
-                    if (Unique.Equipped())
-                    {
-                        ability.CastAfterDelay(summon.gameObject.GetComponent<AbilityObjectConstructor>(), Refs_Manager.player_actor.position(), killedActor.position(), 0f);
-                    }
+                    if (Unique.Equipped()) { AOE.Launch(summon.gameObject, killedActor.position()); }
                 }
             }
         }

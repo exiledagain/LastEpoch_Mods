@@ -23,7 +23,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Spawn
                 if (Input.GetKeyDown(Save_Manager.instance.data.KeyBinds.SpawnMysteriousRift)) { SpawnMysteriousRift(); }
                 if (Input.GetKeyDown(Save_Manager.instance.data.KeyBinds.SpawnRiftBeast)) { SpawnRiftBeast(); }
                 if (Input.GetKeyDown(Save_Manager.instance.data.KeyBinds.SummonBeast)) { SummonBeast(); }
-                if (Input.GetKeyDown(KeyCode.F6)) //Debug Show all evos
+                /*if (Input.GetKeyDown(KeyCode.F6)) //Debug Show all evos
                 {
                     TimeBeastData time_beast_data = null;
                     foreach (TimeBeastData data in Resources.FindObjectsOfTypeAll<TimeBeastData>())
@@ -42,7 +42,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Spawn
                         }
                     }
                     else { Main.logger_instance.Error("TimeBeastData not found"); }
-                }
+                }*/
                 //BeastForever();
                 //BeastGodMode();
             }
