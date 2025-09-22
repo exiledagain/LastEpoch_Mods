@@ -35,7 +35,7 @@ namespace LastEpoch_Hud.Scripts
         GameObject summon_godmode_obj = null;
         GameObject summon_forever_obj = null;
         GameObject summon_collider_obj = null;
-        GameObject herald_of_ice_obj = null;
+        GameObject heralds_obj = null;
 
         bool initialized = false;
         bool enable = false;
@@ -107,9 +107,9 @@ namespace LastEpoch_Hud.Scripts
             items_essentiasanguis_obj.AddComponent<Mods.Items.Items_EssentiaSanguis>();
             Mods_Objects.Add(items_essentiasanguis_obj);
 
-            herald_of_ice_obj = Object.Instantiate(new GameObject { name = "Mod_Items_Herald_of_Ice" }, Vector3.zero, Quaternion.identity);
-            herald_of_ice_obj.AddComponent<Mods.Items.Items_Herald_Ice>();
-            Mods_Objects.Add(herald_of_ice_obj);
+            heralds_obj = Object.Instantiate(new GameObject { name = "Mod_Items_Heralds" }, Vector3.zero, Quaternion.identity);
+            heralds_obj.AddComponent<Mods.Items.Items_Heralds>();
+            Mods_Objects.Add(heralds_obj);
 
             twohanded_with_shield_obj = Object.Instantiate(new GameObject { name = "Mod_TwoHanded_with_Shield" }, Vector3.zero, Quaternion.identity);
             twohanded_with_shield_obj.AddComponent<Mods.Character.Character_TwoHandedShield>();
