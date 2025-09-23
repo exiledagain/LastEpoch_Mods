@@ -173,7 +173,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     legendaryType = LegendaryType(),
                     overrideEffectiveLevelForLegendaryPotential = true,
                     effectiveLevelForLegendaryPotential = 0,
-                    canDropRandomly = true,//Save_Manager.instance.data.Items.Headhunter.UniqueDrop,
+                    canDropRandomly = true,
                     rerollChance = 1,
                     itemModelType = UniqueList.ItemModelType.Unique,
                     subTypeForIM = 0,

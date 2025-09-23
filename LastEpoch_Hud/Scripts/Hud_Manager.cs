@@ -4019,9 +4019,9 @@ namespace LastEpoch_Hud.Scripts
                                         if (!item.isUniqueSetOrLegendary()) { item.forgingPotential = (byte)Random.RandomRange(0f, 255f); }
                                         UniqueList.LegendaryType legendary_type = UniqueList.LegendaryType.LegendaryPotential;
                                         if (item.isUniqueSetOrLegendary())
-                                        {
+                                        {                                            
+                                            for (int k = 0; k < item.uniqueRolls.Count; k++) { item.uniqueRolls[k] = (byte)Random.RandomRange(0f, 255f); }                                            
                                             legendary_type = UniqueList.getUnique((ushort)item_unique_id).legendaryType;
-                                            for (int k = 0; k < item.uniqueRolls.Count; k++) { item.uniqueRolls[k] = (byte)Random.RandomRange(0f, 255f); }
                                             if (legendary_type == UniqueList.LegendaryType.WeaversWill) { item.weaversWill = (byte)Random.RandomRange(0f, 28f); }
                                             else if (item.isUnique()) { item.legendaryPotential = (byte)Random.RandomRange(0f, 4f); }
                                         }

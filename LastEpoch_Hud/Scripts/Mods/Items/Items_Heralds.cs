@@ -161,7 +161,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     itemTags = ItemLocationTag.None,
                     levelRequirement = 15,
                     name = Languagues.Get_Subtype_Name(),
-                    subTypeID = base_id
+                    subTypeID = base_id                    
                 };
 
                 return item;
@@ -227,7 +227,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                             foreach (UniqueList.Entry unique in Refs_Manager.unique_list.uniques)
                             {
                                 if ((unique.uniqueID == Ice.unique_id) && (unique.name == Ice.Get_Unique_Name())) { ice_item = unique; }
-                                else if ((unique.uniqueID == Ice.unique_id) && (unique.name == Ice.Get_Unique_Name())) { fire_item = unique; }
+                                else if ((unique.uniqueID == Fire.unique_id) && (unique.name == Fire.Get_Unique_Name())) { fire_item = unique; }
                                 else if ((unique.uniqueID == Lightning.unique_id) && (unique.name == Lightning.Get_Unique_Name())) { ligtning_item = unique; }
                                 else if ((unique.uniqueID == Poison.unique_id) && (unique.name == Poison.Get_Unique_Name())) { poison_item = unique; }
                             }
@@ -238,9 +238,9 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                             (!poison_item.IsNullOrDestroyed()))
                         {
                             Refs_Manager.unique_list.entryDictionary.Add(Ice.unique_id, ice_item);
-                            Refs_Manager.unique_list.entryDictionary.Add(Ice.unique_id, fire_item);
+                            Refs_Manager.unique_list.entryDictionary.Add(Fire.unique_id, fire_item);
                             Refs_Manager.unique_list.entryDictionary.Add(Lightning.unique_id, ligtning_item);
-                            Refs_Manager.unique_list.entryDictionary.Add(Lightning.unique_id, poison_item);
+                            Refs_Manager.unique_list.entryDictionary.Add(Poison.unique_id, poison_item);
                             AddedToDictionary = true;
                         }
                     }
@@ -298,7 +298,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         isSetItem = false,
                         setID = 0,
                         overrideLevelRequirement = true,
-                        levelRequirement = 40,
+                        levelRequirement = 15,
                         legendaryType = UniqueList.LegendaryType.LegendaryPotential,
                         overrideEffectiveLevelForLegendaryPotential = true,
                         effectiveLevelForLegendaryPotential = 0,
@@ -498,7 +498,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         isSetItem = false,
                         setID = 0,
                         overrideLevelRequirement = true,
-                        levelRequirement = 40,
+                        levelRequirement = 15,
                         legendaryType = UniqueList.LegendaryType.LegendaryPotential,
                         overrideEffectiveLevelForLegendaryPotential = true,
                         effectiveLevelForLegendaryPotential = 0,
@@ -737,7 +737,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         isSetItem = false,
                         setID = 0,
                         overrideLevelRequirement = true,
-                        levelRequirement = 40,
+                        levelRequirement = 15,
                         legendaryType = UniqueList.LegendaryType.LegendaryPotential,
                         overrideEffectiveLevelForLegendaryPotential = true,
                         effectiveLevelForLegendaryPotential = 0,
@@ -937,7 +937,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         isSetItem = false,
                         setID = 0,
                         overrideLevelRequirement = true,
-                        levelRequirement = 40,
+                        levelRequirement = 15,
                         legendaryType = UniqueList.LegendaryType.LegendaryPotential,
                         overrideEffectiveLevelForLegendaryPotential = true,
                         effectiveLevelForLegendaryPotential = 0,
