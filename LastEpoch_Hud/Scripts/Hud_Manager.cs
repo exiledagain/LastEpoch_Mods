@@ -3,6 +3,8 @@ using Il2Cpp;
 using Il2CppLE.Data;
 using Il2CppRewired.Components; //Gamepad
 using Il2CppSystem.Collections.Generic;
+using Il2CppTMPro;
+using LastEpoch_Hud.Scripts.Mods.Items;
 using MelonLoader;
 using System.IO;
 using System.Linq;
@@ -170,8 +172,10 @@ namespace LastEpoch_Hud.Scripts
                         Content.OdlForceDrop.Set_Events();
                         Content.OdlForceDrop.Set_Active(false);
 
-                        Content.Headhunter.Get_Refs();
-                        Content.Headhunter.Set_Active(false);
+                        Content.NewItems.Get_Refs();
+                        Content.NewItems.Init_Dropdowns();
+                        Content.NewItems.Set_Events();
+                        Content.NewItems.Set_Active(false);
                     }
                     else { Main.logger_instance.Error("Hud Manager : Hud Prefab not found"); }
                 }
@@ -212,8 +216,8 @@ namespace LastEpoch_Hud.Scripts
                 bool items = Content.Items.Init_UserData();
                 bool scenes = Content.Scenes.Init_UserData();
                 bool skills = Content.Skills.Init_UserData();
-                bool headhunter = Content.Headhunter.Init_Data();
-                if ((character) && (items) && (scenes) && (skills)) // && (headhunter))
+                bool new_items = Content.NewItems.Init_Data();
+                if ((character) && (items) && (scenes) && (skills) && (new_items))
                 {
                     if (Main.debug) { Main.logger_instance.Msg("Hud Manager : Initialized"); }
                     data_initialized = true;
@@ -1367,6 +1371,11 @@ namespace LastEpoch_Hud.Scripts
                 toggle.onValueChanged = new Toggle.ToggleEvent();
                 toggle.onValueChanged.AddListener(action);
             }
+            public static void Set_DropDown_Event(Dropdown dropdown, UnityEngine.Events.UnityAction<int> action)
+            {
+                dropdown.onValueChanged = new Dropdown.DropdownEvent();
+                dropdown.onValueChanged.AddListener(action);
+            }
         }
         public class Hud_Base
         {
@@ -1506,7 +1515,7 @@ namespace LastEpoch_Hud.Scripts
                     Events.Set_Base_Button_Event(hud_object, "Menu", "Btn_Menu_Scenes", Scenes_OnClick_Action);
                     Events.Set_Base_Button_Event(hud_object, "Menu", "Btn_Menu_TreeSkills", Skills_OnClick_Action);
                     Events.Set_Base_Button_Event(hud_object, "Menu", "Btn_Menu_ForceDrop", OldForceDrop_OnClick_Action);
-                    Events.Set_Base_Button_Event(hud_object, "Menu", "Btn_Menu_Headhunter", Headhunter_OnClick_Action);
+                    Events.Set_Base_Button_Event(hud_object, "Menu", "Btn_Menu_NewItems", NewItems_OnClick_Action);
                 }
             }
             
@@ -1517,7 +1526,7 @@ namespace LastEpoch_Hud.Scripts
                 Content.Scenes.Set_Active(false);
                 Content.Skills.Set_Active(false);
                 Content.OdlForceDrop.Set_Active(false);
-                Content.Headhunter.Set_Active(false);
+                Content.NewItems.Set_Active(false);
                 Content.Character.Toggle_Active();          
             }
 
@@ -1528,7 +1537,7 @@ namespace LastEpoch_Hud.Scripts
                 Content.Scenes.Set_Active(false);
                 Content.Skills.Set_Active(false);
                 Content.OdlForceDrop.Set_Active(false);
-                Content.Headhunter.Set_Active(false);
+                Content.NewItems.Set_Active(false);
                 Content.Items.Toggle_Active();
             }
 
@@ -1539,7 +1548,7 @@ namespace LastEpoch_Hud.Scripts
                 Content.Items.Set_Active(false);
                 Content.Skills.Set_Active(false);
                 Content.OdlForceDrop.Set_Active(false);
-                Content.Headhunter.Set_Active(false);
+                Content.NewItems.Set_Active(false);
                 Content.Scenes.Toggle_Active();
             }
 
@@ -1550,7 +1559,7 @@ namespace LastEpoch_Hud.Scripts
                 Content.Items.Set_Active(false);
                 Content.Scenes.Set_Active(false);
                 Content.OdlForceDrop.Set_Active(false);
-                Content.Headhunter.Set_Active(false);
+                Content.NewItems.Set_Active(false);
                 Content.Skills.Toggle_Active();
             }
 
@@ -1561,19 +1570,19 @@ namespace LastEpoch_Hud.Scripts
                 Content.Items.Set_Active(false);
                 Content.Scenes.Set_Active(false);
                 Content.Skills.Set_Active(false);
-                Content.Headhunter.Set_Active(false);
+                Content.NewItems.Set_Active(false);
                 Content.OdlForceDrop.Toggle_Active();
             }
 
-            private static readonly System.Action Headhunter_OnClick_Action = new System.Action(Headhunter_Click);
-            public static void Headhunter_Click()
+            private static readonly System.Action NewItems_OnClick_Action = new System.Action(NewItems_Click);
+            public static void NewItems_Click()
             {
                 Content.Character.Set_Active(false);
                 Content.Items.Set_Active(false);
                 Content.Scenes.Set_Active(false);
                 Content.Skills.Set_Active(false);
                 Content.OdlForceDrop.Set_Active(false);
-                Content.Headhunter.Toggle_Active();
+                Content.NewItems.Toggle_Active();
             }
         }                
         public class Content
@@ -1585,7 +1594,7 @@ namespace LastEpoch_Hud.Scripts
                 {
                     bool show = false;
                     if ((Character.enable) || (Items.enable) || (Scenes.enable) || (Skills.enable) ||
-                        (OdlForceDrop.enable) || (Headhunter.enable)) { show = true; }
+                        (OdlForceDrop.enable) || (NewItems.enable)) { show = true; }
                     if (content_obj.active != show) { content_obj.active = show; }
                 }
             }
@@ -1596,7 +1605,7 @@ namespace LastEpoch_Hud.Scripts
                 Scenes.enable = false;
                 Skills.enable = false;
                 OdlForceDrop.enable = false;
-                Headhunter.enable = false;
+                NewItems.enable = false;
             }
 
             public class Character
@@ -6952,14 +6961,268 @@ namespace LastEpoch_Hud.Scripts
                     }
                 }
             }
-            public class Headhunter
+            public class NewItems
             {
                 public static GameObject content_obj = null;
                 public static bool enable = false;
 
+                //Ice
+                public static Dropdown Herald_of_Ice_VFX_dropdown = null;
+                private static void Set_Herald_of_Ice_VFX()
+                {
+                    if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Herald_of_Ice_VFX_dropdown.IsNullOrDestroyed()))
+                    {
+                        Save_Manager.instance.data.NewItems.HeraldOfIce.VFX = Herald_of_Ice_VFX_dropdown.options[Herald_of_Ice_VFX_dropdown.value].text;
+                        Object.Destroy(Items_Heralds.Uniques.Ice.ability);
+                        Object.Destroy(Items_Heralds.Uniques.Ice.prefab_obj);
+                    }
+                }
+                public static Toggle Herald_of_Ice_Radius_toggle = null;
+                public static readonly System.Action<bool> Herald_of_Ice_Radius_Toggle_Action = new System.Action<bool>(Set_Herald_of_Ice_Radius_Enable);
+                private static void Set_Herald_of_Ice_Radius_Enable(bool enable)
+                {
+                    if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Herald_of_Ice_Radius_toggle.IsNullOrDestroyed()))
+                    {
+                        Save_Manager.instance.data.NewItems.HeraldOfIce.Enable_Radius = Herald_of_Ice_Radius_toggle.isOn;
+                        Object.Destroy(Items_Heralds.Uniques.Ice.prefab_obj);
+                    }
+                }
+                public static Text Herald_of_Ice_Radius_text = null;
+                public static Slider Herald_of_Ice_Radius_slider = null;
+                public static readonly System.Action<float> Herald_of_Ice_Radius_slider_Action = new System.Action<float>(Set_Herald_of_Ice_Radius);
+                public static void Set_Herald_of_Ice_Radius(float f)
+                {
+                    if ((!Herald_of_Ice_Radius_slider.IsNullOrDestroyed()) && (!Herald_of_Ice_Radius_text.IsNullOrDestroyed()))
+                    {
+                        float result = Herald_of_Ice_Radius_slider.value;
+                        Save_Manager.instance.data.NewItems.HeraldOfIce.Radius = result;              
+                        Herald_of_Ice_Radius_text.text = (result * 100).ToString() + " %";
+                        Object.Destroy(Items_Heralds.Uniques.Ice.prefab_obj);
+                    }
+                }
+
+                //Fire
+                public static Dropdown Herald_of_Fire_VFX_dropdown = null;
+                private static void Set_Herald_of_Fire_VFX()
+                {
+                    if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Herald_of_Fire_VFX_dropdown.IsNullOrDestroyed()))
+                    {
+                        Save_Manager.instance.data.NewItems.HeraldOfFire.VFX = Herald_of_Fire_VFX_dropdown.options[Herald_of_Fire_VFX_dropdown.value].text;
+                        Object.Destroy(Items_Heralds.Uniques.Fire.ability);
+                        Object.Destroy(Items_Heralds.Uniques.Fire.prefab_obj);
+                    }
+                }
+                public static Toggle Herald_of_Fire_Radius_toggle = null;
+                public static readonly System.Action<bool> Herald_of_Fire_Radius_Toggle_Action = new System.Action<bool>(Set_Herald_of_Fire_Radius_Enable);
+                private static void Set_Herald_of_Fire_Radius_Enable(bool enable)
+                {
+                    if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Herald_of_Fire_Radius_toggle.IsNullOrDestroyed()))
+                    {
+                        Save_Manager.instance.data.NewItems.HeraldOfFire.Enable_Radius = Herald_of_Fire_Radius_toggle.isOn;
+                        Object.Destroy(Items_Heralds.Uniques.Fire.prefab_obj);
+                    }
+                }
+                public static Text Herald_of_Fire_Radius_text = null;
+                public static Slider Herald_of_Fire_Radius_slider = null;
+                public static readonly System.Action<float> Herald_of_Fire_Radius_slider_Action = new System.Action<float>(Set_Herald_of_Fire_Radius);
+                public static void Set_Herald_of_Fire_Radius(float f)
+                {
+                    if ((!Herald_of_Fire_Radius_slider.IsNullOrDestroyed()) && (!Herald_of_Fire_Radius_text.IsNullOrDestroyed()))
+                    {
+                        float result = Herald_of_Fire_Radius_slider.value;
+                        Save_Manager.instance.data.NewItems.HeraldOfFire.Radius = result;
+                        Herald_of_Fire_Radius_text.text = (result * 100).ToString() + " %";
+                        Object.Destroy(Items_Heralds.Uniques.Fire.prefab_obj);
+                    }
+                }
+
+                //Thunder
+                public static Dropdown Herald_of_Thunder_VFX_dropdown = null;
+                private static void Set_Herald_of_Thunder_VFX()
+                {
+                    if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Herald_of_Thunder_VFX_dropdown.IsNullOrDestroyed()))
+                    {
+                        Save_Manager.instance.data.NewItems.HeraldOfThunder.VFX = Herald_of_Thunder_VFX_dropdown.options[Herald_of_Thunder_VFX_dropdown.value].text;
+                        Object.Destroy(Items_Heralds.Uniques.Lightning.ability);
+                        Object.Destroy(Items_Heralds.Uniques.Lightning.prefab_obj);
+                    }
+                }
+                public static Toggle Herald_of_Thunder_Radius_toggle = null;
+                public static readonly System.Action<bool> Herald_of_Thunder_Radius_Toggle_Action = new System.Action<bool>(Set_Herald_of_Thunder_Radius_Enable);
+                private static void Set_Herald_of_Thunder_Radius_Enable(bool enable)
+                {
+                    if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Herald_of_Thunder_Radius_toggle.IsNullOrDestroyed()))
+                    {
+                        Save_Manager.instance.data.NewItems.HeraldOfThunder.Enable_Radius = Herald_of_Thunder_Radius_toggle.isOn;
+                        Object.Destroy(Items_Heralds.Uniques.Lightning.prefab_obj);
+                    }
+                }
+                public static Text Herald_of_Thunder_Radius_text = null;
+                public static Slider Herald_of_Thunder_Radius_slider = null;
+                public static readonly System.Action<float> Herald_of_Thunder_Radius_slider_Action = new System.Action<float>(Set_Herald_of_Thunder_Radius);
+                public static void Set_Herald_of_Thunder_Radius(float f)
+                {
+                    if ((!Herald_of_Thunder_Radius_slider.IsNullOrDestroyed()) && (!Herald_of_Thunder_Radius_text.IsNullOrDestroyed()))
+                    {
+                        float result = Herald_of_Thunder_Radius_slider.value;
+                        Save_Manager.instance.data.NewItems.HeraldOfThunder.Radius = result;
+                        Herald_of_Thunder_Radius_text.text = (result * 100).ToString() + " %";
+                        Object.Destroy(Items_Heralds.Uniques.Lightning.prefab_obj);
+                    }
+                }
+
+                //Agony
+                public static Dropdown Herald_of_Agony_VFX_dropdown = null;
+                private static void Set_Herald_of_Agony_VFX()
+                {
+                    if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Herald_of_Agony_VFX_dropdown.IsNullOrDestroyed()))
+                    {
+                        Save_Manager.instance.data.NewItems.HeraldOfAgony.VFX = Herald_of_Agony_VFX_dropdown.options[Herald_of_Agony_VFX_dropdown.value].text;
+                        Object.Destroy(Items_Heralds.Uniques.Poison.ability);
+                        Object.Destroy(Items_Heralds.Uniques.Poison.prefab_obj);
+                    }
+                }
+                public static Toggle Herald_of_Agony_Radius_toggle = null;
+                public static readonly System.Action<bool> Herald_of_Agony_Radius_Toggle_Action = new System.Action<bool>(Set_Herald_of_Agony_Radius_Enable);
+                private static void Set_Herald_of_Agony_Radius_Enable(bool enable)
+                {
+                    if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Herald_of_Agony_Radius_toggle.IsNullOrDestroyed()))
+                    {
+                        Save_Manager.instance.data.NewItems.HeraldOfAgony.Enable_Radius = Herald_of_Agony_Radius_toggle.isOn;
+                        Object.Destroy(Items_Heralds.Uniques.Poison.prefab_obj);
+                    }
+                }
+                public static Text Herald_of_Agony_Radius_text = null;
+                public static Slider Herald_of_Agony_Radius_slider = null;
+                public static readonly System.Action<float> Herald_of_Agony_Radius_slider_Action = new System.Action<float>(Set_Herald_of_Agony_Radius);
+                public static void Set_Herald_of_Agony_Radius(float f)
+                {
+                    if ((!Herald_of_Agony_Radius_slider.IsNullOrDestroyed()) && (!Herald_of_Agony_Radius_text.IsNullOrDestroyed()))
+                    {
+                        float result = Herald_of_Agony_Radius_slider.value;
+                        Save_Manager.instance.data.NewItems.HeraldOfAgony.Radius = result;
+                        Herald_of_Agony_Radius_text.text = (result * 100).ToString() + " %";
+                        Object.Destroy(Items_Heralds.Uniques.Poison.prefab_obj);
+                    }
+                }
+
                 public static void Get_Refs()
                 {
-                    content_obj = Functions.GetChild(Content.content_obj, "Headhunter_Content");
+                    content_obj = Functions.GetChild(Content.content_obj, "NewItems_Content");
+                    if (!content_obj.IsNullOrDestroyed())
+                    {
+                        GameObject left = Functions.GetViewportContent(content_obj, "Left", "Content");
+                        if (!left.IsNullOrDestroyed())
+                        {
+                            GameObject herald_of_ice = Functions.GetChild(left, "Herald_of_Ice");
+                            if (!herald_of_ice.IsNullOrDestroyed())
+                            {
+                                Herald_of_Ice_VFX_dropdown = Functions.Get_DopboxInPanel(herald_of_ice, "VFX", "Dropdown", new System.Action<int>((_) => { Set_Herald_of_Ice_VFX(); }));
+                                Herald_of_Ice_Radius_toggle = Functions.Get_ToggleInPanel(left, "Herald_of_Ice", "Toggle");
+                                Herald_of_Ice_Radius_text = Functions.Get_TextInToggle(left, "Herald_of_Ice", "Toggle", "Value");
+                                Herald_of_Ice_Radius_slider = Functions.Get_SliderInPanel(left, "Herald_of_Ice", "Slider");
+                            }
+                            GameObject herald_of_fire = Functions.GetChild(left, "Herald_of_Fire");
+                            if (!herald_of_ice.IsNullOrDestroyed())
+                            {
+                                Herald_of_Fire_VFX_dropdown = Functions.Get_DopboxInPanel(herald_of_fire, "VFX", "Dropdown", new System.Action<int>((_) => { Set_Herald_of_Fire_VFX(); }));
+                                Herald_of_Fire_Radius_toggle = Functions.Get_ToggleInPanel(left, "Herald_of_Fire", "Toggle");
+                                Herald_of_Fire_Radius_text = Functions.Get_TextInToggle(left, "Herald_of_Fire", "Toggle", "Value");
+                                Herald_of_Fire_Radius_slider = Functions.Get_SliderInPanel(left, "Herald_of_Fire", "Slider");
+                            }
+                            GameObject herald_of_thunder = Functions.GetChild(left, "Herald_of_Thunder");
+                            if (!herald_of_thunder.IsNullOrDestroyed())
+                            {
+                                Herald_of_Thunder_VFX_dropdown = Functions.Get_DopboxInPanel(herald_of_thunder, "VFX", "Dropdown", new System.Action<int>((_) => { Set_Herald_of_Thunder_VFX(); }));
+                                Herald_of_Thunder_Radius_toggle = Functions.Get_ToggleInPanel(left, "Herald_of_Thunder", "Toggle");
+                                Herald_of_Thunder_Radius_text = Functions.Get_TextInToggle(left, "Herald_of_Thunder", "Toggle", "Value");
+                                Herald_of_Thunder_Radius_slider = Functions.Get_SliderInPanel(left, "Herald_of_Thunder", "Slider");
+                            }
+                            GameObject herald_of_agony = Functions.GetChild(left, "Herald_of_Agony");
+                            if (!herald_of_agony.IsNullOrDestroyed())
+                            {
+                                Herald_of_Agony_VFX_dropdown = Functions.Get_DopboxInPanel(herald_of_agony, "VFX", "Dropdown", new System.Action<int>((_) => { Set_Herald_of_Agony_VFX(); }));
+                                Herald_of_Agony_Radius_toggle = Functions.Get_ToggleInPanel(left, "Herald_of_Agony", "Toggle");
+                                Herald_of_Agony_Radius_text = Functions.Get_TextInToggle(left, "Herald_of_Agony", "Toggle", "Value");
+                                Herald_of_Agony_Radius_slider = Functions.Get_SliderInPanel(left, "Herald_of_Agony", "Slider");
+                            }
+                        }
+                        GameObject center = Functions.GetViewportContent(content_obj, "Center", "Content");
+                        if (!center.IsNullOrDestroyed())
+                        {
+
+                        }
+                        GameObject right = Functions.GetViewportContent(content_obj, "R", "Content");
+                        if (!right.IsNullOrDestroyed())
+                        {
+
+                        }
+                    }
+                }
+                public static void Init_Dropdowns()
+                {
+                    GetAbility(Herald_of_Ice_VFX_dropdown, "Cold, Spell");
+                    GetAbility(Herald_of_Fire_VFX_dropdown, "Fire, Spell");
+                    GetAbility(Herald_of_Thunder_VFX_dropdown, "Lightning, Spell");
+                    GetAbility(Herald_of_Agony_VFX_dropdown, "Poison, Spell");
+                }
+                public static void GetAbility(Dropdown dropdown, string tags)
+                {
+                    if (!dropdown.IsNullOrDestroyed())
+                    {
+                        dropdown.options.Clear();
+                        foreach (Ability ab in Resources.FindObjectsOfTypeAll<Ability>())
+                        {
+                            if (ab.tags.ToString() == tags)
+                            {
+                                if (!ab.abilityPrefab.IsNullOrDestroyed())
+                                {
+                                    bool contain_collider = false;
+                                    SphereCollider collider = ab.abilityPrefab.GetComponent<UnityEngine.SphereCollider>();
+                                    if (!collider.IsNullOrDestroyed()) { contain_collider = true; }
+                                    bool contain_vfx_ondeath = false;
+                                    CreateVfxOnDeath vfx_on_death = ab.abilityPrefab.GetComponent<CreateVfxOnDeath>();
+                                    if (!vfx_on_death.IsNullOrDestroyed()) { contain_vfx_ondeath = true; }
+                                    if ((contain_collider) && (contain_vfx_ondeath)) { dropdown.options.Add(new Dropdown.OptionData(ab.name)); }
+                                }
+                            }
+                        }
+                    }
+                }
+                public static void Set_Events()
+                {
+                    if (!Herald_of_Ice_Radius_toggle.IsNullOrDestroyed())
+                    {
+                        Events.Set_Toggle_Event(Herald_of_Ice_Radius_toggle, Herald_of_Ice_Radius_Toggle_Action);
+                    }
+                    if (!Herald_of_Ice_Radius_slider.IsNullOrDestroyed())
+                    {
+                        Events.Set_Slider_Event(Herald_of_Ice_Radius_slider, Herald_of_Ice_Radius_slider_Action);
+                    }
+                    if (!Herald_of_Fire_Radius_toggle.IsNullOrDestroyed())
+                    {
+                        Events.Set_Toggle_Event(Herald_of_Fire_Radius_toggle, Herald_of_Fire_Radius_Toggle_Action);
+                    }
+                    if (!Herald_of_Fire_Radius_slider.IsNullOrDestroyed())
+                    {
+                        Events.Set_Slider_Event(Herald_of_Fire_Radius_slider, Herald_of_Fire_Radius_slider_Action);
+                    }
+                    if (!Herald_of_Thunder_Radius_toggle.IsNullOrDestroyed())
+                    {
+                        Events.Set_Toggle_Event(Herald_of_Thunder_Radius_toggle, Herald_of_Thunder_Radius_Toggle_Action);
+                    }
+                    if (!Herald_of_Thunder_Radius_slider.IsNullOrDestroyed())
+                    {
+                        Events.Set_Slider_Event(Herald_of_Thunder_Radius_slider, Herald_of_Thunder_Radius_slider_Action);
+                    }
+                    if (!Herald_of_Agony_Radius_toggle.IsNullOrDestroyed())
+                    {
+                        Events.Set_Toggle_Event(Herald_of_Agony_Radius_toggle, Herald_of_Agony_Radius_Toggle_Action);
+                    }
+                    if (!Herald_of_Agony_Radius_slider.IsNullOrDestroyed())
+                    {
+                        Events.Set_Slider_Event(Herald_of_Agony_Radius_slider, Herald_of_Agony_Radius_slider_Action);
+                    }
                 }
                 public static void Set_Active(bool show)
                 {
@@ -6981,20 +7244,99 @@ namespace LastEpoch_Hud.Scripts
                 public static bool Init_Data()
                 {
                     bool result = false;
-
-
-
-                    return result;
-                }
-                public static void UpdateVisuals()
-                {
                     if (!Save_Manager.instance.IsNullOrDestroyed())
                     {
-                        if ((Save_Manager.instance.initialized) && (!Save_Manager.instance.data.IsNullOrDestroyed()))
+                        if (Save_Manager.instance.initialized)
                         {
-
+                            if (!Herald_of_Ice_VFX_dropdown.IsNullOrDestroyed())
+                            {
+                                int index = 0;
+                                if (Save_Manager.instance.data.NewItems.HeraldOfIce.VFX != "")
+                                {
+                                    foreach (Dropdown.OptionData options in Herald_of_Ice_VFX_dropdown.options)
+                                    {
+                                        if (options.text == Save_Manager.instance.data.NewItems.HeraldOfIce.VFX) { break; }
+                                        index++;
+                                    }
+                                }
+                                Herald_of_Ice_VFX_dropdown.value = index;
+                            }
+                            if (!Herald_of_Ice_Radius_toggle.IsNullOrDestroyed())
+                            {
+                                Herald_of_Ice_Radius_toggle.isOn = Save_Manager.instance.data.NewItems.HeraldOfIce.Enable_Radius;
+                            }
+                            if (!Herald_of_Ice_Radius_slider.IsNullOrDestroyed())
+                            {
+                                Herald_of_Ice_Radius_slider.value = Save_Manager.instance.data.NewItems.HeraldOfIce.Radius;
+                            }
+                            if (!Herald_of_Fire_VFX_dropdown.IsNullOrDestroyed())
+                            {
+                                int index = 0;
+                                if (Save_Manager.instance.data.NewItems.HeraldOfFire.VFX != "")
+                                {
+                                    foreach (Dropdown.OptionData options in Herald_of_Fire_VFX_dropdown.options)
+                                    {
+                                        if (options.text == Save_Manager.instance.data.NewItems.HeraldOfFire.VFX) { break; }
+                                        index++;
+                                    }
+                                }
+                                Herald_of_Fire_VFX_dropdown.value = index;
+                            }
+                            if (!Herald_of_Fire_Radius_toggle.IsNullOrDestroyed())
+                            {
+                                Herald_of_Fire_Radius_toggle.isOn = Save_Manager.instance.data.NewItems.HeraldOfFire.Enable_Radius;
+                            }
+                            if (!Herald_of_Fire_Radius_slider.IsNullOrDestroyed())
+                            {
+                                Herald_of_Fire_Radius_slider.value = Save_Manager.instance.data.NewItems.HeraldOfFire.Radius;
+                            }
+                            if (!Herald_of_Thunder_VFX_dropdown.IsNullOrDestroyed())
+                            {
+                                int index = 0;
+                                if (Save_Manager.instance.data.NewItems.HeraldOfThunder.VFX != "")
+                                {
+                                    foreach (Dropdown.OptionData options in Herald_of_Thunder_VFX_dropdown.options)
+                                    {
+                                        if (options.text == Save_Manager.instance.data.NewItems.HeraldOfThunder.VFX) { break; }
+                                        index++;
+                                    }
+                                }
+                                Herald_of_Thunder_VFX_dropdown.value = index;
+                            }
+                            if (!Herald_of_Thunder_Radius_toggle.IsNullOrDestroyed())
+                            {
+                                Herald_of_Thunder_Radius_toggle.isOn = Save_Manager.instance.data.NewItems.HeraldOfThunder.Enable_Radius;
+                            }
+                            if (!Herald_of_Thunder_Radius_slider.IsNullOrDestroyed())
+                            {
+                                Herald_of_Thunder_Radius_slider.value = Save_Manager.instance.data.NewItems.HeraldOfThunder.Radius;
+                            }
+                            if (!Herald_of_Agony_VFX_dropdown.IsNullOrDestroyed())
+                            {
+                                int index = 0;
+                                if (Save_Manager.instance.data.NewItems.HeraldOfAgony.VFX != "")
+                                {
+                                    foreach (Dropdown.OptionData options in Herald_of_Agony_VFX_dropdown.options)
+                                    {
+                                        if (options.text == Save_Manager.instance.data.NewItems.HeraldOfAgony.VFX) { break; }
+                                        index++;
+                                    }
+                                }
+                                Herald_of_Agony_VFX_dropdown.value = index;
+                            }
+                            if (!Herald_of_Agony_Radius_toggle.IsNullOrDestroyed())
+                            {
+                                Herald_of_Agony_Radius_toggle.isOn = Save_Manager.instance.data.NewItems.HeraldOfAgony.Enable_Radius;
+                            }
+                            if (!Herald_of_Agony_Radius_slider.IsNullOrDestroyed())
+                            {
+                                Herald_of_Agony_Radius_slider.value = Save_Manager.instance.data.NewItems.HeraldOfAgony.Radius;
+                            }
+                            result = true;
                         }
                     }
+                    
+                    return result;
                 }
             }
         }

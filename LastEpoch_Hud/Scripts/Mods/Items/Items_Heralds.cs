@@ -14,25 +14,6 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
         
         bool InGame = false;
 
-        public static string ice_ability_name = "Runemaster 15.2 Explosion";
-        public static string fire_ability_name = "FireballExplosion";
-        public static string lightning_ability_name = "Runemaster 05c3.1 Runebolt Lightning Explosion";
-        public static string poison_ability_name = "NemesisSoldierPoison 03.1 PoisonExplosion";
-
-        //use to set collider size (i don't recommend)
-        public static bool increased_ice_collider_radius = false;
-        public static bool increased_fire_collider_radius = false;
-        public static bool increased_lightning_collider_radius = false;
-        public static bool increased_poison_collider_radius = false;
-        public static float SphereColliderRadius = 1f; 
-
-        //Use this to increase radius of vfx (i don't recommend)
-        public static bool increased_ice_vfx_radius = false;
-        public static bool increased_fire_vfx_radius = false;
-        public static bool increased_lightning_vfx_radius = false;
-        public static bool increased_poison_vfx_radius = false;
-        public static float CreateVfxOnDeathIncreaseRadius = 1.75f; //increase Radius   
-
         void Awake()
         {
             instance = this;
@@ -250,38 +231,6 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
 
             public class Ice
             {
-                //HorridSlimeWater 04 DeathExplosionIce             TooBig
-                //Runemaster 05c2.1 Runebolt Cold Explosion
-                //IceMortalExplosion
-                //FrostWallDetonation
-                //IceShard
-                //Twin Dragon (Ice) 08.2 Sheer Cold Explosion
-                //NemesisSoldierUltimate 04 SlowingSnapFreeze
-                //IceTitan 02.1 Glacier
-                //Runemaster 15.2 Explosion
-                //Runemaster Base 12 Large Explosion Cold
-                //IceNova                                           TooBig
-                //Runemaster 22.2 Ice Zipper Spike L
-                //IceTitan 03.1 IceSpikeDamage
-                //NemesisSoldierCold 04 SlowingSnapFreeze
-                //FrozenDryad 02.2 BulbExplosion
-                //Runemaster 18.1 Ice Shield Impact
-                //Twin Dragon (Ice) 05.2 Icicle Crash Explosion
-                //Runemaster 22.1 Ice Zipper Spike R
-                //ChonkerDrake 07.5 Icebomb Explosion
-                //Chilling Wave
-                //Runemaster Base 11 Small Explosion Cold
-                //Crystal Mod 01.1 Crystallized Heart Explosion
-                //Heorot Boss Ice Circle Small
-                //ImprisonedMage 19.1 Ice Nova
-                //Bone Golem 10 Freezing Grasp
-                //Runemaster 23 Small Cold Explosion
-                //SmallIceCircle
-                //GraelIceNova
-                //Aterroth 14c3.1 Meteor Explosion
-                //Frost Claw Explosion
-                //Skeletal Mages Cold Projectile
-                //OasisSalamander 02.2 WaterSplash
                 public static bool Initialize_ability = false;
                 public static Ability ability = null;
                 public static bool Initialize_prefab = false;
@@ -328,7 +277,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         {
                             foreach (Ability ab in Resources.FindObjectsOfTypeAll<Ability>())
                             {
-                                if (ab.name == ice_ability_name)
+                                if (ab.name == Save_Manager.instance.data.NewItems.HeraldOfIce.VFX)
                                 {
                                     ability = new Ability
                                     {
@@ -364,17 +313,17 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         Initialize_prefab = true;
                         foreach (Ability ab in Resources.FindObjectsOfTypeAll<Ability>())
                         {
-                            if (ab.name == ice_ability_name)
+                            if (ab.name == Save_Manager.instance.data.NewItems.HeraldOfIce.VFX)
                             {
                                 prefab_obj = Object.Instantiate(ab.abilityPrefab, Vector3.zero, Quaternion.identity);
                                 prefab_obj.active = false;
                                 prefab_obj.name = "Herald of Ice prefab";
                                 SphereCollider collider = prefab_obj.GetComponent<UnityEngine.SphereCollider>();
-                                if ((!collider.IsNullOrDestroyed()) && (increased_ice_collider_radius))
-                                { collider.radius = SphereColliderRadius; }
+                                if ((!collider.IsNullOrDestroyed()) && (Save_Manager.instance.data.NewItems.HeraldOfIce.Enable_Radius))
+                                { collider.radius = Save_Manager.instance.data.NewItems.HeraldOfIce.Radius; }
                                 CreateVfxOnDeath vfx_on_death = prefab_obj.GetComponent<CreateVfxOnDeath>();
-                                if ((!vfx_on_death.IsNullOrDestroyed()) && (increased_ice_vfx_radius))
-                                { vfx_on_death.increasedRadius = CreateVfxOnDeathIncreaseRadius; }
+                                if ((!vfx_on_death.IsNullOrDestroyed()) && (Save_Manager.instance.data.NewItems.HeraldOfIce.Enable_Radius))
+                                { vfx_on_death.increasedRadius = Save_Manager.instance.data.NewItems.HeraldOfIce.Radius; }
                                 break;
                             }
                         }
@@ -528,7 +477,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         {
                             foreach (Ability ab in Resources.FindObjectsOfTypeAll<Ability>())
                             {
-                                if (ab.name == fire_ability_name)
+                                if (ab.name == Save_Manager.instance.data.NewItems.HeraldOfFire.VFX)
                                 {
                                     ability = new Ability
                                     {
@@ -564,17 +513,17 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         Initialize_prefab = true;
                         foreach (Ability ab in Resources.FindObjectsOfTypeAll<Ability>())
                         {
-                            if (ab.name == fire_ability_name)
+                            if (ab.name == Save_Manager.instance.data.NewItems.HeraldOfFire.VFX)
                             {
                                 prefab_obj = Object.Instantiate(ab.abilityPrefab, Vector3.zero, Quaternion.identity);
                                 prefab_obj.active = false;
                                 prefab_obj.name = "Herald of Ash prefab";
                                 SphereCollider collider = prefab_obj.GetComponent<UnityEngine.SphereCollider>();
-                                if ((!collider.IsNullOrDestroyed()) && (increased_fire_collider_radius))
-                                { collider.radius = SphereColliderRadius; }
+                                if ((!collider.IsNullOrDestroyed()) && (Save_Manager.instance.data.NewItems.HeraldOfFire.Enable_Radius))
+                                { collider.radius = Save_Manager.instance.data.NewItems.HeraldOfFire.Radius; }
                                 CreateVfxOnDeath vfx_on_death = prefab_obj.GetComponent<CreateVfxOnDeath>();
-                                if ((!vfx_on_death.IsNullOrDestroyed()) && (increased_fire_vfx_radius))
-                                { vfx_on_death.increasedRadius = CreateVfxOnDeathIncreaseRadius; }
+                                if ((!vfx_on_death.IsNullOrDestroyed()) && (Save_Manager.instance.data.NewItems.HeraldOfFire.Enable_Radius))
+                                { vfx_on_death.increasedRadius = Save_Manager.instance.data.NewItems.HeraldOfFire.Radius; }
                                 break;
                             }
                         }
@@ -682,45 +631,6 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             }
             public class Lightning
             {
-                //NemesisSoldierLightning 04 LightningExplosion                 TooBig
-                //LightningLich 02 LightningBolt
-                //Runemaster Base 21 Small Explosion Lightning No Target Set
-                //ValeStorm
-                //Runemaster 05c3.1 Runebolt Lightning Explosion
-                //Runemaster 43.1 Static Field Damage
-                //NemesisSoldierLightning 04 LightningExplosion
-                //ImprisonedMage 18.1 Lightning Bolt
-                //Event Actor Mod 04.1 Lightning Bolt Damage
-                //Gaspar Boss 07.2 Mine Lightning Explosion
-                //Apophis 053.1 LightningCrystalExplosion
-                //PrimalLightning
-                //Runemaster 02.1 Glyph of Dominion Damage
-                //Void Harton Void Stab AoE Damage
-                //AdmiralHarton 01.2 StormLightningBolt
-                //GiantStatueRuneExplosion Endgame
-                //ImperialEraEnemy03 Miniboss Glyph of Dominion Damage
-                //Rune Warden 01.2 Thunder Clap Large Explosion
-                //Runemaster Base 21 Small Explosion Lightning
-                //armored phoenix 02.1 feathers damages
-                //Liath Lightning Mine Explosion
-                //GiantStatueRuneExplosion
-                //Runemaster 23 Small Lightning Explosion
-                //MummifiedNagasa Champion 02.2 SandProjectileDamage
-                //Lightning Dragon Random Echo Shake Explosion
-                //AdmiralHarton 02.1 LightningBlast
-                //Miniboss Fire Golem 02.2 Flame Feather Explosion
-                //Spire 03.2 Lagon Beam Damage
-                //Runemaster Base 22 Large Explosion Lightning
-                //Apophis 053.3 LightningCrystalDOTDamages
-                //GoldthreadArachne 03.1 SmallExplosion
-                //Crystal Dragon Champion 05 Lightning Explosion
-                //AdmiralHarton 05.1 LightningBlastStab
-                //ImprisonedMage 10.1 Arc Volley Impact
-                //TempleBeast 03.1 Lightning Strike Damage
-                //Runemaster 46 Discharging snap
-                //TempleGuardian-Staff 02 Heavenly Tempest Strikes
-                //LightningNova                                                 TooBig
-                
                 public static bool Initialize_ability = false;
                 public static Ability ability = null;
                 public static bool Initialize_prefab = false;
@@ -767,7 +677,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         {
                             foreach (Ability ab in Resources.FindObjectsOfTypeAll<Ability>())
                             {
-                                if (ab.name == lightning_ability_name)
+                                if (ab.name == Save_Manager.instance.data.NewItems.HeraldOfThunder.VFX)
                                 {
                                     ability = new Ability
                                     {
@@ -803,17 +713,17 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         Initialize_prefab = true;
                         foreach (Ability ab in Resources.FindObjectsOfTypeAll<Ability>())
                         {
-                            if (ab.name == lightning_ability_name)
+                            if (ab.name == Save_Manager.instance.data.NewItems.HeraldOfThunder.VFX)
                             {
                                 prefab_obj = Object.Instantiate(ab.abilityPrefab, Vector3.zero, Quaternion.identity);
                                 prefab_obj.active = false;
                                 prefab_obj.name = "Herald of Thunder prefab";
                                 SphereCollider collider = prefab_obj.GetComponent<UnityEngine.SphereCollider>();
-                                if ((!collider.IsNullOrDestroyed()) && (increased_lightning_collider_radius))
-                                { collider.radius = SphereColliderRadius; }
+                                if ((!collider.IsNullOrDestroyed()) && (Save_Manager.instance.data.NewItems.HeraldOfThunder.Enable_Radius))
+                                { collider.radius = Save_Manager.instance.data.NewItems.HeraldOfThunder.Radius; }
                                 CreateVfxOnDeath vfx_on_death = prefab_obj.GetComponent<CreateVfxOnDeath>();
-                                if((!vfx_on_death.IsNullOrDestroyed()) && (increased_lightning_vfx_radius))
-                                { vfx_on_death.increasedRadius = CreateVfxOnDeathIncreaseRadius; }
+                                if((!vfx_on_death.IsNullOrDestroyed()) && (Save_Manager.instance.data.NewItems.HeraldOfThunder.Enable_Radius))
+                                { vfx_on_death.increasedRadius = Save_Manager.instance.data.NewItems.HeraldOfThunder.Radius; }
                                 break;
                             }
                         }
@@ -967,7 +877,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         {
                             foreach (Ability ab in Resources.FindObjectsOfTypeAll<Ability>())
                             {
-                                if (ab.name == poison_ability_name)
+                                if (ab.name == Save_Manager.instance.data.NewItems.HeraldOfAgony.VFX)
                                 {
                                     ability = new Ability
                                     {
@@ -1003,17 +913,17 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         Initialize_prefab = true;
                         foreach (Ability ab in Resources.FindObjectsOfTypeAll<Ability>())
                         {
-                            if (ab.name == poison_ability_name)
+                            if (ab.name == Save_Manager.instance.data.NewItems.HeraldOfAgony.VFX)
                             {
                                 prefab_obj = Object.Instantiate(ab.abilityPrefab, Vector3.zero, Quaternion.identity);
                                 prefab_obj.active = false;
                                 prefab_obj.name = "Herald of Agony prefab";
                                 SphereCollider collider = prefab_obj.GetComponent<UnityEngine.SphereCollider>();
-                                if ((!collider.IsNullOrDestroyed()) && (increased_poison_collider_radius))
-                                { collider.radius = SphereColliderRadius; }
+                                if ((!collider.IsNullOrDestroyed()) && (Save_Manager.instance.data.NewItems.HeraldOfAgony.Enable_Radius))
+                                { collider.radius = Save_Manager.instance.data.NewItems.HeraldOfAgony.Radius; }
                                 CreateVfxOnDeath vfx_on_death = prefab_obj.GetComponent<CreateVfxOnDeath>();
-                                if ((!vfx_on_death.IsNullOrDestroyed()) && (increased_poison_vfx_radius))
-                                { vfx_on_death.increasedRadius = CreateVfxOnDeathIncreaseRadius; }
+                                if ((!vfx_on_death.IsNullOrDestroyed()) && (Save_Manager.instance.data.NewItems.HeraldOfAgony.Enable_Radius))
+                                { vfx_on_death.increasedRadius = Save_Manager.instance.data.NewItems.HeraldOfAgony.Radius; }
                                 break;
                             }
                         }

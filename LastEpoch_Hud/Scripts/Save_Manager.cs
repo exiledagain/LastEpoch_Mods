@@ -33,6 +33,7 @@ namespace LastEpoch_Hud.Scripts
         void Load()
         {
             bool error = false;
+            //data = Get_DefaultConfig(); //Get new options
             if (File.Exists(path + filename))
             {
                 Main.logger_instance?.Msg("Save Manager : Loading file : " + path + filename);
@@ -299,6 +300,33 @@ namespace LastEpoch_Hud.Scripts
                         SockectedSkill_2 = "Storm Bolt"
                     }
                 },
+                NewItems =
+                {
+                    HeraldOfIce =
+                    {
+                        VFX = "Runemaster 15.2 Explosion",
+                        Enable_Radius = false,
+                        Radius = 0f
+                    },
+                    HeraldOfFire =
+                    {
+                        VFX = "FireballExplosion",
+                        Enable_Radius = false,
+                        Radius = 0f
+                    },
+                    HeraldOfThunder =
+                    {
+                        VFX = "Runemaster 05c3.1 Runebolt Lightning Explosion",
+                        Enable_Radius = false,
+                        Radius = 0f
+                    },
+                    HeraldOfAgony =
+                    {
+                        VFX = "NemesisSoldierPoison 03.1 PoisonExplosion",
+                        Enable_Radius = false,
+                        Radius = 0f
+                    }
+                },
                 Factions =
                 {
                     TheWoven =
@@ -516,7 +544,7 @@ namespace LastEpoch_Hud.Scripts
                                 Enable_ReduceDecay = false,
                                 decay = 0
                             }
-                        }
+                    }
                 }
             };
 
@@ -564,6 +592,7 @@ namespace LastEpoch_Hud.Scripts
                 public Character Character;
                 public Summon Summon;                
                 public Items Items;
+                public NewItems NewItems;
                 public Factions Factions;
                 public Scenes Scenes;
                 public Skills Skills;
@@ -853,6 +882,39 @@ namespace LastEpoch_Hud.Scripts
                 public string SockectedSkill_0;
                 public string SockectedSkill_1;
                 public string SockectedSkill_2;
+            }
+
+            //NewItems
+            public struct NewItems
+            {
+                public HeraldOfIce HeraldOfIce;
+                public HeraldOfFire HeraldOfFire;
+                public HeraldOfThunder HeraldOfThunder;
+                public HeraldOfAgony HeraldOfAgony;
+            }
+            public struct HeraldOfIce
+            {
+                public string VFX;
+                public bool Enable_Radius;
+                public float Radius;
+            }
+            public struct HeraldOfFire
+            {
+                public string VFX;
+                public bool Enable_Radius;
+                public float Radius;
+            }
+            public struct HeraldOfThunder
+            {
+                public string VFX;
+                public bool Enable_Radius;
+                public float Radius;
+            }
+            public struct HeraldOfAgony
+            {
+                public string VFX;
+                public bool Enable_Radius;
+                public float Radius;
             }
 
             //Factions
