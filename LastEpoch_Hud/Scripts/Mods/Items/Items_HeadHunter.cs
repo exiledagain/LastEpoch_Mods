@@ -363,21 +363,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
 
                 return legendaryType;
             }
-
-            //Not work in 1.2
-            /*[HarmonyPatch(typeof(InventoryItemUI), "GetSpriteImage")]
-            public class InventoryItemUI_GetSpriteImage
-            {
-                [HarmonyPostfix]
-                static void Postfix(ref UnityEngine.Sprite __result, ItemData __0, ItemUIContext __1)
-                {
-                    if ((__0.getAsUnpacked().FullName == Get_Unique_Name()) && (!Icon.IsNullOrDestroyed()))
-                    {
-                        __result = Icon;
-                    }
-                }
-            }*/            
-
+        
             //Fix for V1.2 (icon in inventory)
             [HarmonyPatch(typeof(InventoryItemUI), "SetImageSpritesAndColours")]
             public class InventoryItemUI_SetImageSpritesAndColours
@@ -453,7 +439,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
         }
         public class RandomBuffs
         {
-            public static int Max_Stack = 10; //Edit max Buff stack
+            //public static int Max_Stack = 10; //Edit max Buff stack
 
             public struct HH_Buff
             {
@@ -470,15 +456,21 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 for (int i = 0; i < NbBuff; i++)
                 {
                     Buff random_buff = Generate_Random_HHBuff();
-                    int max_addvalue = Max_Stack;
-                    int max_increasedvalue = Max_Stack;
+                    int max_stack = (int)Save_Manager.instance.data.Items.Headhunter.Stack;
+                    if (max_stack == 0)
+                    {
+                        max_stack = 1;
+                        Save_Manager.instance.data.Items.Headhunter.Stack = 1;
+                    }
+                    //int max_addvalue = Max_Stack;
+                    //int max_increasedvalue = Max_Stack;
                     bool found = false;
                     foreach (var p in Config.HH_Buff_Config)
                     {
                         if (random_buff.name.Contains(p.property))
                         {
-                            if ((p.max_added > 0) && (p.max_added < max_addvalue)) { max_addvalue = p.max_added; }
-                            if ((p.max_increased > 0) && (p.max_increased < max_increasedvalue)) { max_increasedvalue -= p.max_increased; }
+                            //if ((p.max_added > 0) && (p.max_added < max_addvalue)) { max_addvalue = p.max_added; }
+                            //if ((p.max_increased > 0) && (p.max_increased < max_increasedvalue)) { max_increasedvalue -= p.max_increased; }
                             found = true;
                             break;
                         }
@@ -487,20 +479,22 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     if (random_buff != null)
                     {
                         //player
-                        UpdateBuff(PlayerFinder.getPlayerActor(), random_buff, max_addvalue, max_increasedvalue);
+                        UpdateBuff(PlayerFinder.getPlayerActor(), random_buff, max_stack);
+                        //UpdateBuff(PlayerFinder.getPlayerActor(), random_buff, max_addvalue, max_increasedvalue);
                         
                         //Summons
                         if (!Refs_Manager.summon_tracker.IsNullOrDestroyed())
                         {
                             foreach (Summoned summon in Refs_Manager.summon_tracker.summons)
                             {
-                                UpdateBuff(summon.actor, random_buff, max_addvalue, max_increasedvalue);
+                                UpdateBuff(summon.actor, random_buff, max_stack);
+                                //UpdateBuff(summon.actor, random_buff, max_addvalue, max_increasedvalue);
                             }
                         }
                     }
                 }
             }
-            public static void UpdateBuff(Actor actor, Buff random_buff, int max_addvalue, int max_increasedvalue)
+            public static void UpdateBuff(Actor actor, Buff random_buff, int max_stack) // int max_addvalue, int max_increasedvalue)
             {
                 if (!actor.IsNullOrDestroyed())
                 {
@@ -515,21 +509,21 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                             if (!GetIsIncrease(buff))
                             {
                                 old_value = buff.stat.addedValue;
-                                if (old_value < max_addvalue)
+                                if (old_value < (Save_Manager.instance.data.Items.Headhunter.AddValue * max_stack))
                                 {
                                     new_value = old_value + Save_Manager.instance.data.Items.Headhunter.AddValue;
                                 }
-                                else { new_value = max_addvalue; }
+                                else { new_value = (Save_Manager.instance.data.Items.Headhunter.AddValue * max_stack); }
                                 random_buff.stat.addedValue = new_value;
                             }
                             else
                             {
                                 old_value = buff.stat.increasedValue;
-                                if (old_value < max_increasedvalue)
+                                if (old_value < (Save_Manager.instance.data.Items.Headhunter.IncreasedValue * max_stack))
                                 {
                                     new_value = old_value + Save_Manager.instance.data.Items.Headhunter.IncreasedValue;
                                 }
-                                else { new_value = max_increasedvalue; }
+                                else { new_value = (Save_Manager.instance.data.Items.Headhunter.IncreasedValue * max_stack); }
                                 random_buff.stat.increasedValue = new_value;
                             }
                             break;

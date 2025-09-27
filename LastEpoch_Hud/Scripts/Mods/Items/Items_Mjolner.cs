@@ -374,7 +374,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
         }
         private class Trigger
         {
-            internal static void AllSkills(Actor hitActor)
+            /*internal static void AllSkills(Actor hitActor)
             {
                 if ((!hitActor.IsNullOrDestroyed()) && (!trigger))
                 {
@@ -398,7 +398,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     }
                     trigger = false;
                 }
-            }
+            }*/
 
             internal static void Initialize_SocketedSkills()
             {
@@ -439,16 +439,22 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         {
                             bool run = false;
                             System.Double cd = Save_Manager.instance.data.Items.Mjolner.SocketedCooldown;
-                            if (cd < 250) { cd = 250; }
+                            //if (cd < 250) { cd = 250; }
 
-                            if ((System.DateTime.Now - Times[i]).TotalMilliseconds > cd) { run = true; }
+                            if ((System.DateTime.Now - Times[i]).TotalSeconds > cd) { run = true; }
 
                             if (run)
                             {
-                                float backup_manacost = Abilities[i].manaCost;
-                                Abilities[i].manaCost = 0; //Remove ManaCost
-                                Abilities[i].castAtTargetFromConstructorAfterDelay(Refs_Manager.player_actor.abilityObjectConstructor, Vector3.zero, hitActor.position(), 0, UseType.Indirect);
-                                Abilities[i].manaCost = backup_manacost; //Reset ManaCost
+                                float item_roll = Random.Range(Save_Manager.instance.data.Items.Mjolner.MinTriggerChance, Save_Manager.instance.data.Items.Mjolner.MaxTriggerChance);
+                                float item_roll_percent = (item_roll / 255) * 100;
+                                float roll_percent = Random.Range(0f, 100f);
+                                if (roll_percent <= item_roll_percent)
+                                {
+                                    float backup_manacost = Abilities[i].manaCost;
+                                    Abilities[i].manaCost = 0; //Remove ManaCost
+                                    Abilities[i].castAtTargetFromConstructorAfterDelay(Refs_Manager.player_actor.abilityObjectConstructor, Vector3.zero, hitActor.position(), 0, UseType.Indirect);
+                                    Abilities[i].manaCost = backup_manacost; //Reset ManaCost
+                                }
                                 Times[i] = System.DateTime.Now;
                             }
                         }
@@ -498,8 +504,10 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         && (Refs_Manager.player_actor.stats.GetAttributeValue(CoreAttribute.Attribute.Strength) >= Save_Manager.instance.data.Items.Mjolner.StrRequirement)
                         && (Refs_Manager.player_actor.stats.GetAttributeValue(CoreAttribute.Attribute.Intelligence) >= Save_Manager.instance.data.Items.Mjolner.IntRequirement))
                     {
-                        if (Save_Manager.instance.data.Items.Mjolner.ProcAnyLightningSpell && (!ability.tags.HasFlag(AT.Spell))) { Trigger.AllSkills(hitActor); }
-                        else { Trigger.SocketedSkills(hitActor); }
+                        //if (Save_Manager.instance.data.Items.Mjolner.ProcAnyLightningSpell && (!ability.tags.HasFlag(AT.Spell))) { Trigger.AllSkills(hitActor); }
+                        //else { Trigger.SocketedSkills(hitActor); }
+
+                        Trigger.SocketedSkills(hitActor);
                     }
                 }
             }

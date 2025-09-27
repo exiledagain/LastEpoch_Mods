@@ -6966,7 +6966,127 @@ namespace LastEpoch_Hud.Scripts
                 public static GameObject content_obj = null;
                 public static bool enable = false;
 
-                //Ice
+                //Headhunter
+                public static Text Headhunter_BuffDuration_text = null;
+                public static Slider Headhunter_BuffDuration_slider = null;
+                public static readonly System.Action<float> Headhunter_BuffDuration_slider_Action = new System.Action<float>(Set_Headhunter_BuffDuration);
+                public static void Set_Headhunter_BuffDuration(float f)
+                {
+                    if ((!Headhunter_BuffDuration_slider.IsNullOrDestroyed()) && (!Headhunter_BuffDuration_text.IsNullOrDestroyed()))
+                    {
+                        float result = Headhunter_BuffDuration_slider.value;
+                        Save_Manager.instance.data.Items.Headhunter.BuffDuration = result;
+                        Headhunter_BuffDuration_text.text = result.ToString() + " sec";
+                    }
+                }
+                public static Text Headhunter_BuffStack_text = null;
+                public static Slider Headhunter_BuffStack_slider = null;
+                public static readonly System.Action<float> Headhunter_BuffStack_slider_Action = new System.Action<float>(Set_Headhunter_BuffStack);
+                public static void Set_Headhunter_BuffStack(float f)
+                {
+                    if ((!Headhunter_BuffStack_slider.IsNullOrDestroyed()) && (!Headhunter_BuffStack_text.IsNullOrDestroyed()))
+                    {
+                        float result = Headhunter_BuffStack_slider.value;
+                        Save_Manager.instance.data.Items.Headhunter.Stack = result;
+                        Headhunter_BuffStack_text.text = result.ToString();
+                    }
+                }
+                public static Text Headhunter_Add_text = null;
+                public static Slider Headhunter_Add_slider = null;
+                public static readonly System.Action<float> Headhunter_Add_slider_Action = new System.Action<float>(Set_Headhunter_Add);
+                public static void Set_Headhunter_Add(float f)
+                {
+                    if ((!Headhunter_Add_slider.IsNullOrDestroyed()) && (!Headhunter_Add_text.IsNullOrDestroyed()))
+                    {
+                        float result = Headhunter_Add_slider.value;
+                        Save_Manager.instance.data.Items.Headhunter.AddValue = result;
+                        Headhunter_Add_text.text = "+ " + result.ToString();
+                    }
+                }
+                public static Text Headhunter_Increase_text = null;
+                public static Slider Headhunter_Increase_slider = null;
+                public static readonly System.Action<float> Headhunter_Increase_slider_Action = new System.Action<float>(Set_Headhunter_Increase);
+                public static void Set_Headhunter_Increase(float f)
+                {
+                    if ((!Headhunter_Increase_slider.IsNullOrDestroyed()) && (!Headhunter_Increase_text.IsNullOrDestroyed()))
+                    {
+                        float result = Headhunter_Increase_slider.value;
+                        Save_Manager.instance.data.Items.Headhunter.IncreasedValue = result;
+                        Headhunter_Increase_text.text = "+ " + ((int)(result * 100)).ToString() + " %";
+                    }
+                }
+
+                //Mjolnir
+                public static Text Mjolnir_MinTriggerChance_text = null;
+                public static Slider Mjolnir_MinTriggerChance_slider = null;
+                public static readonly System.Action<float> Mjolnir_MinTriggerChance_slider_Action = new System.Action<float>(Set_Mjolnir_MinTriggerChance);
+                public static void Set_Mjolnir_MinTriggerChance(float f)
+                {
+                    if ((!Mjolnir_MinTriggerChance_slider.IsNullOrDestroyed()) && (!Mjolnir_MinTriggerChance_text.IsNullOrDestroyed()))
+                    {
+                        if (Mjolnir_MinTriggerChance_slider.value > Mjolnir_MaxTriggerChance_slider.value)
+                        {
+                            Mjolnir_MaxTriggerChance_slider.value = Mjolnir_MinTriggerChance_slider.value;
+                        }
+                        float result = Mjolnir_MinTriggerChance_slider.value;
+                        Save_Manager.instance.data.Items.Mjolner.MinTriggerChance = (result / 100);
+                        Mjolnir_MinTriggerChance_text.text = result.ToString() + " %";
+                    }
+                }
+                public static Text Mjolnir_MaxTriggerChance_text = null;
+                public static Slider Mjolnir_MaxTriggerChance_slider = null;
+                public static readonly System.Action<float> Mjolnir_MaxTriggerChance_slider_Action = new System.Action<float>(Set_Mjolnir_MaxTriggerChance);
+                public static void Set_Mjolnir_MaxTriggerChance(float f)
+                {
+                    if ((!Mjolnir_MaxTriggerChance_slider.IsNullOrDestroyed()) && (!Mjolnir_MaxTriggerChance_text.IsNullOrDestroyed()))
+                    {
+                        if (Mjolnir_MaxTriggerChance_slider.value < Mjolnir_MinTriggerChance_slider.value)
+                        {
+                            Mjolnir_MinTriggerChance_slider.value = Mjolnir_MaxTriggerChance_slider.value;
+                        }
+                        float result = Mjolnir_MaxTriggerChance_slider.value;
+                        Save_Manager.instance.data.Items.Mjolner.MaxTriggerChance = (result / 100);
+                        Mjolnir_MaxTriggerChance_text.text = result.ToString() + " %";
+                    }
+                }
+                public static Text Mjolnir_TriggerCooldown_text = null;
+                public static Slider Mjolnir_TriggerCooldown_slider = null;
+                public static readonly System.Action<float> Mjolnir_TriggerCooldown_slider_Action = new System.Action<float>(Set_Mjolnir_TriggerCooldown);
+                public static void Set_Mjolnir_TriggerCooldown(float f)
+                {
+                    if ((!Mjolnir_TriggerCooldown_slider.IsNullOrDestroyed()) && (!Mjolnir_TriggerCooldown_text.IsNullOrDestroyed()))
+                    {
+                        float result = Mjolnir_TriggerCooldown_slider.value;
+                        Save_Manager.instance.data.Items.Mjolner.SocketedCooldown = result;
+                        Mjolnir_TriggerCooldown_text.text = result.ToString() + " sec";
+                    }
+                }
+                public static Dropdown Mjolnir_Socket0_dropdown = null;
+                private static void Set_Mjolnir_Socket0()
+                {
+                    if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Mjolnir_Socket0_dropdown.IsNullOrDestroyed()))
+                    {
+                        Save_Manager.instance.data.Items.Mjolner.SockectedSkill_0 = Mjolnir_Socket0_dropdown.options[Mjolnir_Socket0_dropdown.value].text;
+                    }
+                }
+                public static Dropdown Mjolnir_Socket1_dropdown = null;
+                private static void Set_Mjolnir_Socket1()
+                {
+                    if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Mjolnir_Socket1_dropdown.IsNullOrDestroyed()))
+                    {
+                        Save_Manager.instance.data.Items.Mjolner.SockectedSkill_1 = Mjolnir_Socket1_dropdown.options[Mjolnir_Socket1_dropdown.value].text;
+                    }
+                }
+                public static Dropdown Mjolnir_Socket2_dropdown = null;
+                private static void Set_Mjolnir_Socket2()
+                {
+                    if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Mjolnir_Socket2_dropdown.IsNullOrDestroyed()))
+                    {
+                        Save_Manager.instance.data.Items.Mjolner.SockectedSkill_2 = Mjolnir_Socket2_dropdown.options[Mjolnir_Socket2_dropdown.value].text;
+                    }
+                }
+
+                //Herald of Ice
                 public static Dropdown Herald_of_Ice_VFX_dropdown = null;
                 private static void Set_Herald_of_Ice_VFX()
                 {
@@ -6996,12 +7116,12 @@ namespace LastEpoch_Hud.Scripts
                     {
                         float result = Herald_of_Ice_Radius_slider.value;
                         Save_Manager.instance.data.NewItems.HeraldOfIce.Radius = result;              
-                        Herald_of_Ice_Radius_text.text = (result * 100).ToString() + " %";
+                        Herald_of_Ice_Radius_text.text = ((int)(result * 100)).ToString() + " %";
                         Object.Destroy(Items_Heralds.Uniques.Ice.prefab_obj);
                     }
                 }
 
-                //Fire
+                //Herald of Ash
                 public static Dropdown Herald_of_Fire_VFX_dropdown = null;
                 private static void Set_Herald_of_Fire_VFX()
                 {
@@ -7031,12 +7151,12 @@ namespace LastEpoch_Hud.Scripts
                     {
                         float result = Herald_of_Fire_Radius_slider.value;
                         Save_Manager.instance.data.NewItems.HeraldOfFire.Radius = result;
-                        Herald_of_Fire_Radius_text.text = (result * 100).ToString() + " %";
+                        Herald_of_Fire_Radius_text.text = ((int)(result * 100)).ToString() + " %";
                         Object.Destroy(Items_Heralds.Uniques.Fire.prefab_obj);
                     }
                 }
 
-                //Thunder
+                //Herald of Thunder
                 public static Dropdown Herald_of_Thunder_VFX_dropdown = null;
                 private static void Set_Herald_of_Thunder_VFX()
                 {
@@ -7066,12 +7186,12 @@ namespace LastEpoch_Hud.Scripts
                     {
                         float result = Herald_of_Thunder_Radius_slider.value;
                         Save_Manager.instance.data.NewItems.HeraldOfThunder.Radius = result;
-                        Herald_of_Thunder_Radius_text.text = (result * 100).ToString() + " %";
+                        Herald_of_Thunder_Radius_text.text = ((int)(result * 100)).ToString() + " %";
                         Object.Destroy(Items_Heralds.Uniques.Lightning.prefab_obj);
                     }
                 }
 
-                //Agony
+                //Herald of Agony
                 public static Dropdown Herald_of_Agony_VFX_dropdown = null;
                 private static void Set_Herald_of_Agony_VFX()
                 {
@@ -7101,7 +7221,7 @@ namespace LastEpoch_Hud.Scripts
                     {
                         float result = Herald_of_Agony_Radius_slider.value;
                         Save_Manager.instance.data.NewItems.HeraldOfAgony.Radius = result;
-                        Herald_of_Agony_Radius_text.text = (result * 100).ToString() + " %";
+                        Herald_of_Agony_Radius_text.text = ((int)(result * 100)).ToString() + " %";
                         Object.Destroy(Items_Heralds.Uniques.Poison.prefab_obj);
                     }
                 }
@@ -7114,6 +7234,31 @@ namespace LastEpoch_Hud.Scripts
                         GameObject left = Functions.GetViewportContent(content_obj, "Left", "Content");
                         if (!left.IsNullOrDestroyed())
                         {
+                            GameObject headhunter = Functions.GetChild(left, "Headhunter");
+                            if (!headhunter.IsNullOrDestroyed())
+                            {
+                                Headhunter_BuffDuration_text = Functions.Get_TextInToggle(left, "Headhunter", "BuffDurationText", "Value");
+                                Headhunter_BuffDuration_slider = Functions.Get_SliderInPanel(left, "Headhunter", "Slider_BuffDuration");
+                                Headhunter_BuffStack_text = Functions.Get_TextInToggle(left, "Headhunter", "BuffStack", "Value");
+                                Headhunter_BuffStack_slider = Functions.Get_SliderInPanel(left, "Headhunter", "Slider_BuffStack");
+                                Headhunter_Add_text = Functions.Get_TextInToggle(left, "Headhunter", "AddText", "Value");
+                                Headhunter_Add_slider = Functions.Get_SliderInPanel(left, "Headhunter", "Slider_Add");
+                                Headhunter_Increase_text = Functions.Get_TextInToggle(left, "Headhunter", "IncreaseText", "Value");
+                                Headhunter_Increase_slider = Functions.Get_SliderInPanel(left, "Headhunter", "Slider_Increase");
+                            }
+                            GameObject mjolnir = Functions.GetChild(left, "Mjolnir");
+                            if (!mjolnir.IsNullOrDestroyed())
+                            {
+                                Mjolnir_MinTriggerChance_text = Functions.Get_TextInToggle(left, "Mjolnir", "MinTriggerChanceText", "Value");
+                                Mjolnir_MinTriggerChance_slider = Functions.Get_SliderInPanel(left, "Mjolnir", "Slider_MinTriggerChance");
+                                Mjolnir_MaxTriggerChance_text = Functions.Get_TextInToggle(left, "Mjolnir", "MaxTriggerChanceText", "Value");
+                                Mjolnir_MaxTriggerChance_slider = Functions.Get_SliderInPanel(left, "Mjolnir", "Slider_MaxTriggerChance");
+                                Mjolnir_TriggerCooldown_text = Functions.Get_TextInToggle(left, "Mjolnir", "SockectedCooldownText", "Value");
+                                Mjolnir_TriggerCooldown_slider = Functions.Get_SliderInPanel(left, "Mjolnir", "Slider_SockectedCooldown(1)");
+                                Mjolnir_Socket0_dropdown = Functions.Get_DopboxInPanel(mjolnir, "Dropdown_Socket1", "Dropdown", new System.Action<int>((_) => { Set_Mjolnir_Socket0(); }));
+                                Mjolnir_Socket1_dropdown = Functions.Get_DopboxInPanel(mjolnir, "Dropdown_Socket2", "Dropdown", new System.Action<int>((_) => { Set_Mjolnir_Socket1(); }));
+                                Mjolnir_Socket2_dropdown = Functions.Get_DopboxInPanel(mjolnir, "Dropdown_Socket3", "Dropdown", new System.Action<int>((_) => { Set_Mjolnir_Socket2(); }));
+                            }
                             GameObject herald_of_ice = Functions.GetChild(left, "Herald_of_Ice");
                             if (!herald_of_ice.IsNullOrDestroyed())
                             {
@@ -7161,19 +7306,24 @@ namespace LastEpoch_Hud.Scripts
                 }
                 public static void Init_Dropdowns()
                 {
-                    GetAbility(Herald_of_Ice_VFX_dropdown, "Cold, Spell");
-                    GetAbility(Herald_of_Fire_VFX_dropdown, "Fire, Spell");
-                    GetAbility(Herald_of_Thunder_VFX_dropdown, "Lightning, Spell");
-                    GetAbility(Herald_of_Agony_VFX_dropdown, "Poison, Spell");
+                    GetAbility(Mjolnir_Socket0_dropdown, "", true, false);
+                    GetAbility(Mjolnir_Socket1_dropdown, "", true, false);
+                    GetAbility(Mjolnir_Socket2_dropdown, "", true, false);
+
+                    GetAbility(Herald_of_Ice_VFX_dropdown, "Cold, Spell", false, true);
+                    GetAbility(Herald_of_Fire_VFX_dropdown, "Fire, Spell", false, true);
+                    GetAbility(Herald_of_Thunder_VFX_dropdown, "Lightning, Spell", false, true);
+                    GetAbility(Herald_of_Agony_VFX_dropdown, "Poison, Spell", false, true);
                 }
-                public static void GetAbility(Dropdown dropdown, string tags)
+                public static void GetAbility(Dropdown dropdown, string tags, bool mjolnir, bool herald)
                 {
                     if (!dropdown.IsNullOrDestroyed())
                     {
                         dropdown.options.Clear();
                         foreach (Ability ab in Resources.FindObjectsOfTypeAll<Ability>())
                         {
-                            if (ab.tags.ToString() == tags)
+                            if ((mjolnir) && (ab.tags.HasFlag(AT.Lightning)) && (ab.tags.HasFlag(AT.Spell))) { dropdown.options.Add(new Dropdown.OptionData(ab.abilityName)); }
+                            else if ((herald) && (ab.tags.ToString() == tags))
                             {
                                 if (!ab.abilityPrefab.IsNullOrDestroyed())
                                 {
@@ -7191,6 +7341,34 @@ namespace LastEpoch_Hud.Scripts
                 }
                 public static void Set_Events()
                 {
+                    if (!Headhunter_BuffDuration_slider.IsNullOrDestroyed())
+                    {
+                        Events.Set_Slider_Event(Headhunter_BuffDuration_slider, Headhunter_BuffDuration_slider_Action);
+                    }
+                    if (!Headhunter_BuffStack_slider.IsNullOrDestroyed())
+                    {
+                        Events.Set_Slider_Event(Headhunter_BuffStack_slider, Headhunter_BuffStack_slider_Action);
+                    }
+                    if (!Headhunter_Add_slider.IsNullOrDestroyed())
+                    {
+                        Events.Set_Slider_Event(Headhunter_Add_slider, Headhunter_Add_slider_Action);
+                    }
+                    if (!Headhunter_Increase_slider.IsNullOrDestroyed())
+                    {
+                        Events.Set_Slider_Event(Headhunter_Increase_slider, Headhunter_Increase_slider_Action);
+                    }
+                    if (!Mjolnir_MinTriggerChance_slider.IsNullOrDestroyed())
+                    {
+                        Events.Set_Slider_Event(Mjolnir_MinTriggerChance_slider, Mjolnir_MinTriggerChance_slider_Action);
+                    }
+                    if (!Mjolnir_MaxTriggerChance_slider.IsNullOrDestroyed())
+                    {
+                        Events.Set_Slider_Event(Mjolnir_MaxTriggerChance_slider, Mjolnir_MaxTriggerChance_slider_Action);
+                    }
+                    if (!Mjolnir_TriggerCooldown_slider.IsNullOrDestroyed())
+                    {
+                        Events.Set_Slider_Event(Mjolnir_TriggerCooldown_slider, Mjolnir_TriggerCooldown_slider_Action);
+                    }
                     if (!Herald_of_Ice_Radius_toggle.IsNullOrDestroyed())
                     {
                         Events.Set_Toggle_Event(Herald_of_Ice_Radius_toggle, Herald_of_Ice_Radius_Toggle_Action);
@@ -7248,6 +7426,84 @@ namespace LastEpoch_Hud.Scripts
                     {
                         if (Save_Manager.instance.initialized)
                         {
+                            if (!Headhunter_BuffDuration_slider.IsNullOrDestroyed())
+                            {
+                                Headhunter_BuffDuration_slider.value = Save_Manager.instance.data.Items.Headhunter.BuffDuration;
+                            }
+                            if (!Headhunter_BuffStack_slider.IsNullOrDestroyed())
+                            {
+                                Headhunter_BuffStack_slider.value = Save_Manager.instance.data.Items.Headhunter.Stack;
+                            }
+                            if (!Headhunter_Add_slider.IsNullOrDestroyed())
+                            {
+                                Headhunter_Add_slider.value = Save_Manager.instance.data.Items.Headhunter.AddValue;
+                            }
+                            if (!Headhunter_Increase_slider.IsNullOrDestroyed())
+                            {
+                                Headhunter_Increase_slider.value = Save_Manager.instance.data.Items.Headhunter.IncreasedValue;
+                            }
+
+                            if (!Mjolnir_MinTriggerChance_slider.IsNullOrDestroyed())
+                            {
+                                Mjolnir_MinTriggerChance_slider.value = (Save_Manager.instance.data.Items.Mjolner.MinTriggerChance * 100);
+                            }
+                            if (!Mjolnir_MaxTriggerChance_slider.IsNullOrDestroyed())
+                            {
+                                Mjolnir_MaxTriggerChance_slider.value = (Save_Manager.instance.data.Items.Mjolner.MaxTriggerChance * 100);
+                            }
+                            if (!Mjolnir_TriggerCooldown_slider.IsNullOrDestroyed())
+                            {
+                                Mjolnir_TriggerCooldown_slider.value = (float)Save_Manager.instance.data.Items.Mjolner.SocketedCooldown;
+                            }
+                            if (!Mjolnir_Socket0_dropdown.IsNullOrDestroyed())
+                            {
+                                int index = 0;
+                                if (Save_Manager.instance.data.Items.Mjolner.SockectedSkill_0 != "")
+                                {
+                                    bool found = false;
+                                    foreach (Dropdown.OptionData options in Mjolnir_Socket0_dropdown.options)
+                                    {
+                                        if (options.text == Save_Manager.instance.data.Items.Mjolner.SockectedSkill_0) { break; }
+                                        found = true;
+                                        index++;
+                                    }
+                                    if (!found) { index = 0; }
+                                }
+                                Mjolnir_Socket0_dropdown.value = index;
+                            }
+                            if (!Mjolnir_Socket1_dropdown.IsNullOrDestroyed())
+                            {
+                                int index = 0;
+                                if (Save_Manager.instance.data.Items.Mjolner.SockectedSkill_1 != "")
+                                {
+                                    bool found = false;
+                                    foreach (Dropdown.OptionData options in Mjolnir_Socket1_dropdown.options)
+                                    {
+                                        if (options.text == Save_Manager.instance.data.Items.Mjolner.SockectedSkill_1) { break; }
+                                        found = true;
+                                        index++;
+                                    }
+                                    if (!found) { index = 0; }
+                                }
+                                Mjolnir_Socket1_dropdown.value = index;
+                            }
+                            if (!Mjolnir_Socket2_dropdown.IsNullOrDestroyed())
+                            {
+                                int index = 0;
+                                if (Save_Manager.instance.data.Items.Mjolner.SockectedSkill_2 != "")
+                                {
+                                    bool found = false;
+                                    foreach (Dropdown.OptionData options in Mjolnir_Socket2_dropdown.options)
+                                    {
+                                        if (options.text == Save_Manager.instance.data.Items.Mjolner.SockectedSkill_2) { break; }
+                                        found = true;
+                                        index++;
+                                    }
+                                    if (!found) { index = 0; }
+                                }
+                                Mjolnir_Socket2_dropdown.value = index;
+                            }
+
                             if (!Herald_of_Ice_VFX_dropdown.IsNullOrDestroyed())
                             {
                                 int index = 0;

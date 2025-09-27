@@ -280,6 +280,7 @@ namespace LastEpoch_Hud.Scripts
                         MinGenerated = 1,
                         MaxGenerated = 5,
                         BuffDuration = 20f,
+                        Stack = 0f,
                         AddValue = 1f,
                         IncreasedValue = 1f,
                         WeaverWill = false
@@ -863,6 +864,7 @@ namespace LastEpoch_Hud.Scripts
                 public int MinGenerated;
                 public int MaxGenerated;
                 public float BuffDuration;
+                public float Stack;
                 public float AddValue;
                 public float IncreasedValue;
                 public bool WeaverWill;
