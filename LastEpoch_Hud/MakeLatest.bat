@@ -1,5 +1,4 @@
 @echo off
-SET "winrar=C:\Program Files\WinRAR\WinRAR.exe"
 SET "keyboard_file=LastEpoch_Hud(Keyboard).rar"
 SET "gamepad_file=LastEpoch_Hud(WinGamepad).rar"
 SET "unwanted_file=LastEpoch_Hud.deps.json"
@@ -25,11 +24,4 @@ IF EXIST %latest_dir%\%keyboard_file% (
 IF EXIST %latest_dir%\%gamepad_file% (
 	del "%latest_dir%\%gamepad_file%"
 )
-IF EXIST %keyboard_dir%\* (
-	cd %keyboard_dir%
-	"%winrar%" a -r "%latest_dir%\%keyboard_file%"
-)
-IF EXIST %gamepad_dir%\* (
-	cd %gamepad_dir%
-	"%winrar%" a -r "%latest_dir%\%gamepad_file%"
-)
+xcopy "%keyboard_dir%" "F:\SteamLibrary\steamapps\common\Last Epoch\Mods" /E /Y

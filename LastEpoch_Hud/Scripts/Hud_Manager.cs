@@ -9,8 +9,12 @@ using MelonLoader;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices; //Gamepad
+using System.Text.Json;
+using System.Threading.Channels;
 using UnityEngine;
+using UnityEngine.Playables;
 using UnityEngine.UI;
+using static Il2Cpp.AffixList;
 
 namespace LastEpoch_Hud.Scripts
 {
@@ -32,7 +36,8 @@ namespace LastEpoch_Hud.Scripts
         private bool hud_initializing = false;
         private bool data_initializing = false;
 
-        private bool updating = false;        
+        private bool updating = false;
+        private string previousClipboard = "";
         public static bool enable = false; //Used to wait loading (Fix_PlayerLoopHelper)
 
 
@@ -74,11 +79,158 @@ namespace LastEpoch_Hud.Scripts
                         hud_object.active = true;
                         Content.Set_Active();
 
-                        if (!Refs_Manager.epoch_input_manager.IsNullOrDestroyed())
+                        string text = GUIUtility.systemCopyBuffer;
+
+                        try
                         {
-#if KEYBOARD
-                            if (!Refs_Manager.epoch_input_manager.forceDisableInput) { Refs_Manager.epoch_input_manager.forceDisableInput = true; }
+                            do
+                            {
+                                if (Refs_Manager.ground_item_manager.IsNullOrDestroyed() || Refs_Manager.player_actor.IsNullOrDestroyed())
+                                {
+                                    break;
+                                }
+                                if (previousClipboard == text)
+                                {
+                                    break;
+                                }
+
+                                previousClipboard = text;
+                                using (System.Text.Json.JsonDocument doc = System.Text.Json.JsonDocument.Parse(text))
+                                {
+                                    if (doc.RootElement.ValueKind != System.Text.Json.JsonValueKind.Object)
+                                    {
+                                        break;
+                                    }
+
+                                    foreach (var category in doc.RootElement.EnumerateObject())
+                                    {
+                                        switch (category.Name)
+                                        {
+                                            case "idols":
+                                                {
+                                                    if (category.Value.ValueKind != System.Text.Json.JsonValueKind.Array)
+                                                    {
+                                                        System.Console.WriteLine("Wrong Kind for {0}", category.Name);
+                                                        break;
+                                                    }
+                                                    foreach (var item in category.Value.EnumerateArray())
+                                                    {
+                                                        if (item.ValueKind == JsonValueKind.Object)
+                                                        {
+                                                            CreateItemFromJson(item);
+                                                        }
+                                                    }
+                                                    break;
+                                                }
+                                            case "items":
+                                                {
+                                                    if (category.Value.ValueKind != System.Text.Json.JsonValueKind.Object)
+                                                    {
+                                                        System.Console.WriteLine("Wrong Kind for {0}", category.Name);
+                                                        break;
+                                                    }
+                                                    foreach (var itemPair in category.Value.EnumerateObject())
+                                                    {
+                                                        CreateItemFromJson(itemPair.Value);
+                                                    }
+                                                    break;
+                                                }
+                                            case "mastery":
+                                                {
+                                                    if (Refs_Manager.player_data.CharacterClass != doc.RootElement.GetProperty("class").GetInt32())
+                                                    {
+                                                        System.Console.WriteLine("wrong class found={0} expected={1}", Refs_Manager.player_data.CharacterClass, doc.RootElement.GetProperty("class"));
+                                                        break;
+                                                    }
+                                                    Refs_Manager.player_actor.localTreeData.ReceiveRespecAllCommand(Refs_Manager.player_data.GetCharacterClass(), 0);
+                                                    Refs_Manager.player_actor.localTreeData.resetChosenMastery();
+                                                    Refs_Manager.player_actor.localTreeData.receiveChooseMasteriesCommand(category.Value.GetByte());
+                                                    if (doc.RootElement.TryGetProperty("passives", out var passiveJson))
+                                                    {
+                                                        foreach (var e in passiveJson.GetProperty("history").EnumerateArray())
+                                                        {
+                                                            if (Refs_Manager.player_actor.localTreeData.getPassiveTreeData().getUnspentPoints() > 0)
+                                                            {
+                                                                Refs_Manager.player_actor.localTreeData.receiveSpendPassivePointCommand(Refs_Manager.player_data.GetCharacterClass(), e.GetByte());
+                                                            }
+                                                        }
+                                                    }
+                                                    break;
+                                                }
+                                            case "skillTrees":
+                                                {
+                                                    var ApplySkillJson = (Ability ability, JsonElement skillIdList) =>
+                                                    {
+                                                        foreach (var idJson in skillIdList.EnumerateArray())
+                                                        {
+                                                            if (!Refs_Manager.player_actor.localTreeData.receiveSpendSkillPointCommand(ability, idJson.GetByte()))
+                                                            {
+                                                                break;
+                                                            }
+                                                        }
+                                                    };
+                                                    foreach (var abilityJson in category.Value.EnumerateObject())
+                                                    {
+                                                        bool found = false;
+                                                        foreach (var ability in Refs_Manager.player_actor.localTreeData.getSpecialisedAbilities())
+                                                        {
+                                                            System.Console.WriteLine("ability={0} id={1}", ability.abilityName, ability.playerAbilityID);
+                                                            if (ability.playerAbilityID == abilityJson.Name)
+                                                            {
+                                                                Refs_Manager.player_actor.localTreeData.receiveDespecialiseCommand(ability);
+                                                                Refs_Manager.player_actor.localTreeData.receiveSpecialiseCommand(ability, false, 0);
+                                                                Refs_Manager.player_actor.localTreeData.ApplyAbilityXp(100000000, true);
+                                                                if (abilityJson.Value.TryGetProperty("history", out var historyJson))
+                                                                {
+                                                                    ApplySkillJson(ability, historyJson);
+                                                                }
+                                                                found = true;
+                                                                break;
+                                                            }
+                                                        }
+                                                        if (found)
+                                                        {
+                                                            break;
+                                                        }
+                                                        if (Refs_Manager.player_actor.localTreeData.getFreeSlots().Count < 1)
+                                                        {
+                                                            foreach (var ability in Refs_Manager.player_actor.localTreeData.getSpecialisedAbilities())
+                                                            {
+                                                                Refs_Manager.player_actor.localTreeData.receiveDespecialiseCommand(ability);
+                                                            }
+                                                        }
+                                                        foreach (var ability in Refs_Manager.ability_manager.abilities)
+                                                        {
+                                                            if (ability && ability.playerAbilityID == abilityJson.Name)
+                                                            {
+                                                                Refs_Manager.player_actor.localTreeData.receiveSpecialiseCommand(ability, false, 0);
+                                                                Refs_Manager.player_actor.localTreeData.ApplyAbilityXp(100000000, true);
+                                                                if (abilityJson.Value.TryGetProperty("history", out var historyJson))
+                                                                {
+                                                                    ApplySkillJson(ability, historyJson);
+                                                                }
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                    break;
+                                                }
+                                        }
+                                    }
+                                }
+                            } while (false);
+                        } catch (System.Exception e) {
+                            System.Console.WriteLine(e.StackTrace);
+                            System.Console.WriteLine(e.ToString());
                         }
+
+
+
+                            if (!Refs_Manager.epoch_input_manager.IsNullOrDestroyed())
+                            {
+#if KEYBOARD
+                                if (!Refs_Manager.epoch_input_manager.forceDisableInput) { Refs_Manager.epoch_input_manager.forceDisableInput = true; }
+                            }
                         if (Input.GetKeyDown(KeyCode.Escape)) { exit = true; }
                         if (!Hud_Base.Btn_Resume.IsNullOrDestroyed())
                         {
@@ -637,6 +789,129 @@ namespace LastEpoch_Hud.Scripts
         {
             if (!game_pause_menu.IsNullOrDestroyed()) { return game_pause_menu.active; }
             else { return false; }
+        }
+
+        private void CreateItemFromJson (System.Text.Json.JsonElement itemJson)
+        {
+            byte itemType = itemJson.GetProperty("itemType").GetByte();
+            Main.logger_instance.Error("itemType={0}", itemType);
+            ushort subType = itemJson.GetProperty("subType").GetUInt16();
+            Main.logger_instance.Error("subType={0}", subType);
+
+            var item = new ItemDataUnpacked();
+
+            item.itemType = itemType;
+            item.subType = subType;
+            item.SetAllImplicitRolls(255);
+            item.RefreshIDAndValues();
+
+            List<Stats.Stat> changes = new List<Stats.Stat>();
+            if (itemJson.TryGetProperty("uniqueID", out var uniqueIdJson))
+            {
+                ushort uniqueId = uniqueIdJson.GetUInt16();
+                Main.logger_instance.Error("uniqueId={0} name={1}", uniqueId, UniqueList.getUniqueName(uniqueId));
+                List<double> rolls = new List<double>();
+                foreach (var roll in itemJson.GetProperty("uniqueRolls").EnumerateArray())
+                {
+                    Main.logger_instance.Error("uniqueRolls={0}", roll);
+                    rolls.Add(roll.GetDouble());
+                }
+                item.uniqueID = uniqueId;
+                item.rarity = (byte)(UniqueList.getUnique(uniqueId).isSetItem ? 8 : 7);
+                item.RollLegendaryProperties(0, 100, 0, Refs_Manager.player_actor, out bool improved);
+                item.ZeroLegendaryProperties();
+                item.legendaryPotential = 0;
+                item.weaversWill = 0;
+                item.weaversTouch = 0;
+                for (int i = 0; i < rolls.Count && i < item.uniqueRolls.Count; ++i)
+                {
+                    item.uniqueRolls[i] = (byte)(255 * rolls[i]);
+                }
+                item.RefreshIDAndValues();
+            }
+            if (itemJson.TryGetProperty("affixes", out var affixesJson))
+            {
+                if (item.isUnique())
+                {
+                    Main.logger_instance.Error("add affixes to unique");
+                    item.rarity = 9;
+                }
+                foreach (var affixJson in affixesJson.EnumerateArray())
+                {
+                    int affixId = affixJson.GetProperty("id").GetInt32();
+                    Main.logger_instance.Error("affixId={0}", affixId);
+                    byte tier = (byte)(affixJson.GetProperty("tier").GetByte() - 1);
+                    Main.logger_instance.Error("tier={0}", tier);
+                    double roll = affixJson.GetProperty("roll").GetDouble();
+                    Main.logger_instance.Error("roll={0}", roll);
+                    int count = item.GetNonSealedAffixes() != null ? item.GetNonSealedAffixes().Count : 0;
+                    Main.logger_instance.Error("count={0}", count);
+                    if (count < 4)
+                    {
+                        Il2CppSystem.Nullable<byte> v = new Il2CppSystem.Nullable<byte>((byte)(255 * roll));
+                        item.AddAffixNoCostOrChecks(affixId, false, tier, ref changes, v);
+                    }
+                }
+                if (!item.isUniqueSetOrLegendary())
+                {
+                    Main.logger_instance.Error("set rarity for non-unique");
+                    item.setRarityFromAffixesForNormalMagicOrRareItem();
+                    item.forgingPotential = 40;
+                }
+            }
+            if (itemJson.TryGetProperty("primordialAffix", out var primordialJson))
+            {
+                int affixId = primordialJson.GetProperty("id").GetInt32();
+                Main.logger_instance.Error("primordial affixId={0}", affixId);
+                byte tier = (byte)(primordialJson.GetProperty("tier").GetByte() - 1);
+                Main.logger_instance.Error("primordial tier={0}", tier);
+                double roll = primordialJson.GetProperty("roll").GetDouble();
+                Main.logger_instance.Error("primordial roll={0}", roll);
+                int count = item.GetNonSealedAffixes().Count;
+                Il2CppSystem.Nullable<byte> v = new Il2CppSystem.Nullable<byte>((byte)(255 * roll));
+                item.AddAffixNoCostOrChecks(affixId, true, tier, ref changes, v);
+                foreach (var affix in item.affixes)
+                {
+                    if (affix.affixId == affixId)
+                    {
+                        affix.affixTier = 7;
+                        affix.sealedAffixType = SealedAffixType.Primordial;
+                        item.hasSealedPrimordialAffix = true;
+                        break;
+                    }
+                }
+                // item.MakeAffixSealedPrimordialAffix(item.affixes.GetLast(), true);
+            }
+            if (itemJson.TryGetProperty("sealedAffix", out var sealedJson))
+            {
+                int affixId = sealedJson.GetProperty("id").GetInt32();
+                Main.logger_instance.Error("sealed affixId={0}", affixId);
+                byte tier = (byte)(sealedJson.GetProperty("tier").GetByte() - 1);
+                Main.logger_instance.Error("sealed tier={0}", tier);
+                double roll = sealedJson.GetProperty("roll").GetDouble();
+                Main.logger_instance.Error("sealed roll={0}", roll);
+                int count = item.GetNonSealedAffixes().Count;
+                Il2CppSystem.Nullable<byte> v = new Il2CppSystem.Nullable<byte>((byte)(255 * roll));
+                item.AddAffixNoCostOrChecks(affixId, true, tier, ref changes, v);
+                ItemAffix foundAffix = null;
+                foreach (var affix in item.affixes)
+                {
+                    if (affix.affixId == affixId)
+                    {
+                        foundAffix = affix;
+                        break;
+                    }
+                }
+                if (foundAffix != null)
+                {
+                    item.SealAffix(foundAffix);
+                    item.hasSealedRegularAffix = true;
+                }
+            }
+
+            item.RefreshIDAndValues(); //Refresh item for implicits and unique mods
+
+            Refs_Manager.ground_item_manager.dropItemForPlayer(Refs_Manager.player_actor, item.TryCast<ItemData>(), Refs_Manager.player_actor.position(), false);
         }
 
         public class Hooks
