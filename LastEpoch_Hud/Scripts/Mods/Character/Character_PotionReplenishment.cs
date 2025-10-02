@@ -19,7 +19,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
         {
             if ((Scenes.IsGameScene()) && (!Save_Manager.instance.IsNullOrDestroyed()) && (!Refs_Manager.health_potion.IsNullOrDestroyed()))
             {
-                if (Save_Manager.instance.data.modsNotInHud.Enable_PotionResplenishment)
+                if (Save_Manager.instance.data.Character.Cheats.Enable_PotionResplenishment)
                 {
                     if (Refs_Manager.health_potion.currentCharges < Refs_Manager.health_potion.maxCharges)
                     {

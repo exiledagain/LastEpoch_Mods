@@ -8,7 +8,7 @@ using MelonLoader;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace LastEpoch_Hud.Scripts.Mods.Items
+namespace LastEpoch_Hud.Scripts.Mods.NewItems
 {
     [RegisterTypeInIl2Cpp]
     public class Items_Mjolner : MonoBehaviour
@@ -39,19 +39,31 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             }
             else if (InGame) { InGame = false; }
         }
-        
+               
         private class Basic
         {
             internal static readonly byte base_type = 7;  //Mace
             internal static readonly int base_id = 10;    //Rune hammer
         }
-        private class Unique
+        public class Unique
         {
             internal static readonly ushort unique_id = 501;
             internal static void Update()
             {
-                if ((LastEpoch_Hud.Locales.current != LastEpoch_Hud.Locales.Selected.Unknow) && (!AddedToUniqueList)) { AddToUniqueList(); }
-                if ((LastEpoch_Hud.Locales.current != LastEpoch_Hud.Locales.Selected.Unknow) && (AddedToUniqueList) && (!AddedToDictionary)) { AddToDictionary(); }
+                if (LastEpoch_Hud.Locales.current != LastEpoch_Hud.Locales.Selected.Unknow)
+                {
+                    if (!AddedToUniqueList) { AddToUniqueList(); }
+                    else if (!AddedToDictionary) { AddToDictionary(); }
+                }
+            }
+            public static void Update_LegendaryType(bool weaverwill)
+            {
+                UniqueList.Entry item = UniqueList.getUnique(unique_id);
+                if (!item.IsNullOrDestroyed())
+                {
+                    if (weaverwill) { item.legendaryType = UniqueList.LegendaryType.WeaversWill; }
+                    else { item.legendaryType = UniqueList.LegendaryType.LegendaryPotential; }
+                }
             }
 
             private static bool AddedToUniqueList = false;
@@ -61,7 +73,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 string name = Locales.Get_UniqueName();
 
                 UniqueList.LegendaryType legendaryType = UniqueList.LegendaryType.LegendaryPotential;
-                if (Save_Manager.instance.data.Items.Mjolner.WeaverWill) { legendaryType = UniqueList.LegendaryType.WeaversWill; }
+                if (Save_Manager.instance.data.NewItems.Mjolner.WeaverWill) { legendaryType = UniqueList.LegendaryType.WeaversWill; }
 
                 Il2CppSystem.Collections.Generic.List<byte> subtypes = new Il2CppSystem.Collections.Generic.List<byte>();
                 byte r = (byte)Basic.base_id;
@@ -93,7 +105,6 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 Il2CppSystem.Collections.Generic.List<UniqueModDisplayListEntry> entries = new Il2CppSystem.Collections.Generic.List<UniqueModDisplayListEntry>();
                 entries.Add(new UniqueModDisplayListEntry(0));
                 entries.Add(new UniqueModDisplayListEntry(1));
-                if (Save_Manager.instance.data.Items.Mjolner.ProcAnyLightningSpell) { entries.Add(new UniqueModDisplayListEntry(2)); }
                 entries.Add(new UniqueModDisplayListEntry(128));
 
                 UniqueList.Entry item = new UniqueList.Entry
@@ -108,7 +119,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     legendaryType = legendaryType,
                     overrideEffectiveLevelForLegendaryPotential = true,
                     effectiveLevelForLegendaryPotential = 60,
-                    canDropRandomly = Save_Manager.instance.data.Items.Mjolner.UniqueDrop,
+                    canDropRandomly = true,
                     rerollChance = 1,
                     itemModelType = UniqueList.ItemModelType.Unique,
                     subTypeForIM = 0,
@@ -126,7 +137,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             }
             private static void AddToUniqueList()
             {
-                if ((!AddedToUniqueList) && (!Refs_Manager.unique_list.IsNullOrDestroyed()))
+                if (!AddedToUniqueList && !Refs_Manager.unique_list.IsNullOrDestroyed())
                 {
                     try
                     {
@@ -139,7 +150,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             }
             private static void AddToDictionary()
             {
-                if ((AddedToUniqueList) && (!AddedToDictionary) && (!Refs_Manager.unique_list.IsNullOrDestroyed()))
+                if (AddedToUniqueList && !AddedToDictionary && !Refs_Manager.unique_list.IsNullOrDestroyed())
                 {
                     try
                     {
@@ -148,7 +159,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         {
                             foreach (UniqueList.Entry unique in Refs_Manager.unique_list.uniques)
                             {
-                                if ((unique.uniqueID == unique_id) && (unique.name == Locales.Get_UniqueName()))
+                                if (unique.uniqueID == unique_id && unique.name == Locales.Get_UniqueName())
                                 {
                                     item = unique;
                                     break;
@@ -169,14 +180,14 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
         {
             internal static void Update()
             {
-                if (Icon.sprite.IsNullOrDestroyed()) { Icon.Get_UniqueIcon(); }
+                if (sprite.IsNullOrDestroyed()) { Get_UniqueIcon(); }
             }
 
             private static Sprite sprite = null;
             private static bool loading = false;
             private static void Get_UniqueIcon()
             {
-                if ((!loading) && (!Hud_Manager.asset_bundle.IsNullOrDestroyed()))
+                if (!loading && !Hud_Manager.asset_bundle.IsNullOrDestroyed())
                 {
                     loading = true;
                     foreach (string name in Hud_Manager.asset_bundle.GetAllAssetNames())
@@ -184,7 +195,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         if (name.Contains("mjolner.png"))
                         {
                             Texture2D texture = Hud_Manager.asset_bundle.LoadAsset(name).TryCast<Texture2D>();
-                            Icon.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
+                            sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
                             break;
                         }
                     }
@@ -198,9 +209,9 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 private class InventoryItemUI_SetImageSpritesAndColours
                 {
                     [HarmonyPostfix]
-                    static void Postfix(ref Il2Cpp.InventoryItemUI __instance)
+                    static void Postfix(ref InventoryItemUI __instance)
                     {
-                        if ((__instance.EntryRef.data.getAsUnpacked().FullName == Locales.Get_UniqueName()) && (!sprite.IsNullOrDestroyed()))
+                        if (__instance.EntryRef.data.getAsUnpacked().FullName == Locales.Get_UniqueName() && !sprite.IsNullOrDestroyed())
                         {
                             __instance.contentImage.sprite = sprite;
                         }
@@ -211,9 +222,9 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 private class UITooltipItem_GetItemSprite
                 {
                     [HarmonyPostfix]
-                    static void Postfix(ref UnityEngine.Sprite __result, ItemData __0)
+                    static void Postfix(ref Sprite __result, ItemData __0)
                     {
-                        if ((__0.getAsUnpacked().FullName == Locales.Get_UniqueName()) && (!sprite.IsNullOrDestroyed()))
+                        if (__0.getAsUnpacked().FullName == Locales.Get_UniqueName() && !sprite.IsNullOrDestroyed())
                         {
                             __result = sprite;
                         }
@@ -244,43 +255,25 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             internal static string Get_UniqueDescription()
             {
                 string description = "";
-                int str_requirement = Save_Manager.instance.data.Items.Mjolner.StrRequirement;
-                int int_requirement = Save_Manager.instance.data.Items.Mjolner.IntRequirement;
-                if (Save_Manager.instance.data.Items.Mjolner.ProcAnyLightningSpell)
+                int str_requirement = Save_Manager.instance.data.NewItems.Mjolner.StrRequirement;
+                int int_requirement = Save_Manager.instance.data.NewItems.Mjolner.IntRequirement;
+                int display_min_chance = (int)(Save_Manager.instance.data.NewItems.Mjolner.MinTriggerChance * 100f);
+                int display_max_chance = (int)(Save_Manager.instance.data.NewItems.Mjolner.MaxTriggerChance * 100f);
+                double cooldown = Save_Manager.instance.data.NewItems.Mjolner.SocketedCooldown; // / 1000);
+                string skill_0 = Save_Manager.instance.data.NewItems.Mjolner.SockectedSkill_0;
+                string skill_1 = Save_Manager.instance.data.NewItems.Mjolner.SockectedSkill_1;
+                string skill_2 = Save_Manager.instance.data.NewItems.Mjolner.SockectedSkill_2;
+                switch (LastEpoch_Hud.Locales.current)
                 {
-                    int display_min_chance = (int)((Save_Manager.instance.data.Items.Mjolner.MinTriggerChance / 255f) * 100f);
-                    int display_max_chance = (int)((Save_Manager.instance.data.Items.Mjolner.MaxTriggerChance / 255f) * 100f);
-                    switch (LastEpoch_Hud.Locales.current)
-                    {
-                        case LastEpoch_Hud.Locales.Selected.English: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, " + display_min_chance + " to " + display_max_chance + "% chance to Trigger a Lightning Spell on Hit with an Attack"; break; }
-                        case LastEpoch_Hud.Locales.Selected.French: { description = "Si vous avez au moins " + str_requirement + " de Force et " + int_requirement + " d'Intelligence, " + display_min_chance + " à " + display_max_chance + "% de chances de Déclenche un Sort de foudre lorsqu'une Attaque Touche"; break; }
-                        case LastEpoch_Hud.Locales.Selected.Korean: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, " + display_min_chance + " to " + display_max_chance + "% chance to Trigger a Lightning Spell on Hit with an Attack"; break; }
-                        case LastEpoch_Hud.Locales.Selected.German: { description = "Wenn Sie mindestens " + str_requirement + " Stärke und " + int_requirement + " Intelligenz, " + display_min_chance + " bis " + display_max_chance + "% Chance bei Treffer einen Blitzzauber auszulösen yeah"; break; }
-                        case LastEpoch_Hud.Locales.Selected.Russian: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, " + display_min_chance + " to " + display_max_chance + "% chance to Trigger a Lightning Spell on Hit with an Attack"; break; }
-                        case LastEpoch_Hud.Locales.Selected.Polish: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, " + display_min_chance + " to " + display_max_chance + "% chance to Trigger a Lightning Spell on Hit with an Attack"; break; }
-                        case LastEpoch_Hud.Locales.Selected.Portuguese: { description = "Se você tiver pelo menos " + str_requirement + " de Força e " + int_requirement + " de Inteligência, ganhe " + display_min_chance + " a " + display_max_chance + "% de chance para Ativar uma Magia de Raio ao Acertar um Ataque"; break; }
-                        case LastEpoch_Hud.Locales.Selected.Chinese: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, " + display_min_chance + " to " + display_max_chance + "% chance to Trigger a Lightning Spell on Hit with an Attack"; break; }
-                        case LastEpoch_Hud.Locales.Selected.Spanish: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, " + display_min_chance + " to " + display_max_chance + "% chance to Trigger a Lightning Spell on Hit with an Attack"; break; }
-                    }
-                }
-                else
-                {
-                    double cooldown = (Save_Manager.instance.data.Items.Mjolner.SocketedCooldown / 1000);
-                    string skill_0 = Save_Manager.instance.data.Items.Mjolner.SockectedSkill_0;
-                    string skill_1 = Save_Manager.instance.data.Items.Mjolner.SockectedSkill_1;
-                    string skill_2 = Save_Manager.instance.data.Items.Mjolner.SockectedSkill_2;
-                    switch (LastEpoch_Hud.Locales.current)
-                    {
-                        case LastEpoch_Hud.Locales.Selected.English: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, Trigger " + skill_0 + ", " + skill_1 + " and " + skill_2 + " on Hit, with a " + cooldown + " second Cooldown"; break; }
-                        case LastEpoch_Hud.Locales.Selected.French: { description = "Si voud avez au moins " + str_requirement + " de Force et " + int_requirement + " d'Intelligence, Déclenche " + skill_0 + ", " + skill_1 + " et " + skill_2 + " à l'impact, avec un temps de recharge de " + cooldown + " seconde"; break; }
-                        case LastEpoch_Hud.Locales.Selected.Korean: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, Trigger " + skill_0 + ", " + skill_1 + " and " + skill_2 + " on Hit, with a " + cooldown + " second Cooldown"; break; }
-                        case LastEpoch_Hud.Locales.Selected.German: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, Trigger " + skill_0 + ", " + skill_1 + " and " + skill_2 + " on Hit, with a " + cooldown + " second Cooldown"; break; }
-                        case LastEpoch_Hud.Locales.Selected.Russian: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, Trigger " + skill_0 + ", " + skill_1 + " and " + skill_2 + " on Hit, with a " + cooldown + " second Cooldown"; break; }
-                        case LastEpoch_Hud.Locales.Selected.Polish: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, Trigger " + skill_0 + ", " + skill_1 + " and " + skill_2 + " on Hit, with a " + cooldown + " second Cooldown"; break; }
-                        case LastEpoch_Hud.Locales.Selected.Portuguese: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, Trigger " + skill_0 + ", " + skill_1 + " and " + skill_2 + " on Hit, with a " + cooldown + " second Cooldown"; break; }
-                        case LastEpoch_Hud.Locales.Selected.Chinese: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, Trigger " + skill_0 + ", " + skill_1 + " and " + skill_2 + " on Hit, with a " + cooldown + " second Cooldown"; break; }
-                        case LastEpoch_Hud.Locales.Selected.Spanish: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, Trigger " + skill_0 + ", " + skill_1 + " and " + skill_2 + " on Hit, with a " + cooldown + " second Cooldown"; break; }
-                    }
+                    case LastEpoch_Hud.Locales.Selected.English: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, " + display_min_chance + " to " + display_max_chance + "% chance to Trigger " + skill_0 + ", " + skill_1 + " and " + skill_2 + " on Hit, with a " + cooldown + " second Cooldown"; break; }
+                    case LastEpoch_Hud.Locales.Selected.French: { description = "Si voud avez au moins " + str_requirement + " de Force et " + int_requirement + " d'Intelligence, " + display_min_chance + " à " + display_max_chance + "% de chances de Déclencher " + skill_0 + ", " + skill_1 + " et " + skill_2 + " à l'impact, avec un temps de recharge de " + cooldown + " seconde(s)"; break; }
+                    case LastEpoch_Hud.Locales.Selected.Korean: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, " + display_min_chance + " to " + display_max_chance + "% chance to Trigger " + skill_0 + ", " + skill_1 + " and " + skill_2 + " on Hit, with a " + cooldown + " second Cooldown"; break; }
+                    case LastEpoch_Hud.Locales.Selected.German: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, " + display_min_chance + " to " + display_max_chance + "% chance to Trigger " + skill_0 + ", " + skill_1 + " and " + skill_2 + " on Hit, with a " + cooldown + " second Cooldown"; break; }
+                    case LastEpoch_Hud.Locales.Selected.Russian: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, " + display_min_chance + " to " + display_max_chance + "% chance to Trigger " + skill_0 + ", " + skill_1 + " and " + skill_2 + " on Hit, with a " + cooldown + " second Cooldown"; break; }
+                    case LastEpoch_Hud.Locales.Selected.Polish: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, " + display_min_chance + " to " + display_max_chance + "% chance to Trigger " + skill_0 + ", " + skill_1 + " and " + skill_2 + " on Hit, with a " + cooldown + " second Cooldown"; break; }
+                    case LastEpoch_Hud.Locales.Selected.Portuguese: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, " + display_min_chance + " to " + display_max_chance + "% chance to Trigger " + skill_0 + ", " + skill_1 + " and " + skill_2 + " on Hit, with a " + cooldown + " second Cooldown"; break; }
+                    case LastEpoch_Hud.Locales.Selected.Chinese: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, " + display_min_chance + " to " + display_max_chance + "% chance to Trigger " + skill_0 + ", " + skill_1 + " and " + skill_2 + " on Hit, with a " + cooldown + " second Cooldown"; break; }
+                    case LastEpoch_Hud.Locales.Selected.Spanish: { description = "If you have at least " + str_requirement + " Strength and " + int_requirement + " Intelligence, " + display_min_chance + " to " + display_max_chance + "% chance to Trigger " + skill_0 + ", " + skill_1 + " and " + skill_2 + " on Hit, with a " + cooldown + " second Cooldown"; break; }
                 }
 
                 return description;
@@ -319,8 +312,8 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     static bool Prefix(ref bool __result, string __0) //, Il2CppSystem.String __1)
                     {
                         bool result = true;
-                        if (/*(__0 == basic_subtype_name_key) ||*/ (__0 == Keys.unique_name) ||
-                            (__0 == Keys.unique_description) || (__0 == Keys.unique_lore))
+                        if (/*(__0 == basic_subtype_name_key) ||*/ __0 == Keys.unique_name ||
+                            __0 == Keys.unique_description || __0 == Keys.unique_lore)
                         {
                             __result = true;
                             result = false;
@@ -345,12 +338,12 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         else */
                         if (__0 == Keys.unique_name)
                         {
-                            __result = Locales.Get_UniqueName();
+                            __result = Get_UniqueName();
                             result = false;
                         }
                         else if (__0 == Keys.unique_description)
                         {
-                            string description = Locales.Get_UniqueDescription();
+                            string description = Get_UniqueDescription();
                             if (description != "")
                             {
                                 __result = description;
@@ -359,7 +352,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         }
                         else if (__0 == Keys.unique_lore)
                         {
-                            string lore = Locales.Get_UniqueLore();
+                            string lore = Get_UniqueLore();
                             if (lore != "")
                             {
                                 __result = lore;
@@ -372,35 +365,9 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 }
             }            
         }
-        private class Trigger
+        public class Trigger
         {
-            /*internal static void AllSkills(Actor hitActor)
-            {
-                if ((!hitActor.IsNullOrDestroyed()) && (!trigger))
-                {
-                    trigger = true;
-                    float item_roll = Random.Range(Save_Manager.instance.data.Items.Mjolner.MinTriggerChance, Save_Manager.instance.data.Items.Mjolner.MaxTriggerChance);
-                    float item_roll_percent = (item_roll / 255) * 100;
-                    float roll_percent = Random.Range(0f, 100f);
-                    if ((roll_percent <= item_roll_percent) && (!Refs_Manager.player_treedata.IsNullOrDestroyed()))
-                    {
-                        foreach (Ability ability in Refs_Manager.player_actor.GetAbilityList().abilities)
-                        {
-                            if (ability.tags.HasFlag(AT.Lightning)  && ability.tags.HasFlag(AT.Spell))
-                            {
-                                float backup_manacost = ability.manaCost;
-                                ability.manaCost = 0; //Remove ManaCost
-                                //We need AbilityMutator here for addedManaCost variable
-                                ability.castAtTargetFromConstructorAfterDelay(Refs_Manager.player_actor.abilityObjectConstructor, Vector3.zero, hitActor.position(), 0, UseType.Indirect);
-                                ability.manaCost = backup_manacost; //Reset ManaCost
-                            }
-                        }
-                    }
-                    trigger = false;
-                }
-            }*/
-
-            internal static void Initialize_SocketedSkills()
+            public static void Initialize_SocketedSkills()
             {
                 if (!Initializing)
                 {
@@ -412,11 +379,11 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         int i = 0;
                         foreach (Ability ability in Refs_Manager.ability_manager.abilities)
                         {
-                            if ((!ability.IsNullOrDestroyed()) && (i < 3))
+                            if (!ability.IsNullOrDestroyed() && i < 3)
                             {
-                                if ((ability.abilityName == Save_Manager.instance.data.Items.Mjolner.SockectedSkill_0) ||
-                                    (ability.abilityName == Save_Manager.instance.data.Items.Mjolner.SockectedSkill_1) ||
-                                    (ability.abilityName == Save_Manager.instance.data.Items.Mjolner.SockectedSkill_2))
+                                if (ability.abilityName == Save_Manager.instance.data.NewItems.Mjolner.SockectedSkill_0 ||
+                                    ability.abilityName == Save_Manager.instance.data.NewItems.Mjolner.SockectedSkill_1 ||
+                                    ability.abilityName == Save_Manager.instance.data.NewItems.Mjolner.SockectedSkill_2)
                                 {
                                     Abilities[i] = ability;
                                     Times[i] = System.DateTime.Now;
@@ -430,25 +397,22 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             }
             internal static void SocketedSkills(Actor hitActor)
             {
-                if ((!hitActor.IsNullOrDestroyed()) && (!trigger))
+                if (!hitActor.IsNullOrDestroyed() && !trigger)
                 {
                     trigger = true;
                     for (int i = 0; i < Abilities.Length; i++)
                     {
-                        if ((!Abilities[i].IsNullOrDestroyed()) && ((i < Times.Length)))
+                        if (!Abilities[i].IsNullOrDestroyed() && i < Times.Length)
                         {
                             bool run = false;
-                            System.Double cd = Save_Manager.instance.data.Items.Mjolner.SocketedCooldown;
-                            //if (cd < 250) { cd = 250; }
-
+                            double cd = Save_Manager.instance.data.NewItems.Mjolner.SocketedCooldown;
+                            if (cd < 1) { cd = 1; }
                             if ((System.DateTime.Now - Times[i]).TotalSeconds > cd) { run = true; }
-
                             if (run)
                             {
-                                float item_roll = Random.Range(Save_Manager.instance.data.Items.Mjolner.MinTriggerChance, Save_Manager.instance.data.Items.Mjolner.MaxTriggerChance);
-                                float item_roll_percent = (item_roll / 255) * 100;
-                                float roll_percent = Random.Range(0f, 100f);
-                                if (roll_percent <= item_roll_percent)
+                                float item_roll = Random.Range(Save_Manager.instance.data.NewItems.Mjolner.MinTriggerChance, Save_Manager.instance.data.NewItems.Mjolner.MaxTriggerChance);
+                                float roll_percent = Random.Range(0f, 1f);
+                                if (roll_percent <= item_roll)
                                 {
                                     float backup_manacost = Abilities[i].manaCost;
                                     Abilities[i].manaCost = 0; //Remove ManaCost
@@ -501,12 +465,9 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 if (!Refs_Manager.player_actor.IsNullOrDestroyed())
                 {
                     if (Refs_Manager.player_actor.itemContainersManager.hasUniqueEquipped(Unique.unique_id)
-                        && (Refs_Manager.player_actor.stats.GetAttributeValue(CoreAttribute.Attribute.Strength) >= Save_Manager.instance.data.Items.Mjolner.StrRequirement)
-                        && (Refs_Manager.player_actor.stats.GetAttributeValue(CoreAttribute.Attribute.Intelligence) >= Save_Manager.instance.data.Items.Mjolner.IntRequirement))
+                        && Refs_Manager.player_actor.stats.GetAttributeValue(CoreAttribute.Attribute.Strength) >= Save_Manager.instance.data.NewItems.Mjolner.StrRequirement
+                        && Refs_Manager.player_actor.stats.GetAttributeValue(CoreAttribute.Attribute.Intelligence) >= Save_Manager.instance.data.NewItems.Mjolner.IntRequirement)
                     {
-                        //if (Save_Manager.instance.data.Items.Mjolner.ProcAnyLightningSpell && (!ability.tags.HasFlag(AT.Spell))) { Trigger.AllSkills(hitActor); }
-                        //else { Trigger.SocketedSkills(hitActor); }
-
                         Trigger.SocketedSkills(hitActor);
                     }
                 }

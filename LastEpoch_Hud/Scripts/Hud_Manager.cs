@@ -4,7 +4,7 @@ using Il2CppLE.Data;
 using Il2CppRewired.Components; //Gamepad
 using Il2CppSystem.Collections.Generic;
 using Il2CppTMPro;
-using LastEpoch_Hud.Scripts.Mods.Items;
+using LastEpoch_Hud.Scripts.Mods.NewItems;
 using MelonLoader;
 using System.IO;
 using System.Linq;
@@ -165,6 +165,7 @@ namespace LastEpoch_Hud.Scripts
                         Content.Scenes.Set_Active(false);
 
                         Content.Skills.Get_Refs();
+                        Content.Skills.Set_Events();
                         Content.Skills.Set_Active(false);
 
                         Content.OdlForceDrop.Get_Refs();
@@ -4471,6 +4472,10 @@ namespace LastEpoch_Hud.Scripts
                                 SkillTree.enable_movement_no_target_toggle = Functions.Get_ToggleInPanel(skills_content, "NoTarget", "Toggle_NoTarget");
                                 SkillTree.enable_movement_immune_toggle = Functions.Get_ToggleInPanel(skills_content, "ImmuneDuringMovement", "Toggle_ImmuneDuringMovement");
                                 SkillTree.enable_movement_simple_path_toggle = Functions.Get_ToggleInPanel(skills_content, "DisableSimplePath", "Toggle_DisableSimplePath");
+
+                                SkillTree.enable_summon_godmode_toggle = Functions.Get_ToggleInPanel(skills_content, "SummonGodMode", "Toggle");
+                                SkillTree.enable_summon_forever_toggle = Functions.Get_ToggleInPanel(skills_content, "SummonForever", "Toggle");
+                                SkillTree.enable_summon_dontcollide_toggle = Functions.Get_ToggleInPanel(skills_content, "SummonDontCollide", "Toggle");
                             }
                             else { Main.logger_instance.Error("Skills content is null"); }
 
@@ -4628,6 +4633,21 @@ namespace LastEpoch_Hud.Scripts
                         else { Main.logger_instance.Error("Skill Tree content is null"); }
                     }
                 }
+                public static void Set_Events()
+                {
+                    if (!SkillTree.enable_summon_godmode_toggle.IsNullOrDestroyed())
+                    {
+                        Events.Set_Toggle_Event(SkillTree.enable_summon_godmode_toggle, SkillTree.Summon_Godmode_Toggle_Action);
+                    }
+                    if (!SkillTree.enable_summon_forever_toggle.IsNullOrDestroyed())
+                    {
+                        Events.Set_Toggle_Event(SkillTree.enable_summon_forever_toggle, SkillTree.Summon_Forever_Toggle_Action);
+                    }
+                    if (!SkillTree.enable_summon_dontcollide_toggle.IsNullOrDestroyed())
+                    {
+                        Events.Set_Toggle_Event(SkillTree.enable_summon_dontcollide_toggle, SkillTree.Summon_DontCollide_Toggle_Action);
+                    }
+                }
                 public static void Set_Active(bool show)
                 {
                     if (!content_obj.IsNullOrDestroyed())
@@ -4672,7 +4692,10 @@ namespace LastEpoch_Hud.Scripts
                             SkillTree.enable_movement_no_target_toggle.isOn = Save_Manager.instance.data.Skills.MovementSkills.Enable_NoTarget;
                             SkillTree.enable_movement_immune_toggle.isOn = Save_Manager.instance.data.Skills.MovementSkills.Enable_ImmuneDuringMovement;
                             SkillTree.enable_movement_simple_path_toggle.isOn = Save_Manager.instance.data.Skills.MovementSkills.Disable_SimplePath;
-
+                            
+                            SkillTree.enable_summon_godmode_toggle.isOn = Save_Manager.instance.data.Summon.Enable_GodMode;
+                            SkillTree.enable_summon_forever_toggle.isOn = Save_Manager.instance.data.Summon.Enable_Forever;
+                            SkillTree.enable_summon_dontcollide_toggle.isOn = Save_Manager.instance.data.Summon.Enable_DontCollide;
                             //Companions
                             Companions.enable_maximum_companions_toggle.isOn = Save_Manager.instance.data.Skills.Companion.Enable_Limit;
                             Companions.maximum_companions_slider.value = Save_Manager.instance.data.Skills.Companion.Limit;
@@ -4865,6 +4888,34 @@ namespace LastEpoch_Hud.Scripts
                     public static Toggle enable_movement_no_target_toggle = null;
                     public static Toggle enable_movement_immune_toggle = null;
                     public static Toggle enable_movement_simple_path_toggle = null;
+
+                    public static Toggle enable_summon_godmode_toggle = null;
+                    public static readonly System.Action<bool> Summon_Godmode_Toggle_Action = new System.Action<bool>(Set_Summon_Godmode_Enable);
+                    private static void Set_Summon_Godmode_Enable(bool enable)
+                    {
+                        if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!enable_summon_godmode_toggle.IsNullOrDestroyed()))
+                        {
+                            Save_Manager.instance.data.Summon.Enable_GodMode = enable_summon_godmode_toggle.isOn;
+                        }
+                    }
+                    public static Toggle enable_summon_forever_toggle = null;
+                    public static readonly System.Action<bool> Summon_Forever_Toggle_Action = new System.Action<bool>(Set_Summon_Forever_Enable);
+                    private static void Set_Summon_Forever_Enable(bool enable)
+                    {
+                        if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!enable_summon_forever_toggle.IsNullOrDestroyed()))
+                        {
+                            Save_Manager.instance.data.Summon.Enable_Forever = enable_summon_forever_toggle.isOn;
+                        }
+                    }
+                    public static Toggle enable_summon_dontcollide_toggle = null;
+                    public static readonly System.Action<bool> Summon_DontCollide_Toggle_Action = new System.Action<bool>(Set_Summon_DontCollide_Enable);
+                    private static void Set_Summon_DontCollide_Enable(bool enable)
+                    {
+                        if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!enable_summon_dontcollide_toggle.IsNullOrDestroyed()))
+                        {
+                            Save_Manager.instance.data.Summon.Enable_DontCollide = enable_summon_dontcollide_toggle.isOn;
+                        }
+                    }
                 }
                 public class Companions
                 {
@@ -6967,6 +7018,38 @@ namespace LastEpoch_Hud.Scripts
                 public static bool enable = false;
 
                 //Headhunter
+                public static Text Headhunter_MinGeneratedBuff_text = null;
+                public static Slider Headhunter_MinGeneratedBuff_slider = null;
+                public static readonly System.Action<float> Headhunter_MinGeneratedBuff_slider_Action = new System.Action<float>(Set_Headhunter_MinGeneratedBuff);
+                public static void Set_Headhunter_MinGeneratedBuff(float f)
+                {
+                    if ((!Headhunter_MinGeneratedBuff_slider.IsNullOrDestroyed()) && (!Headhunter_MinGeneratedBuff_text.IsNullOrDestroyed()))
+                    {
+                        float result = Headhunter_MinGeneratedBuff_slider.value;
+                        Save_Manager.instance.data.NewItems.Headhunter.MinGenerated = (int)result;
+                        if (Save_Manager.instance.data.NewItems.Headhunter.MinGenerated > Save_Manager.instance.data.NewItems.Headhunter.MaxGenerated)
+                        {
+                            Headhunter_MaxGeneratedBuff_slider.value = Save_Manager.instance.data.NewItems.Headhunter.MinGenerated;
+                        }                        
+                        Headhunter_MinGeneratedBuff_text.text = result.ToString();
+                    }
+                }
+                public static Text Headhunter_MaxGeneratedBuff_text = null;
+                public static Slider Headhunter_MaxGeneratedBuff_slider = null;
+                public static readonly System.Action<float> Headhunter_MaxGeneratedBuff_slider_Action = new System.Action<float>(Set_Headhunter_MaxGeneratedBuff);
+                public static void Set_Headhunter_MaxGeneratedBuff(float f)
+                {
+                    if ((!Headhunter_MaxGeneratedBuff_slider.IsNullOrDestroyed()) && (!Headhunter_MaxGeneratedBuff_text.IsNullOrDestroyed()))
+                    {
+                        float result = Headhunter_MaxGeneratedBuff_slider.value;
+                        Save_Manager.instance.data.NewItems.Headhunter.MaxGenerated = (int)result;
+                        if (Save_Manager.instance.data.NewItems.Headhunter.MaxGenerated < Save_Manager.instance.data.NewItems.Headhunter.MinGenerated)
+                        {
+                            Headhunter_MinGeneratedBuff_slider.value = Save_Manager.instance.data.NewItems.Headhunter.MaxGenerated;
+                        }
+                        Headhunter_MaxGeneratedBuff_text.text = result.ToString();                    
+                    }
+                }
                 public static Text Headhunter_BuffDuration_text = null;
                 public static Slider Headhunter_BuffDuration_slider = null;
                 public static readonly System.Action<float> Headhunter_BuffDuration_slider_Action = new System.Action<float>(Set_Headhunter_BuffDuration);
@@ -6975,7 +7058,7 @@ namespace LastEpoch_Hud.Scripts
                     if ((!Headhunter_BuffDuration_slider.IsNullOrDestroyed()) && (!Headhunter_BuffDuration_text.IsNullOrDestroyed()))
                     {
                         float result = Headhunter_BuffDuration_slider.value;
-                        Save_Manager.instance.data.Items.Headhunter.BuffDuration = result;
+                        Save_Manager.instance.data.NewItems.Headhunter.BuffDuration = result;
                         Headhunter_BuffDuration_text.text = result.ToString() + " sec";
                     }
                 }
@@ -6987,7 +7070,7 @@ namespace LastEpoch_Hud.Scripts
                     if ((!Headhunter_BuffStack_slider.IsNullOrDestroyed()) && (!Headhunter_BuffStack_text.IsNullOrDestroyed()))
                     {
                         float result = Headhunter_BuffStack_slider.value;
-                        Save_Manager.instance.data.Items.Headhunter.Stack = result;
+                        Save_Manager.instance.data.NewItems.Headhunter.Stack = result;
                         Headhunter_BuffStack_text.text = result.ToString();
                     }
                 }
@@ -6999,7 +7082,7 @@ namespace LastEpoch_Hud.Scripts
                     if ((!Headhunter_Add_slider.IsNullOrDestroyed()) && (!Headhunter_Add_text.IsNullOrDestroyed()))
                     {
                         float result = Headhunter_Add_slider.value;
-                        Save_Manager.instance.data.Items.Headhunter.AddValue = result;
+                        Save_Manager.instance.data.NewItems.Headhunter.AddValue = result;
                         Headhunter_Add_text.text = "+ " + result.ToString();
                     }
                 }
@@ -7011,12 +7094,47 @@ namespace LastEpoch_Hud.Scripts
                     if ((!Headhunter_Increase_slider.IsNullOrDestroyed()) && (!Headhunter_Increase_text.IsNullOrDestroyed()))
                     {
                         float result = Headhunter_Increase_slider.value;
-                        Save_Manager.instance.data.Items.Headhunter.IncreasedValue = result;
+                        Save_Manager.instance.data.NewItems.Headhunter.IncreasedValue = result;
                         Headhunter_Increase_text.text = "+ " + ((int)(result * 100)).ToString() + " %";
+                    }
+                }
+                public static Dropdown Headhunter_LegendaryType_dropdown = null;
+                private static void Set_Headhunter_LegendaryType()
+                {
+                    if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Headhunter_LegendaryType_dropdown.IsNullOrDestroyed()))
+                    {
+                        bool weaverwill = false;
+                        if (Headhunter_LegendaryType_dropdown.value == 1) { weaverwill = true; }
+                        Save_Manager.instance.data.NewItems.Headhunter.WeaverWill = weaverwill;
+                        if (IsPauseOpen()) { Items_HeadHunter.Unique.Update_LegendaryType(); }
                     }
                 }
 
                 //Mjolnir
+                public static Text Mjolnir_StrReq_text = null;
+                public static Slider Mjolnir_StrReq_slider = null;
+                public static readonly System.Action<float> Mjolnir_StrReq_slider_Action = new System.Action<float>(Set_Mjolnir_StrReq);
+                public static void Set_Mjolnir_StrReq(float f)
+                {
+                    if ((!Mjolnir_StrReq_slider.IsNullOrDestroyed()) && (!Mjolnir_StrReq_text.IsNullOrDestroyed()))
+                    {
+                        float result = Mjolnir_StrReq_slider.value;
+                        Save_Manager.instance.data.NewItems.Mjolner.StrRequirement = (int)result;
+                        Mjolnir_StrReq_text.text = result.ToString();
+                    }
+                }
+                public static Text Mjolnir_IntReq_text = null;
+                public static Slider Mjolnir_IntReq_slider = null;
+                public static readonly System.Action<float> Mjolnir_IntReq_slider_Action = new System.Action<float>(Set_Mjolnir_IntReq);
+                public static void Set_Mjolnir_IntReq(float f)
+                {
+                    if ((!Mjolnir_IntReq_slider.IsNullOrDestroyed()) && (!Mjolnir_IntReq_text.IsNullOrDestroyed()))
+                    {
+                        float result = Mjolnir_IntReq_slider.value;
+                        Save_Manager.instance.data.NewItems.Mjolner.IntRequirement = (int)result;
+                        Mjolnir_IntReq_text.text = result.ToString();
+                    }
+                }
                 public static Text Mjolnir_MinTriggerChance_text = null;
                 public static Slider Mjolnir_MinTriggerChance_slider = null;
                 public static readonly System.Action<float> Mjolnir_MinTriggerChance_slider_Action = new System.Action<float>(Set_Mjolnir_MinTriggerChance);
@@ -7029,7 +7147,7 @@ namespace LastEpoch_Hud.Scripts
                             Mjolnir_MaxTriggerChance_slider.value = Mjolnir_MinTriggerChance_slider.value;
                         }
                         float result = Mjolnir_MinTriggerChance_slider.value;
-                        Save_Manager.instance.data.Items.Mjolner.MinTriggerChance = (result / 100);
+                        Save_Manager.instance.data.NewItems.Mjolner.MinTriggerChance = (result / 100);
                         Mjolnir_MinTriggerChance_text.text = result.ToString() + " %";
                     }
                 }
@@ -7045,7 +7163,7 @@ namespace LastEpoch_Hud.Scripts
                             Mjolnir_MinTriggerChance_slider.value = Mjolnir_MaxTriggerChance_slider.value;
                         }
                         float result = Mjolnir_MaxTriggerChance_slider.value;
-                        Save_Manager.instance.data.Items.Mjolner.MaxTriggerChance = (result / 100);
+                        Save_Manager.instance.data.NewItems.Mjolner.MaxTriggerChance = (result / 100);
                         Mjolnir_MaxTriggerChance_text.text = result.ToString() + " %";
                     }
                 }
@@ -7057,7 +7175,7 @@ namespace LastEpoch_Hud.Scripts
                     if ((!Mjolnir_TriggerCooldown_slider.IsNullOrDestroyed()) && (!Mjolnir_TriggerCooldown_text.IsNullOrDestroyed()))
                     {
                         float result = Mjolnir_TriggerCooldown_slider.value;
-                        Save_Manager.instance.data.Items.Mjolner.SocketedCooldown = result;
+                        Save_Manager.instance.data.NewItems.Mjolner.SocketedCooldown = result;
                         Mjolnir_TriggerCooldown_text.text = result.ToString() + " sec";
                     }
                 }
@@ -7066,7 +7184,8 @@ namespace LastEpoch_Hud.Scripts
                 {
                     if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Mjolnir_Socket0_dropdown.IsNullOrDestroyed()))
                     {
-                        Save_Manager.instance.data.Items.Mjolner.SockectedSkill_0 = Mjolnir_Socket0_dropdown.options[Mjolnir_Socket0_dropdown.value].text;
+                        Save_Manager.instance.data.NewItems.Mjolner.SockectedSkill_0 = Mjolnir_Socket0_dropdown.options[Mjolnir_Socket0_dropdown.value].text;
+                        if (IsPauseOpen()) { Items_Mjolner.Trigger.Initialize_SocketedSkills(); }
                     }
                 }
                 public static Dropdown Mjolnir_Socket1_dropdown = null;
@@ -7074,7 +7193,8 @@ namespace LastEpoch_Hud.Scripts
                 {
                     if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Mjolnir_Socket1_dropdown.IsNullOrDestroyed()))
                     {
-                        Save_Manager.instance.data.Items.Mjolner.SockectedSkill_1 = Mjolnir_Socket1_dropdown.options[Mjolnir_Socket1_dropdown.value].text;
+                        Save_Manager.instance.data.NewItems.Mjolner.SockectedSkill_1 = Mjolnir_Socket1_dropdown.options[Mjolnir_Socket1_dropdown.value].text;
+                        if (IsPauseOpen()) { Items_Mjolner.Trigger.Initialize_SocketedSkills(); }
                     }
                 }
                 public static Dropdown Mjolnir_Socket2_dropdown = null;
@@ -7082,7 +7202,19 @@ namespace LastEpoch_Hud.Scripts
                 {
                     if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Mjolnir_Socket2_dropdown.IsNullOrDestroyed()))
                     {
-                        Save_Manager.instance.data.Items.Mjolner.SockectedSkill_2 = Mjolnir_Socket2_dropdown.options[Mjolnir_Socket2_dropdown.value].text;
+                        Save_Manager.instance.data.NewItems.Mjolner.SockectedSkill_2 = Mjolnir_Socket2_dropdown.options[Mjolnir_Socket2_dropdown.value].text;
+                        if (IsPauseOpen()) { Items_Mjolner.Trigger.Initialize_SocketedSkills(); }
+                    }
+                }
+                public static Dropdown Mjolnir_LegendaryType_dropdown = null;
+                private static void Set_Mjolnir_LegendaryType()
+                {
+                    if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Mjolnir_LegendaryType_dropdown.IsNullOrDestroyed()))
+                    {
+                        bool weaverwill = false;
+                        if (Mjolnir_LegendaryType_dropdown.value == 1) { weaverwill = true; }
+                        Save_Manager.instance.data.NewItems.Mjolner.WeaverWill = weaverwill;
+                        if (IsPauseOpen()) { Items_Mjolner.Unique.Update_LegendaryType(weaverwill); }
                     }
                 }
 
@@ -7120,6 +7252,17 @@ namespace LastEpoch_Hud.Scripts
                         Object.Destroy(Items_Heralds.Uniques.Ice.prefab_obj);
                     }
                 }
+                public static Dropdown Herald_of_Ice_LegendaryType_dropdown = null;
+                private static void Set_Herald_of_Ice_LegendaryType()
+                {
+                    if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Herald_of_Ice_LegendaryType_dropdown.IsNullOrDestroyed()))
+                    {
+                        bool weaverwill = false;
+                        if (Herald_of_Ice_LegendaryType_dropdown.value == 1) { weaverwill = true; }
+                        Save_Manager.instance.data.NewItems.HeraldOfIce.WeaverWill = weaverwill;
+                        if (IsPauseOpen()) { Items_Heralds.Uniques.Ice.Update_LegendaryType(weaverwill); }
+                    }
+                }
 
                 //Herald of Ash
                 public static Dropdown Herald_of_Fire_VFX_dropdown = null;
@@ -7153,6 +7296,17 @@ namespace LastEpoch_Hud.Scripts
                         Save_Manager.instance.data.NewItems.HeraldOfFire.Radius = result;
                         Herald_of_Fire_Radius_text.text = ((int)(result * 100)).ToString() + " %";
                         Object.Destroy(Items_Heralds.Uniques.Fire.prefab_obj);
+                    }
+                }
+                public static Dropdown Herald_of_Fire_LegendaryType_dropdown = null;
+                private static void Set_Herald_of_Fire_LegendaryType()
+                {
+                    if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Herald_of_Fire_LegendaryType_dropdown.IsNullOrDestroyed()))
+                    {
+                        bool weaverwill = false;
+                        if (Herald_of_Fire_LegendaryType_dropdown.value == 1) { weaverwill = true; }
+                        Save_Manager.instance.data.NewItems.HeraldOfFire.WeaverWill = weaverwill;
+                        if (IsPauseOpen()) { Items_Heralds.Uniques.Fire.Update_LegendaryType(weaverwill); }
                     }
                 }
 
@@ -7190,6 +7344,17 @@ namespace LastEpoch_Hud.Scripts
                         Object.Destroy(Items_Heralds.Uniques.Lightning.prefab_obj);
                     }
                 }
+                public static Dropdown Herald_of_Thunder_LegendaryType_dropdown = null;
+                private static void Set_Herald_of_Thunder_LegendaryType()
+                {
+                    if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Herald_of_Thunder_LegendaryType_dropdown.IsNullOrDestroyed()))
+                    {
+                        bool weaverwill = false;
+                        if (Herald_of_Thunder_LegendaryType_dropdown.value == 1) { weaverwill = true; }
+                        Save_Manager.instance.data.NewItems.HeraldOfThunder.WeaverWill = weaverwill;
+                        if (IsPauseOpen()) { Items_Heralds.Uniques.Lightning.Update_LegendaryType(weaverwill); }
+                    }
+                }
 
                 //Herald of Agony
                 public static Dropdown Herald_of_Agony_VFX_dropdown = null;
@@ -7225,6 +7390,17 @@ namespace LastEpoch_Hud.Scripts
                         Object.Destroy(Items_Heralds.Uniques.Poison.prefab_obj);
                     }
                 }
+                public static Dropdown Herald_of_Agony_LegendaryType_dropdown = null;
+                private static void Set_Herald_of_Agony_LegendaryType()
+                {
+                    if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Herald_of_Agony_LegendaryType_dropdown.IsNullOrDestroyed()))
+                    {
+                        bool weaverwill = false;
+                        if (Herald_of_Agony_LegendaryType_dropdown.value == 1) { weaverwill = true; }
+                        Save_Manager.instance.data.NewItems.HeraldOfAgony.WeaverWill = weaverwill;
+                        if (IsPauseOpen()) { Items_Heralds.Uniques.Poison.Update_LegendaryType(weaverwill); }
+                    }
+                }
 
                 public static void Get_Refs()
                 {
@@ -7237,6 +7413,10 @@ namespace LastEpoch_Hud.Scripts
                             GameObject headhunter = Functions.GetChild(left, "Headhunter");
                             if (!headhunter.IsNullOrDestroyed())
                             {
+                                Headhunter_MinGeneratedBuff_text = Functions.Get_TextInToggle(left, "Headhunter", "MinBuffText", "Value");
+                                Headhunter_MinGeneratedBuff_slider = Functions.Get_SliderInPanel(left, "Headhunter", "Slider_MinBuff");
+                                Headhunter_MaxGeneratedBuff_text = Functions.Get_TextInToggle(left, "Headhunter", "MaxBuffText", "Value");
+                                Headhunter_MaxGeneratedBuff_slider = Functions.Get_SliderInPanel(left, "Headhunter", "Slider_MaxBuff");
                                 Headhunter_BuffDuration_text = Functions.Get_TextInToggle(left, "Headhunter", "BuffDurationText", "Value");
                                 Headhunter_BuffDuration_slider = Functions.Get_SliderInPanel(left, "Headhunter", "Slider_BuffDuration");
                                 Headhunter_BuffStack_text = Functions.Get_TextInToggle(left, "Headhunter", "BuffStack", "Value");
@@ -7245,10 +7425,15 @@ namespace LastEpoch_Hud.Scripts
                                 Headhunter_Add_slider = Functions.Get_SliderInPanel(left, "Headhunter", "Slider_Add");
                                 Headhunter_Increase_text = Functions.Get_TextInToggle(left, "Headhunter", "IncreaseText", "Value");
                                 Headhunter_Increase_slider = Functions.Get_SliderInPanel(left, "Headhunter", "Slider_Increase");
+                                Headhunter_LegendaryType_dropdown = Functions.Get_DopboxInPanel(headhunter, "Dropdown_LegendaryType", "Dropdown", new System.Action<int>((_) => { Set_Headhunter_LegendaryType(); }));
                             }
                             GameObject mjolnir = Functions.GetChild(left, "Mjolnir");
                             if (!mjolnir.IsNullOrDestroyed())
                             {
+                                Mjolnir_StrReq_text = Functions.Get_TextInToggle(left, "Mjolnir", "StrReqText", "Value");
+                                Mjolnir_StrReq_slider = Functions.Get_SliderInPanel(left, "Mjolnir", "Slider_StrReq");
+                                Mjolnir_IntReq_text = Functions.Get_TextInToggle(left, "Mjolnir", "IntReqText", "Value");
+                                Mjolnir_IntReq_slider = Functions.Get_SliderInPanel(left, "Mjolnir", "Slider_IntReq");
                                 Mjolnir_MinTriggerChance_text = Functions.Get_TextInToggle(left, "Mjolnir", "MinTriggerChanceText", "Value");
                                 Mjolnir_MinTriggerChance_slider = Functions.Get_SliderInPanel(left, "Mjolnir", "Slider_MinTriggerChance");
                                 Mjolnir_MaxTriggerChance_text = Functions.Get_TextInToggle(left, "Mjolnir", "MaxTriggerChanceText", "Value");
@@ -7258,6 +7443,7 @@ namespace LastEpoch_Hud.Scripts
                                 Mjolnir_Socket0_dropdown = Functions.Get_DopboxInPanel(mjolnir, "Dropdown_Socket1", "Dropdown", new System.Action<int>((_) => { Set_Mjolnir_Socket0(); }));
                                 Mjolnir_Socket1_dropdown = Functions.Get_DopboxInPanel(mjolnir, "Dropdown_Socket2", "Dropdown", new System.Action<int>((_) => { Set_Mjolnir_Socket1(); }));
                                 Mjolnir_Socket2_dropdown = Functions.Get_DopboxInPanel(mjolnir, "Dropdown_Socket3", "Dropdown", new System.Action<int>((_) => { Set_Mjolnir_Socket2(); }));
+                                Mjolnir_LegendaryType_dropdown = Functions.Get_DopboxInPanel(mjolnir, "Dropdown_LegendaryType", "Dropdown", new System.Action<int>((_) => { Set_Mjolnir_LegendaryType(); }));
                             }
                             GameObject herald_of_ice = Functions.GetChild(left, "Herald_of_Ice");
                             if (!herald_of_ice.IsNullOrDestroyed())
@@ -7266,14 +7452,16 @@ namespace LastEpoch_Hud.Scripts
                                 Herald_of_Ice_Radius_toggle = Functions.Get_ToggleInPanel(left, "Herald_of_Ice", "Toggle");
                                 Herald_of_Ice_Radius_text = Functions.Get_TextInToggle(left, "Herald_of_Ice", "Toggle", "Value");
                                 Herald_of_Ice_Radius_slider = Functions.Get_SliderInPanel(left, "Herald_of_Ice", "Slider");
+                                Herald_of_Ice_LegendaryType_dropdown = Functions.Get_DopboxInPanel(herald_of_ice, "Dropdown_LegendaryType", "Dropdown", new System.Action<int>((_) => { Set_Herald_of_Ice_LegendaryType(); }));
                             }
                             GameObject herald_of_fire = Functions.GetChild(left, "Herald_of_Fire");
-                            if (!herald_of_ice.IsNullOrDestroyed())
+                            if (!herald_of_fire.IsNullOrDestroyed())
                             {
                                 Herald_of_Fire_VFX_dropdown = Functions.Get_DopboxInPanel(herald_of_fire, "VFX", "Dropdown", new System.Action<int>((_) => { Set_Herald_of_Fire_VFX(); }));
                                 Herald_of_Fire_Radius_toggle = Functions.Get_ToggleInPanel(left, "Herald_of_Fire", "Toggle");
                                 Herald_of_Fire_Radius_text = Functions.Get_TextInToggle(left, "Herald_of_Fire", "Toggle", "Value");
                                 Herald_of_Fire_Radius_slider = Functions.Get_SliderInPanel(left, "Herald_of_Fire", "Slider");
+                                Herald_of_Fire_LegendaryType_dropdown = Functions.Get_DopboxInPanel(herald_of_fire, "Dropdown_LegendaryType", "Dropdown", new System.Action<int>((_) => { Set_Herald_of_Fire_LegendaryType(); }));
                             }
                             GameObject herald_of_thunder = Functions.GetChild(left, "Herald_of_Thunder");
                             if (!herald_of_thunder.IsNullOrDestroyed())
@@ -7282,6 +7470,7 @@ namespace LastEpoch_Hud.Scripts
                                 Herald_of_Thunder_Radius_toggle = Functions.Get_ToggleInPanel(left, "Herald_of_Thunder", "Toggle");
                                 Herald_of_Thunder_Radius_text = Functions.Get_TextInToggle(left, "Herald_of_Thunder", "Toggle", "Value");
                                 Herald_of_Thunder_Radius_slider = Functions.Get_SliderInPanel(left, "Herald_of_Thunder", "Slider");
+                                Herald_of_Thunder_LegendaryType_dropdown = Functions.Get_DopboxInPanel(herald_of_thunder, "Dropdown_LegendaryType", "Dropdown", new System.Action<int>((_) => { Set_Herald_of_Thunder_LegendaryType(); }));
                             }
                             GameObject herald_of_agony = Functions.GetChild(left, "Herald_of_Agony");
                             if (!herald_of_agony.IsNullOrDestroyed())
@@ -7290,6 +7479,7 @@ namespace LastEpoch_Hud.Scripts
                                 Herald_of_Agony_Radius_toggle = Functions.Get_ToggleInPanel(left, "Herald_of_Agony", "Toggle");
                                 Herald_of_Agony_Radius_text = Functions.Get_TextInToggle(left, "Herald_of_Agony", "Toggle", "Value");
                                 Herald_of_Agony_Radius_slider = Functions.Get_SliderInPanel(left, "Herald_of_Agony", "Slider");
+                                Herald_of_Agony_LegendaryType_dropdown = Functions.Get_DopboxInPanel(herald_of_agony, "Dropdown_LegendaryType", "Dropdown", new System.Action<int>((_) => { Set_Herald_of_Agony_LegendaryType(); }));
                             }
                         }
                         GameObject center = Functions.GetViewportContent(content_obj, "Center", "Content");
@@ -7306,23 +7496,46 @@ namespace LastEpoch_Hud.Scripts
                 }
                 public static void Init_Dropdowns()
                 {
+                    GetLegendaryType(Headhunter_LegendaryType_dropdown);
+
                     GetAbility(Mjolnir_Socket0_dropdown, "", true, false);
                     GetAbility(Mjolnir_Socket1_dropdown, "", true, false);
                     GetAbility(Mjolnir_Socket2_dropdown, "", true, false);
+                    GetLegendaryType(Mjolnir_LegendaryType_dropdown);
 
                     GetAbility(Herald_of_Ice_VFX_dropdown, "Cold, Spell", false, true);
+                    GetLegendaryType(Herald_of_Ice_LegendaryType_dropdown);
+
                     GetAbility(Herald_of_Fire_VFX_dropdown, "Fire, Spell", false, true);
+                    GetLegendaryType(Herald_of_Fire_LegendaryType_dropdown);
+
                     GetAbility(Herald_of_Thunder_VFX_dropdown, "Lightning, Spell", false, true);
+                    GetLegendaryType(Herald_of_Thunder_LegendaryType_dropdown);
+
                     GetAbility(Herald_of_Agony_VFX_dropdown, "Poison, Spell", false, true);
+                    GetLegendaryType(Herald_of_Agony_LegendaryType_dropdown);
+                }
+                public static void GetLegendaryType(Dropdown dropdown)
+                {
+                    if (!dropdown.IsNullOrDestroyed())
+                    {
+                        dropdown.options.Clear();
+                        dropdown.options.Add(new Dropdown.OptionData(UniqueList.LegendaryType.LegendaryPotential.ToString()));
+                        dropdown.options.Add(new Dropdown.OptionData(UniqueList.LegendaryType.WeaversWill.ToString()));
+                    }
                 }
                 public static void GetAbility(Dropdown dropdown, string tags, bool mjolnir, bool herald)
                 {
                     if (!dropdown.IsNullOrDestroyed())
                     {
                         dropdown.options.Clear();
+                        System.Collections.Generic.List<string> names = new System.Collections.Generic.List<string>(); //Don't duplicate abilities
                         foreach (Ability ab in Resources.FindObjectsOfTypeAll<Ability>())
                         {
-                            if ((mjolnir) && (ab.tags.HasFlag(AT.Lightning)) && (ab.tags.HasFlag(AT.Spell))) { dropdown.options.Add(new Dropdown.OptionData(ab.abilityName)); }
+                            if ((mjolnir) && (ab.tags.HasFlag(AT.Lightning)) && (ab.tags.HasFlag(AT.Spell)))
+                            {
+                                if (!names.Contains(ab.abilityName)) { names.Add(ab.abilityName); }
+                            }
                             else if ((herald) && (ab.tags.ToString() == tags))
                             {
                                 if (!ab.abilityPrefab.IsNullOrDestroyed())
@@ -7333,14 +7546,27 @@ namespace LastEpoch_Hud.Scripts
                                     bool contain_vfx_ondeath = false;
                                     CreateVfxOnDeath vfx_on_death = ab.abilityPrefab.GetComponent<CreateVfxOnDeath>();
                                     if (!vfx_on_death.IsNullOrDestroyed()) { contain_vfx_ondeath = true; }
-                                    if ((contain_collider) && (contain_vfx_ondeath)) { dropdown.options.Add(new Dropdown.OptionData(ab.name)); }
+                                    if ((contain_collider) && (contain_vfx_ondeath))
+                                    {
+                                        if (!names.Contains(ab.name)) { names.Add(ab.name); }
+                                    }
                                 }
                             }
                         }
+                        names.Sort();
+                        foreach (string name in names) { dropdown.options.Add(new Dropdown.OptionData(name)); }
                     }
                 }
                 public static void Set_Events()
                 {
+                    if (!Headhunter_MinGeneratedBuff_slider.IsNullOrDestroyed())
+                    {
+                        Events.Set_Slider_Event(Headhunter_MinGeneratedBuff_slider, Headhunter_MinGeneratedBuff_slider_Action);
+                    }
+                    if (!Headhunter_MaxGeneratedBuff_slider.IsNullOrDestroyed())
+                    {
+                        Events.Set_Slider_Event(Headhunter_MaxGeneratedBuff_slider, Headhunter_MaxGeneratedBuff_slider_Action);
+                    }
                     if (!Headhunter_BuffDuration_slider.IsNullOrDestroyed())
                     {
                         Events.Set_Slider_Event(Headhunter_BuffDuration_slider, Headhunter_BuffDuration_slider_Action);
@@ -7356,6 +7582,14 @@ namespace LastEpoch_Hud.Scripts
                     if (!Headhunter_Increase_slider.IsNullOrDestroyed())
                     {
                         Events.Set_Slider_Event(Headhunter_Increase_slider, Headhunter_Increase_slider_Action);
+                    }
+                    if (!Mjolnir_StrReq_slider.IsNullOrDestroyed())
+                    {
+                        Events.Set_Slider_Event(Mjolnir_StrReq_slider, Mjolnir_StrReq_slider_Action);
+                    }
+                    if (!Mjolnir_IntReq_slider.IsNullOrDestroyed())
+                    {
+                        Events.Set_Slider_Event(Mjolnir_IntReq_slider, Mjolnir_IntReq_slider_Action);
                     }
                     if (!Mjolnir_MinTriggerChance_slider.IsNullOrDestroyed())
                     {
@@ -7426,44 +7660,66 @@ namespace LastEpoch_Hud.Scripts
                     {
                         if (Save_Manager.instance.initialized)
                         {
+                            if (!Headhunter_MinGeneratedBuff_slider.IsNullOrDestroyed())
+                            {
+                                Headhunter_MinGeneratedBuff_slider.value = Save_Manager.instance.data.NewItems.Headhunter.MinGenerated;
+                            }
+                            if (!Headhunter_MaxGeneratedBuff_slider.IsNullOrDestroyed())
+                            {
+                                Headhunter_MaxGeneratedBuff_slider.value = Save_Manager.instance.data.NewItems.Headhunter.MaxGenerated;
+                            }
                             if (!Headhunter_BuffDuration_slider.IsNullOrDestroyed())
                             {
-                                Headhunter_BuffDuration_slider.value = Save_Manager.instance.data.Items.Headhunter.BuffDuration;
+                                Headhunter_BuffDuration_slider.value = Save_Manager.instance.data.NewItems.Headhunter.BuffDuration;
                             }
                             if (!Headhunter_BuffStack_slider.IsNullOrDestroyed())
                             {
-                                Headhunter_BuffStack_slider.value = Save_Manager.instance.data.Items.Headhunter.Stack;
+                                Headhunter_BuffStack_slider.value = Save_Manager.instance.data.NewItems.Headhunter.Stack;
                             }
                             if (!Headhunter_Add_slider.IsNullOrDestroyed())
                             {
-                                Headhunter_Add_slider.value = Save_Manager.instance.data.Items.Headhunter.AddValue;
+                                Headhunter_Add_slider.value = Save_Manager.instance.data.NewItems.Headhunter.AddValue;
                             }
                             if (!Headhunter_Increase_slider.IsNullOrDestroyed())
                             {
-                                Headhunter_Increase_slider.value = Save_Manager.instance.data.Items.Headhunter.IncreasedValue;
+                                Headhunter_Increase_slider.value = Save_Manager.instance.data.NewItems.Headhunter.IncreasedValue;
+                            }
+                            if (!Headhunter_LegendaryType_dropdown.IsNullOrDestroyed())
+                            {
+                                int index = 0;
+                                if (Save_Manager.instance.data.NewItems.Headhunter.WeaverWill) { index = 1; }
+                                Headhunter_LegendaryType_dropdown.value = index;
                             }
 
+                            if (!Mjolnir_StrReq_slider.IsNullOrDestroyed())
+                            {
+                                Mjolnir_StrReq_slider.value = Save_Manager.instance.data.NewItems.Mjolner.StrRequirement;
+                            }
+                            if (!Mjolnir_IntReq_slider.IsNullOrDestroyed())
+                            {
+                                Mjolnir_IntReq_slider.value = Save_Manager.instance.data.NewItems.Mjolner.IntRequirement;
+                            }
                             if (!Mjolnir_MinTriggerChance_slider.IsNullOrDestroyed())
                             {
-                                Mjolnir_MinTriggerChance_slider.value = (Save_Manager.instance.data.Items.Mjolner.MinTriggerChance * 100);
+                                Mjolnir_MinTriggerChance_slider.value = (Save_Manager.instance.data.NewItems.Mjolner.MinTriggerChance * 100);
                             }
                             if (!Mjolnir_MaxTriggerChance_slider.IsNullOrDestroyed())
                             {
-                                Mjolnir_MaxTriggerChance_slider.value = (Save_Manager.instance.data.Items.Mjolner.MaxTriggerChance * 100);
+                                Mjolnir_MaxTriggerChance_slider.value = (Save_Manager.instance.data.NewItems.Mjolner.MaxTriggerChance * 100);
                             }
                             if (!Mjolnir_TriggerCooldown_slider.IsNullOrDestroyed())
                             {
-                                Mjolnir_TriggerCooldown_slider.value = (float)Save_Manager.instance.data.Items.Mjolner.SocketedCooldown;
+                                Mjolnir_TriggerCooldown_slider.value = (float)Save_Manager.instance.data.NewItems.Mjolner.SocketedCooldown;
                             }
                             if (!Mjolnir_Socket0_dropdown.IsNullOrDestroyed())
                             {
                                 int index = 0;
-                                if (Save_Manager.instance.data.Items.Mjolner.SockectedSkill_0 != "")
+                                if (Save_Manager.instance.data.NewItems.Mjolner.SockectedSkill_0 != "")
                                 {
                                     bool found = false;
                                     foreach (Dropdown.OptionData options in Mjolnir_Socket0_dropdown.options)
                                     {
-                                        if (options.text == Save_Manager.instance.data.Items.Mjolner.SockectedSkill_0) { break; }
+                                        if (options.text == Save_Manager.instance.data.NewItems.Mjolner.SockectedSkill_0) { break; }
                                         found = true;
                                         index++;
                                     }
@@ -7474,12 +7730,12 @@ namespace LastEpoch_Hud.Scripts
                             if (!Mjolnir_Socket1_dropdown.IsNullOrDestroyed())
                             {
                                 int index = 0;
-                                if (Save_Manager.instance.data.Items.Mjolner.SockectedSkill_1 != "")
+                                if (Save_Manager.instance.data.NewItems.Mjolner.SockectedSkill_1 != "")
                                 {
                                     bool found = false;
                                     foreach (Dropdown.OptionData options in Mjolnir_Socket1_dropdown.options)
                                     {
-                                        if (options.text == Save_Manager.instance.data.Items.Mjolner.SockectedSkill_1) { break; }
+                                        if (options.text == Save_Manager.instance.data.NewItems.Mjolner.SockectedSkill_1) { break; }
                                         found = true;
                                         index++;
                                     }
@@ -7490,18 +7746,23 @@ namespace LastEpoch_Hud.Scripts
                             if (!Mjolnir_Socket2_dropdown.IsNullOrDestroyed())
                             {
                                 int index = 0;
-                                if (Save_Manager.instance.data.Items.Mjolner.SockectedSkill_2 != "")
+                                if (Save_Manager.instance.data.NewItems.Mjolner.SockectedSkill_2 != "")
                                 {
                                     bool found = false;
                                     foreach (Dropdown.OptionData options in Mjolnir_Socket2_dropdown.options)
                                     {
-                                        if (options.text == Save_Manager.instance.data.Items.Mjolner.SockectedSkill_2) { break; }
+                                        if (options.text == Save_Manager.instance.data.NewItems.Mjolner.SockectedSkill_2) { break; }
                                         found = true;
                                         index++;
                                     }
                                     if (!found) { index = 0; }
                                 }
                                 Mjolnir_Socket2_dropdown.value = index;
+                            }
+                            if (!Mjolnir_LegendaryType_dropdown.IsNullOrDestroyed())
+                            {
+                                if (Save_Manager.instance.data.NewItems.Mjolner.WeaverWill) { Mjolnir_LegendaryType_dropdown.value = 1; }
+                                else { Mjolnir_LegendaryType_dropdown.value = 0; }
                             }
 
                             if (!Herald_of_Ice_VFX_dropdown.IsNullOrDestroyed())
@@ -7525,6 +7786,12 @@ namespace LastEpoch_Hud.Scripts
                             {
                                 Herald_of_Ice_Radius_slider.value = Save_Manager.instance.data.NewItems.HeraldOfIce.Radius;
                             }
+                            if (!Herald_of_Ice_LegendaryType_dropdown.IsNullOrDestroyed())
+                            {
+                                if (Save_Manager.instance.data.NewItems.HeraldOfIce.WeaverWill) { Herald_of_Ice_LegendaryType_dropdown.value = 1; }
+                                else { Herald_of_Ice_LegendaryType_dropdown.value = 0; }
+                            }
+
                             if (!Herald_of_Fire_VFX_dropdown.IsNullOrDestroyed())
                             {
                                 int index = 0;
@@ -7546,6 +7813,12 @@ namespace LastEpoch_Hud.Scripts
                             {
                                 Herald_of_Fire_Radius_slider.value = Save_Manager.instance.data.NewItems.HeraldOfFire.Radius;
                             }
+                            if (!Herald_of_Fire_LegendaryType_dropdown.IsNullOrDestroyed())
+                            {
+                                if (Save_Manager.instance.data.NewItems.HeraldOfFire.WeaverWill) { Herald_of_Fire_LegendaryType_dropdown.value = 1; }
+                                else { Herald_of_Fire_LegendaryType_dropdown.value = 0; }
+                            }
+
                             if (!Herald_of_Thunder_VFX_dropdown.IsNullOrDestroyed())
                             {
                                 int index = 0;
@@ -7567,6 +7840,12 @@ namespace LastEpoch_Hud.Scripts
                             {
                                 Herald_of_Thunder_Radius_slider.value = Save_Manager.instance.data.NewItems.HeraldOfThunder.Radius;
                             }
+                            if (!Herald_of_Thunder_LegendaryType_dropdown.IsNullOrDestroyed())
+                            {
+                                if (Save_Manager.instance.data.NewItems.HeraldOfThunder.WeaverWill) { Herald_of_Thunder_LegendaryType_dropdown.value = 1; }
+                                else { Herald_of_Thunder_LegendaryType_dropdown.value = 0; }
+                            }
+
                             if (!Herald_of_Agony_VFX_dropdown.IsNullOrDestroyed())
                             {
                                 int index = 0;
@@ -7588,6 +7867,12 @@ namespace LastEpoch_Hud.Scripts
                             {
                                 Herald_of_Agony_Radius_slider.value = Save_Manager.instance.data.NewItems.HeraldOfAgony.Radius;
                             }
+                            if (!Herald_of_Agony_LegendaryType_dropdown.IsNullOrDestroyed())
+                            {
+                                if (Save_Manager.instance.data.NewItems.HeraldOfAgony.WeaverWill) { Herald_of_Agony_LegendaryType_dropdown.value = 1; }
+                                else { Herald_of_Agony_LegendaryType_dropdown.value = 0; }
+                            }
+
                             result = true;
                         }
                     }

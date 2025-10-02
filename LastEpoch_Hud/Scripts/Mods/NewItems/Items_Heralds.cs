@@ -4,7 +4,7 @@ using MelonLoader;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace LastEpoch_Hud.Scripts.Mods.Items
+namespace LastEpoch_Hud.Scripts.Mods.NewItems
 {
     [RegisterTypeInIl2Cpp]
     public class Items_Heralds : MonoBehaviour
@@ -21,17 +21,17 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
         }
         void Update()
         {
-            if ((Uniques.Ice.Icon.IsNullOrDestroyed()) ||
-                (Uniques.Fire.Icon.IsNullOrDestroyed()) ||
-                (Uniques.Lightning.Icon.IsNullOrDestroyed()) ||
-                (Uniques.Poison.Icon.IsNullOrDestroyed()))
+            if (Uniques.Ice.Icon.IsNullOrDestroyed() ||
+                Uniques.Fire.Icon.IsNullOrDestroyed() ||
+                Uniques.Lightning.Icon.IsNullOrDestroyed() ||
+                Uniques.Poison.Icon.IsNullOrDestroyed())
             { Assets.Loaded = false; }
             if (!Assets.Loaded) { Assets.Load(); }
             if (Locales.current != Locales.Selected.Unknow)
             {
                 if (!Basic.AddedToBasicList) { Basic.AddToBasicList(); }
                 if (!Uniques.AddedToUniqueList) { Uniques.AddToUniqueList(); }
-                if ((Uniques.AddedToUniqueList) && (!Uniques.AddedToDictionary)) { Uniques.AddToDictionary(); }
+                if (Uniques.AddedToUniqueList && !Uniques.AddedToDictionary) { Uniques.AddToDictionary(); }
             }
             if (!Events.OnKillEvent_Initialized) { Events.Init_OnKillEvent(); }
             if (!Events.OnMinionKillEvent_Initialized) { Events.Init_OnMinionKillEvent(); }
@@ -72,7 +72,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             public static bool loading = false;
             public static void Load()
             {
-                if ((!Loaded) && (!Hud_Manager.asset_bundle.IsNullOrDestroyed()) && (!loading))
+                if (!Loaded && !Hud_Manager.asset_bundle.IsNullOrDestroyed() && !loading)
                 {
                     loading = true;
                     try
@@ -81,7 +81,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         {
                             if (name.Contains("/heraldofice/"))
                             {
-                                if ((Functions.Check_Texture(name)) && (name.Contains("icon")) && (Uniques.Ice.Icon.IsNullOrDestroyed()))
+                                if (Functions.Check_Texture(name) && name.Contains("icon") && Uniques.Ice.Icon.IsNullOrDestroyed())
                                 {
                                     Texture2D texture = Hud_Manager.asset_bundle.LoadAsset(name).TryCast<Texture2D>();
                                     Uniques.Ice.Icon = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
@@ -89,7 +89,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                             }
                             if (name.Contains("/heraldofash/"))
                             {
-                                if ((Functions.Check_Texture(name)) && (name.Contains("icon")) && (Uniques.Fire.Icon.IsNullOrDestroyed()))
+                                if (Functions.Check_Texture(name) && name.Contains("icon") && Uniques.Fire.Icon.IsNullOrDestroyed())
                                 {
                                     Texture2D texture = Hud_Manager.asset_bundle.LoadAsset(name).TryCast<Texture2D>();
                                     Uniques.Fire.Icon = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
@@ -97,7 +97,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                             }
                             if (name.Contains("/heraldofthunder/"))
                             {
-                                if ((Functions.Check_Texture(name)) && (name.Contains("icon")) && (Uniques.Lightning.Icon.IsNullOrDestroyed()))
+                                if (Functions.Check_Texture(name) && name.Contains("icon") && Uniques.Lightning.Icon.IsNullOrDestroyed())
                                 {
                                     Texture2D texture = Hud_Manager.asset_bundle.LoadAsset(name).TryCast<Texture2D>();
                                     Uniques.Lightning.Icon = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
@@ -105,17 +105,17 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                             }
                             if (name.Contains("/heraldofagony/"))
                             {
-                                if ((Functions.Check_Texture(name)) && (name.Contains("icon")) && (Uniques.Poison.Icon.IsNullOrDestroyed()))
+                                if (Functions.Check_Texture(name) && name.Contains("icon") && Uniques.Poison.Icon.IsNullOrDestroyed())
                                 {
                                     Texture2D texture = Hud_Manager.asset_bundle.LoadAsset(name).TryCast<Texture2D>();
                                     Uniques.Poison.Icon = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
                                 }
                             }
                         }
-                        if ((!Uniques.Ice.Icon.IsNullOrDestroyed()) &&
-                            (!Uniques.Fire.Icon.IsNullOrDestroyed()) &&
-                            (!Uniques.Lightning.Icon.IsNullOrDestroyed()) &&
-                            (!Uniques.Poison.Icon.IsNullOrDestroyed()))
+                        if (!Uniques.Ice.Icon.IsNullOrDestroyed() &&
+                            !Uniques.Fire.Icon.IsNullOrDestroyed() &&
+                            !Uniques.Lightning.Icon.IsNullOrDestroyed() &&
+                            !Uniques.Poison.Icon.IsNullOrDestroyed())
                         {
                             Loaded = true;
                         }
@@ -150,7 +150,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
 
             public static void AddToBasicList()
             {
-                if ((!AddedToBasicList) && (!Refs_Manager.item_list.IsNullOrDestroyed()))
+                if (!AddedToBasicList && !Refs_Manager.item_list.IsNullOrDestroyed())
                 {
                     Refs_Manager.item_list.EquippableItems[base_type].subItems.Add(Item());
                     AddedToBasicList = true;
@@ -159,7 +159,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             public static Il2CppSystem.Collections.Generic.List<byte> SubType()
             {
                 Il2CppSystem.Collections.Generic.List<byte> result = new Il2CppSystem.Collections.Generic.List<byte>();
-                byte r = (byte)Basic.base_id;
+                byte r = (byte)base_id;
                 result.Add(r);
 
                 return result;
@@ -179,7 +179,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         
             public static void AddToUniqueList()
             {
-                if ((!AddedToUniqueList) && (!Refs_Manager.unique_list.IsNullOrDestroyed()))
+                if (!AddedToUniqueList && !Refs_Manager.unique_list.IsNullOrDestroyed())
                 {
                     try
                     {
@@ -195,7 +195,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             }
             public static void AddToDictionary()
             {
-                if ((AddedToUniqueList) && (!AddedToDictionary) && (!Refs_Manager.unique_list.IsNullOrDestroyed()))
+                if (AddedToUniqueList && !AddedToDictionary && !Refs_Manager.unique_list.IsNullOrDestroyed())
                 {
                     try
                     {
@@ -207,16 +207,16 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         {
                             foreach (UniqueList.Entry unique in Refs_Manager.unique_list.uniques)
                             {
-                                if ((unique.uniqueID == Ice.unique_id) && (unique.name == Ice.Get_Unique_Name())) { ice_item = unique; }
-                                else if ((unique.uniqueID == Fire.unique_id) && (unique.name == Fire.Get_Unique_Name())) { fire_item = unique; }
-                                else if ((unique.uniqueID == Lightning.unique_id) && (unique.name == Lightning.Get_Unique_Name())) { ligtning_item = unique; }
-                                else if ((unique.uniqueID == Poison.unique_id) && (unique.name == Poison.Get_Unique_Name())) { poison_item = unique; }
+                                if (unique.uniqueID == Ice.unique_id && unique.name == Ice.Get_Unique_Name()) { ice_item = unique; }
+                                else if (unique.uniqueID == Fire.unique_id && unique.name == Fire.Get_Unique_Name()) { fire_item = unique; }
+                                else if (unique.uniqueID == Lightning.unique_id && unique.name == Lightning.Get_Unique_Name()) { ligtning_item = unique; }
+                                else if (unique.uniqueID == Poison.unique_id && unique.name == Poison.Get_Unique_Name()) { poison_item = unique; }
                             }
                         }
-                        if ((!ice_item.IsNullOrDestroyed()) &&
-                            (!fire_item.IsNullOrDestroyed()) &&
-                            (!ligtning_item.IsNullOrDestroyed()) &&
-                            (!poison_item.IsNullOrDestroyed()))
+                        if (!ice_item.IsNullOrDestroyed() &&
+                            !fire_item.IsNullOrDestroyed() &&
+                            !ligtning_item.IsNullOrDestroyed() &&
+                            !poison_item.IsNullOrDestroyed())
                         {
                             Refs_Manager.unique_list.entryDictionary.Add(Ice.unique_id, ice_item);
                             Refs_Manager.unique_list.entryDictionary.Add(Fire.unique_id, fire_item);
@@ -315,14 +315,14 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         {
                             if (ab.name == Save_Manager.instance.data.NewItems.HeraldOfIce.VFX)
                             {
-                                prefab_obj = Object.Instantiate(ab.abilityPrefab, Vector3.zero, Quaternion.identity);
+                                prefab_obj = Instantiate(ab.abilityPrefab, Vector3.zero, Quaternion.identity);
                                 prefab_obj.active = false;
                                 prefab_obj.name = "Herald of Ice prefab";
-                                SphereCollider collider = prefab_obj.GetComponent<UnityEngine.SphereCollider>();
-                                if ((!collider.IsNullOrDestroyed()) && (Save_Manager.instance.data.NewItems.HeraldOfIce.Enable_Radius))
+                                SphereCollider collider = prefab_obj.GetComponent<SphereCollider>();
+                                if (!collider.IsNullOrDestroyed() && Save_Manager.instance.data.NewItems.HeraldOfIce.Enable_Radius)
                                 { collider.radius = Save_Manager.instance.data.NewItems.HeraldOfIce.Radius; }
                                 CreateVfxOnDeath vfx_on_death = prefab_obj.GetComponent<CreateVfxOnDeath>();
-                                if ((!vfx_on_death.IsNullOrDestroyed()) && (Save_Manager.instance.data.NewItems.HeraldOfIce.Enable_Radius))
+                                if (!vfx_on_death.IsNullOrDestroyed() && Save_Manager.instance.data.NewItems.HeraldOfIce.Enable_Radius)
                                 { vfx_on_death.increasedRadius = Save_Manager.instance.data.NewItems.HeraldOfIce.Radius; }
                                 break;
                             }
@@ -396,15 +396,24 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 }                
                 public static void Launch(GameObject actor, Vector3 target_position)
                 {
-                    if ((!ability.IsNullOrDestroyed()) && (!prefab_obj.IsNullOrDestroyed()))
+                    if (!ability.IsNullOrDestroyed() && !prefab_obj.IsNullOrDestroyed())
                     {
-                        if (ability.abilityPrefab.IsNullOrDestroyed()) { ability.abilityPrefab = Object.Instantiate(prefab_obj, Vector3.zero, Quaternion.identity); }
+                        if (ability.abilityPrefab.IsNullOrDestroyed()) { ability.abilityPrefab = Instantiate(prefab_obj, Vector3.zero, Quaternion.identity); }
                         if (!ability.abilityPrefab.IsNullOrDestroyed())
                         {
                             //Vector3 position = new Vector3(target_position.x, target_position.y, (target_position.z + 10));
                             ability.abilityPrefab.active = true;
                             ability.CastAfterDelay(actor.GetComponent<AbilityObjectConstructor>(), target_position, target_position, 0f);
                         }
+                    }
+                }
+                public static void Update_LegendaryType(bool weaverwill)
+                {
+                    UniqueList.Entry item = UniqueList.getUnique(unique_id);
+                    if (!item.IsNullOrDestroyed())
+                    {
+                        if (weaverwill) { item.legendaryType = UniqueList.LegendaryType.WeaversWill; }
+                        else { item.legendaryType = UniqueList.LegendaryType.LegendaryPotential; }
                     }
                 }
 
@@ -515,14 +524,14 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         {
                             if (ab.name == Save_Manager.instance.data.NewItems.HeraldOfFire.VFX)
                             {
-                                prefab_obj = Object.Instantiate(ab.abilityPrefab, Vector3.zero, Quaternion.identity);
+                                prefab_obj = Instantiate(ab.abilityPrefab, Vector3.zero, Quaternion.identity);
                                 prefab_obj.active = false;
                                 prefab_obj.name = "Herald of Ash prefab";
-                                SphereCollider collider = prefab_obj.GetComponent<UnityEngine.SphereCollider>();
-                                if ((!collider.IsNullOrDestroyed()) && (Save_Manager.instance.data.NewItems.HeraldOfFire.Enable_Radius))
+                                SphereCollider collider = prefab_obj.GetComponent<SphereCollider>();
+                                if (!collider.IsNullOrDestroyed() && Save_Manager.instance.data.NewItems.HeraldOfFire.Enable_Radius)
                                 { collider.radius = Save_Manager.instance.data.NewItems.HeraldOfFire.Radius; }
                                 CreateVfxOnDeath vfx_on_death = prefab_obj.GetComponent<CreateVfxOnDeath>();
-                                if ((!vfx_on_death.IsNullOrDestroyed()) && (Save_Manager.instance.data.NewItems.HeraldOfFire.Enable_Radius))
+                                if (!vfx_on_death.IsNullOrDestroyed() && Save_Manager.instance.data.NewItems.HeraldOfFire.Enable_Radius)
                                 { vfx_on_death.increasedRadius = Save_Manager.instance.data.NewItems.HeraldOfFire.Radius; }
                                 break;
                             }
@@ -596,15 +605,24 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 }
                 public static void Launch(GameObject actor, Vector3 target_position)
                 {
-                    if ((!ability.IsNullOrDestroyed()) && (!prefab_obj.IsNullOrDestroyed()))
+                    if (!ability.IsNullOrDestroyed() && !prefab_obj.IsNullOrDestroyed())
                     {
-                        if (ability.abilityPrefab.IsNullOrDestroyed()) { ability.abilityPrefab = Object.Instantiate(prefab_obj, Vector3.zero, Quaternion.identity); }
+                        if (ability.abilityPrefab.IsNullOrDestroyed()) { ability.abilityPrefab = Instantiate(prefab_obj, Vector3.zero, Quaternion.identity); }
                         if (!ability.abilityPrefab.IsNullOrDestroyed())
                         {
                             //Vector3 position = new Vector3(target_position.x, target_position.y, (target_position.z + 10));
                             ability.abilityPrefab.active = true;
                             ability.CastAfterDelay(actor.GetComponent<AbilityObjectConstructor>(), target_position, target_position, 0f);
                         }
+                    }
+                }
+                public static void Update_LegendaryType(bool weaverwill)
+                {
+                    UniqueList.Entry item = UniqueList.getUnique(unique_id);
+                    if (!item.IsNullOrDestroyed())
+                    {
+                        if (weaverwill) { item.legendaryType = UniqueList.LegendaryType.WeaversWill; }
+                        else { item.legendaryType = UniqueList.LegendaryType.LegendaryPotential; }
                     }
                 }
 
@@ -715,14 +733,14 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         {
                             if (ab.name == Save_Manager.instance.data.NewItems.HeraldOfThunder.VFX)
                             {
-                                prefab_obj = Object.Instantiate(ab.abilityPrefab, Vector3.zero, Quaternion.identity);
+                                prefab_obj = Instantiate(ab.abilityPrefab, Vector3.zero, Quaternion.identity);
                                 prefab_obj.active = false;
                                 prefab_obj.name = "Herald of Thunder prefab";
-                                SphereCollider collider = prefab_obj.GetComponent<UnityEngine.SphereCollider>();
-                                if ((!collider.IsNullOrDestroyed()) && (Save_Manager.instance.data.NewItems.HeraldOfThunder.Enable_Radius))
+                                SphereCollider collider = prefab_obj.GetComponent<SphereCollider>();
+                                if (!collider.IsNullOrDestroyed() && Save_Manager.instance.data.NewItems.HeraldOfThunder.Enable_Radius)
                                 { collider.radius = Save_Manager.instance.data.NewItems.HeraldOfThunder.Radius; }
                                 CreateVfxOnDeath vfx_on_death = prefab_obj.GetComponent<CreateVfxOnDeath>();
-                                if((!vfx_on_death.IsNullOrDestroyed()) && (Save_Manager.instance.data.NewItems.HeraldOfThunder.Enable_Radius))
+                                if(!vfx_on_death.IsNullOrDestroyed() && Save_Manager.instance.data.NewItems.HeraldOfThunder.Enable_Radius)
                                 { vfx_on_death.increasedRadius = Save_Manager.instance.data.NewItems.HeraldOfThunder.Radius; }
                                 break;
                             }
@@ -796,15 +814,24 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 }
                 public static void Launch(GameObject actor, Vector3 target_position)
                 {
-                    if ((!ability.IsNullOrDestroyed()) && (!prefab_obj.IsNullOrDestroyed()))
+                    if (!ability.IsNullOrDestroyed() && !prefab_obj.IsNullOrDestroyed())
                     {
-                        if (ability.abilityPrefab.IsNullOrDestroyed()) { ability.abilityPrefab = Object.Instantiate(prefab_obj, Vector3.zero, Quaternion.identity); }
+                        if (ability.abilityPrefab.IsNullOrDestroyed()) { ability.abilityPrefab = Instantiate(prefab_obj, Vector3.zero, Quaternion.identity); }
                         if (!ability.abilityPrefab.IsNullOrDestroyed())
                         {
                             //Vector3 position = new Vector3(target_position.x, target_position.y, (target_position.z + 10));
                             ability.abilityPrefab.active = true;
                             ability.CastAfterDelay(actor.GetComponent<AbilityObjectConstructor>(), target_position, target_position, 0f);
                         }
+                    }
+                }
+                public static void Update_LegendaryType(bool weaverwill)
+                {
+                    UniqueList.Entry item = UniqueList.getUnique(unique_id);
+                    if (!item.IsNullOrDestroyed())
+                    {
+                        if (weaverwill) { item.legendaryType = UniqueList.LegendaryType.WeaversWill; }
+                        else { item.legendaryType = UniqueList.LegendaryType.LegendaryPotential; }
                     }
                 }
 
@@ -915,14 +942,14 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         {
                             if (ab.name == Save_Manager.instance.data.NewItems.HeraldOfAgony.VFX)
                             {
-                                prefab_obj = Object.Instantiate(ab.abilityPrefab, Vector3.zero, Quaternion.identity);
+                                prefab_obj = Instantiate(ab.abilityPrefab, Vector3.zero, Quaternion.identity);
                                 prefab_obj.active = false;
                                 prefab_obj.name = "Herald of Agony prefab";
-                                SphereCollider collider = prefab_obj.GetComponent<UnityEngine.SphereCollider>();
-                                if ((!collider.IsNullOrDestroyed()) && (Save_Manager.instance.data.NewItems.HeraldOfAgony.Enable_Radius))
+                                SphereCollider collider = prefab_obj.GetComponent<SphereCollider>();
+                                if (!collider.IsNullOrDestroyed() && Save_Manager.instance.data.NewItems.HeraldOfAgony.Enable_Radius)
                                 { collider.radius = Save_Manager.instance.data.NewItems.HeraldOfAgony.Radius; }
                                 CreateVfxOnDeath vfx_on_death = prefab_obj.GetComponent<CreateVfxOnDeath>();
-                                if ((!vfx_on_death.IsNullOrDestroyed()) && (Save_Manager.instance.data.NewItems.HeraldOfAgony.Enable_Radius))
+                                if (!vfx_on_death.IsNullOrDestroyed() && Save_Manager.instance.data.NewItems.HeraldOfAgony.Enable_Radius)
                                 { vfx_on_death.increasedRadius = Save_Manager.instance.data.NewItems.HeraldOfAgony.Radius; }
                                 break;
                             }
@@ -996,15 +1023,24 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 }
                 public static void Launch(GameObject actor, Vector3 target_position)
                 {
-                    if ((!ability.IsNullOrDestroyed()) && (!prefab_obj.IsNullOrDestroyed()))
+                    if (!ability.IsNullOrDestroyed() && !prefab_obj.IsNullOrDestroyed())
                     {
-                        if (ability.abilityPrefab.IsNullOrDestroyed()) { ability.abilityPrefab = Object.Instantiate(prefab_obj, Vector3.zero, Quaternion.identity); }
+                        if (ability.abilityPrefab.IsNullOrDestroyed()) { ability.abilityPrefab = Instantiate(prefab_obj, Vector3.zero, Quaternion.identity); }
                         if (!ability.abilityPrefab.IsNullOrDestroyed())
                         {
                             //Vector3 position = new Vector3(target_position.x, target_position.y, (target_position.z + 10));
                             ability.abilityPrefab.active = true;
                             ability.CastAfterDelay(actor.GetComponent<AbilityObjectConstructor>(), target_position, target_position, 0f);
                         }
+                    }
+                }
+                public static void Update_LegendaryType(bool weaverwill)
+                {
+                    UniqueList.Entry item = UniqueList.getUnique(unique_id);
+                    if (!item.IsNullOrDestroyed())
+                    {
+                        if (weaverwill) { item.legendaryType = UniqueList.LegendaryType.WeaversWill; }
+                        else { item.legendaryType = UniqueList.LegendaryType.LegendaryPotential; }
                     }
                 }
 
@@ -1034,21 +1070,21 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             public class InventoryItemUI_SetImageSpritesAndColours
             {
                 [HarmonyPostfix]
-                static void Postfix(ref Il2Cpp.InventoryItemUI __instance)
+                static void Postfix(ref InventoryItemUI __instance)
                 {
-                    if ((__instance.EntryRef.data.getAsUnpacked().FullName == Ice.Get_Unique_Name()) && (!Ice.Icon.IsNullOrDestroyed()))
+                    if (__instance.EntryRef.data.getAsUnpacked().FullName == Ice.Get_Unique_Name() && !Ice.Icon.IsNullOrDestroyed())
                     {
                         __instance.contentImage.sprite = Ice.Icon;
                     }
-                    else if ((__instance.EntryRef.data.getAsUnpacked().FullName == Fire.Get_Unique_Name()) && (!Fire.Icon.IsNullOrDestroyed()))
+                    else if (__instance.EntryRef.data.getAsUnpacked().FullName == Fire.Get_Unique_Name() && !Fire.Icon.IsNullOrDestroyed())
                     {
                         __instance.contentImage.sprite = Fire.Icon;
                     }
-                    else if ((__instance.EntryRef.data.getAsUnpacked().FullName == Lightning.Get_Unique_Name()) && (!Lightning.Icon.IsNullOrDestroyed()))
+                    else if (__instance.EntryRef.data.getAsUnpacked().FullName == Lightning.Get_Unique_Name() && !Lightning.Icon.IsNullOrDestroyed())
                     {
                         __instance.contentImage.sprite = Lightning.Icon;
                     }
-                    else if ((__instance.EntryRef.data.getAsUnpacked().FullName == Poison.Get_Unique_Name()) && (!Poison.Icon.IsNullOrDestroyed()))
+                    else if (__instance.EntryRef.data.getAsUnpacked().FullName == Poison.Get_Unique_Name() && !Poison.Icon.IsNullOrDestroyed())
                     {
                         __instance.contentImage.sprite = Poison.Icon;
                     }
@@ -1059,21 +1095,21 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             public class UITooltipItem_GetItemSprite
             {
                 [HarmonyPostfix]
-                static void Postfix(ref UnityEngine.Sprite __result, ItemData __0)
+                static void Postfix(ref Sprite __result, ItemData __0)
                 {
-                    if ((__0.getAsUnpacked().FullName == Ice.Get_Unique_Name()) && (!Ice.Icon.IsNullOrDestroyed()))
+                    if (__0.getAsUnpacked().FullName == Ice.Get_Unique_Name() && !Ice.Icon.IsNullOrDestroyed())
                     {
                         __result = Ice.Icon;
                     }
-                    else if ((__0.getAsUnpacked().FullName == Fire.Get_Unique_Name()) && (!Fire.Icon.IsNullOrDestroyed()))
+                    else if (__0.getAsUnpacked().FullName == Fire.Get_Unique_Name() && !Fire.Icon.IsNullOrDestroyed())
                     {
                         __result = Fire.Icon;
                     }
-                    else if ((__0.getAsUnpacked().FullName == Lightning.Get_Unique_Name()) && (!Lightning.Icon.IsNullOrDestroyed()))
+                    else if (__0.getAsUnpacked().FullName == Lightning.Get_Unique_Name() && !Lightning.Icon.IsNullOrDestroyed())
                     {
                         __result = Lightning.Icon;
                     }
-                    else if ((__0.getAsUnpacked().FullName == Poison.Get_Unique_Name()) && (!Poison.Icon.IsNullOrDestroyed()))
+                    else if (__0.getAsUnpacked().FullName == Poison.Get_Unique_Name() && !Poison.Icon.IsNullOrDestroyed())
                     {
                         __result = Poison.Icon;
                     }
@@ -1202,11 +1238,11 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 static bool Prefix(ref bool __result, string __0) //, Il2CppSystem.String __1)
                 {
                     bool result = true;
-                    if ((__0 == basic_subtype_name_key) ||
-                        (__0 == Ice.unique_name_key) || (__0 == Ice.unique_description_key) || (__0 == Ice.unique_lore_key) ||
-                        (__0 == Fire.unique_name_key) || (__0 == Fire.unique_description_key) || (__0 == Fire.unique_lore_key) ||
-                        (__0 == Lightning.unique_name_key) || (__0 == Lightning.unique_description_key) || (__0 == Lightning.unique_lore_key) ||
-                        (__0 == Poison.unique_name_key) || (__0 == Poison.unique_description_key) || (__0 == Poison.unique_lore_key))
+                    if (__0 == basic_subtype_name_key ||
+                        __0 == Ice.unique_name_key || __0 == Ice.unique_description_key || __0 == Ice.unique_lore_key ||
+                        __0 == Fire.unique_name_key || __0 == Fire.unique_description_key || __0 == Fire.unique_lore_key ||
+                        __0 == Lightning.unique_name_key || __0 == Lightning.unique_description_key || __0 == Lightning.unique_lore_key ||
+                        __0 == Poison.unique_name_key || __0 == Poison.unique_description_key || __0 == Poison.unique_lore_key)
                     {
                         __result = true;
                         result = false;
@@ -1225,7 +1261,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     bool result = true;
                     if (__0 == basic_subtype_name_key)
                     {
-                        __result = Languagues.Get_Subtype_Name();
+                        __result = Get_Subtype_Name();
                         result = false;
                     }
                     //Ice
@@ -1352,19 +1388,19 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             {
                 if (!Refs_Manager.player_actor.IsNullOrDestroyed())
                 {
-                    if ((Uniques.Ice.Equipped()) && (!Uniques.Ice.ability.IsNullOrDestroyed()))
+                    if (Uniques.Ice.Equipped() && !Uniques.Ice.ability.IsNullOrDestroyed())
                     {
                         Uniques.Ice.Launch(Refs_Manager.player_actor.gameObject, killedActor.position());
                     }
-                    if ((Uniques.Fire.Equipped()) && (!Uniques.Fire.ability.IsNullOrDestroyed()))
+                    if (Uniques.Fire.Equipped() && !Uniques.Fire.ability.IsNullOrDestroyed())
                     {
                         Uniques.Fire.Launch(Refs_Manager.player_actor.gameObject, killedActor.position());
                     }
-                    if ((Uniques.Lightning.Equipped()) && (!Uniques.Lightning.ability.IsNullOrDestroyed()))
+                    if (Uniques.Lightning.Equipped() && !Uniques.Lightning.ability.IsNullOrDestroyed())
                     {
                         Uniques.Lightning.Launch(Refs_Manager.player_actor.gameObject, killedActor.position());
                     }
-                    if ((Uniques.Poison.Equipped()) && (!Uniques.Poison.ability.IsNullOrDestroyed()))
+                    if (Uniques.Poison.Equipped() && !Uniques.Poison.ability.IsNullOrDestroyed())
                     {
                         Uniques.Poison.Launch(Refs_Manager.player_actor.gameObject, killedActor.position());
                     }
@@ -1392,19 +1428,19 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             {
                 if (!Refs_Manager.player_actor.IsNullOrDestroyed())
                 {
-                    if ((Uniques.Ice.Equipped()) && (!Uniques.Ice.ability.IsNullOrDestroyed()))
+                    if (Uniques.Ice.Equipped() && !Uniques.Ice.ability.IsNullOrDestroyed())
                     {
                         Uniques.Ice.Launch(summon.gameObject, killedActor.position());
                     }
-                    if ((Uniques.Fire.Equipped()) && (!Uniques.Fire.ability.IsNullOrDestroyed()))
+                    if (Uniques.Fire.Equipped() && !Uniques.Fire.ability.IsNullOrDestroyed())
                     {
                         Uniques.Fire.Launch(summon.gameObject, killedActor.position());
                     }
-                    if ((Uniques.Lightning.Equipped()) && (!Uniques.Lightning.ability.IsNullOrDestroyed()))
+                    if (Uniques.Lightning.Equipped() && !Uniques.Lightning.ability.IsNullOrDestroyed())
                     {
                         Uniques.Lightning.Launch(summon.gameObject, killedActor.position());
                     }
-                    if ((Uniques.Poison.Equipped()) && (!Uniques.Poison.ability.IsNullOrDestroyed()))
+                    if (Uniques.Poison.Equipped() && !Uniques.Poison.ability.IsNullOrDestroyed())
                     {
                         Uniques.Poison.Launch(summon.gameObject, killedActor.position());
                     }

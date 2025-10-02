@@ -5,7 +5,7 @@ using Il2CppLE.Services.Visuals;
 using MelonLoader;
 using UnityEngine;
 
-namespace LastEpoch_Hud.Scripts.Mods.Items
+namespace LastEpoch_Hud.Scripts.Mods.NewItems
 {
     [RegisterTypeInIl2Cpp]
     public class Items_EssentiaSanguis : MonoBehaviour
@@ -21,9 +21,9 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
         {
             if (Unique.Icon.IsNullOrDestroyed()) { Assets.Loaded = false; }
             if (!Assets.Loaded) { Assets.Load(); }
-            if ((Locales.current != Locales.Selected.Unknow) && (!Basic.AddedToBasicList)) { Basic.AddToBasicList(); }
-            if ((Locales.current != Locales.Selected.Unknow) && (!Unique.AddedToUniqueList)) { Unique.AddToUniqueList(); }
-            if ((Locales.current != Locales.Selected.Unknow) && (Unique.AddedToUniqueList) && (!Unique.AddedToDictionary)) { Unique.AddToDictionary(); }
+            if (Locales.current != Locales.Selected.Unknow && !Basic.AddedToBasicList) { Basic.AddToBasicList(); }
+            if (Locales.current != Locales.Selected.Unknow && !Unique.AddedToUniqueList) { Unique.AddToUniqueList(); }
+            if (Locales.current != Locales.Selected.Unknow && Unique.AddedToUniqueList && !Unique.AddedToDictionary) { Unique.AddToDictionary(); }
         }
 
         public class Assets
@@ -32,7 +32,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             public static bool loading = false;
             public static void Load()
             {
-                if ((!Loaded) && (!Hud_Manager.asset_bundle.IsNullOrDestroyed()) && (!loading))
+                if (!Loaded && !Hud_Manager.asset_bundle.IsNullOrDestroyed() && !loading)
                 {
                     loading = true;
                     try
@@ -41,7 +41,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         {
                             if (name.Contains("/essentiasanguis/"))
                             {
-                                if ((Functions.Check_Texture(name)) && (name.Contains("icon")) && (Unique.Icon.IsNullOrDestroyed()))
+                                if (Functions.Check_Texture(name) && name.Contains("icon") && Unique.Icon.IsNullOrDestroyed())
                                 {
                                     Texture2D texture = Hud_Manager.asset_bundle.LoadAsset(name).TryCast<Texture2D>();
                                     Unique.Icon = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
@@ -80,7 +80,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
 
             public static void AddToBasicList()
             {
-                if ((!AddedToBasicList) && (!Refs_Manager.item_list.IsNullOrDestroyed()))
+                if (!AddedToBasicList && !Refs_Manager.item_list.IsNullOrDestroyed())
                 {
                     Refs_Manager.item_list.EquippableItems[base_type].subItems.Add(Item());
                     AddedToBasicList = true;
@@ -160,7 +160,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
 
             public static void AddToUniqueList()
             {
-                if ((!AddedToUniqueList) && (!Refs_Manager.unique_list.IsNullOrDestroyed()))
+                if (!AddedToUniqueList && !Refs_Manager.unique_list.IsNullOrDestroyed())
                 {
                     try
                     {
@@ -173,7 +173,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             }
             public static void AddToDictionary()
             {
-                if ((AddedToUniqueList) && (!AddedToDictionary) && (!Refs_Manager.unique_list.IsNullOrDestroyed()))
+                if (AddedToUniqueList && !AddedToDictionary && !Refs_Manager.unique_list.IsNullOrDestroyed())
                 {
                     try
                     {
@@ -182,7 +182,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         {
                             foreach (UniqueList.Entry unique in Refs_Manager.unique_list.uniques)
                             {
-                                if ((unique.uniqueID == unique_id) && (unique.name == Get_Unique_Name()))
+                                if (unique.uniqueID == unique_id && unique.name == Get_Unique_Name())
                                 {
                                     item = unique;
                                     break;
@@ -344,9 +344,9 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             public class InventoryItemUI_SetImageSpritesAndColours
             {
                 [HarmonyPostfix]
-                static void Postfix(ref Il2Cpp.InventoryItemUI __instance)
+                static void Postfix(ref InventoryItemUI __instance)
                 {
-                    if ((__instance.EntryRef.data.getAsUnpacked().FullName == Get_Unique_Name()) && (!Icon.IsNullOrDestroyed()))
+                    if (__instance.EntryRef.data.getAsUnpacked().FullName == Get_Unique_Name() && !Icon.IsNullOrDestroyed())
                     {
                         __instance.contentImage.sprite = Icon;
                     }
@@ -357,9 +357,9 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             public class UITooltipItem_GetItemSprite
             {
                 [HarmonyPostfix]
-                static void Postfix(ref UnityEngine.Sprite __result, ItemData __0)
+                static void Postfix(ref Sprite __result, ItemData __0)
                 {
-                    if ((__0.getAsUnpacked().FullName == Get_Unique_Name()) && (!Icon.IsNullOrDestroyed()))
+                    if (__0.getAsUnpacked().FullName == Get_Unique_Name() && !Icon.IsNullOrDestroyed())
                     {
                         __result = Icon;
                     }
@@ -374,9 +374,9 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 [HarmonyPrefix]
                 static void Prefix(ClientVisualsService __instance, ref ItemVisualKey __0)
                 {
-                    if ((__0.EquipmentType == EquipmentType.GLOVES) &&
-                        (__0.SubType == Basic.base_id) &&
-                        (__0.UniqueID == Unique.unique_id))
+                    if (__0.EquipmentType == EquipmentType.GLOVES &&
+                        __0.SubType == Basic.base_id &&
+                        __0.UniqueID == Unique.unique_id)
                     {
                         __0.SubType = 0;
                         __0.UniqueID = 22; //Keeper's Gloves
@@ -393,7 +393,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 static bool Prefix(PlayerLeechTracker __instance, float __0)
                 {
                     bool r = true;
-                    if ((!Refs_Manager.player_actor.IsNullOrDestroyed()) && (!Refs_Manager.player_protection_class.IsNullOrDestroyed()))
+                    if (!Refs_Manager.player_actor.IsNullOrDestroyed() && !Refs_Manager.player_protection_class.IsNullOrDestroyed())
                     {
                         if (Refs_Manager.player_actor.itemContainersManager.hasUniqueEquipped(Unique.unique_id))
                         {
@@ -441,8 +441,8 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 static bool Prefix(ref bool __result, string __0) //, Il2CppSystem.String __1)
                 {
                     bool result = true;
-                    if ((__0 == basic_subtype_name_key) || (__0 == unique_name_key) ||
-                        (__0 == unique_description_key) || (__0 == unique_lore_key))
+                    if (__0 == basic_subtype_name_key || __0 == unique_name_key ||
+                        __0 == unique_description_key || __0 == unique_lore_key)
                     {
                         __result = true;
                         result = false;

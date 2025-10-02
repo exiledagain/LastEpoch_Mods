@@ -5,13 +5,14 @@ using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace LastEpoch_Hud.Scripts.Mods.Items
+namespace LastEpoch_Hud.Scripts.Mods.NewItems
 {
     [RegisterTypeInIl2Cpp]
     public class Items_HeadHunter : MonoBehaviour
     {
         public static Items_HeadHunter instance { get; private set; }
         public Items_HeadHunter(System.IntPtr ptr) : base(ptr) { }
+
         public static bool Initialized = false;
         bool InGame = false;
 
@@ -22,19 +23,18 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
         }        
         void Update()
         {
-            if ((Unique.Icon.IsNullOrDestroyed()) || (Config.json.IsNullOrDestroyed())) { Assets.Loaded = false; }            
-            if (!Assets.Loaded) { Assets.Load(); }
-            if ((Locales.current != Locales.Selected.Unknow) && (!Basic.AddedToBasicList)) { Basic.AddToBasicList(); }
-            if ((Locales.current != Locales.Selected.Unknow) && (!Unique.AddedToUniqueList)) { Unique.AddToUniqueList(); }
-            if ((Locales.current != Locales.Selected.Unknow) && (Unique.AddedToUniqueList) && (!Unique.AddedToDictionary)) { Unique.AddToDictionary(); }
+            if (!Assets.Loaded()) { Assets.Load(); }
+            else if (!Initialized) { Initialized = Config.LoadConfig(); }
+            if (Locales.current != Locales.Selected.Unknow)
+            {
+                if (!Basic.AddedToBasicList) { Basic.AddToBasicList(); }
+                if (!Unique.AddedToUniqueList) { Unique.AddToUniqueList(); }
+                else if (!Unique.AddedToDictionary) { Unique.AddToDictionary(); }
+            }
             if (!Events.OnKillEvent_Initialized) { Events.Init_OnKillEvent(); }
             if (!Events.OnMinionKillEvent_Initialized) { Events.Init_OnMinionKillEvent(); }
-
-            if ((!Initialized) && (Assets.Loaded) && (Basic.AddedToBasicList) && (Unique.AddedToUniqueList) &&
-                    (Events.OnKillEvent_Initialized) && (Events.OnMinionKillEvent_Initialized))
-            {
-                Initialized = Config.LoadConfig();
-            }
+            if (!UI.buffs_prefab.IsNullOrDestroyed() && UI.buffs_obj.IsNullOrDestroyed()) { UI.Init(); }
+            if (Unique.IsEquipped()) { UI.UpdateBuff(); }
         }        
         void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
@@ -42,7 +42,6 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             {
                 if (!InGame)
                 {
-                    //Check itemlist here
                     Events.OnKillEvent_Initialized = false;
                     Events.OnMinionKillEvent_Initialized = false;
                 }
@@ -53,39 +52,298 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
 
         public class Assets
         {
-            public static bool Loaded = false;
-            public static bool loading = false;
+            private static bool loading = false;
+
+            public static bool Loaded()
+            {
+                bool result = false;
+                if (!Unique.Icon.IsNullOrDestroyed() &&
+                    !Config.json.IsNullOrDestroyed() &&
+                    !UI.buffs_prefab.IsNullOrDestroyed() &&
+                    !UI.buffs_prefab.IsNullOrDestroyed())
+                {
+                    result = true;
+                }
+
+                return result;
+            }
             public static void Load()
             {
-                if ((!Loaded) && (!Hud_Manager.asset_bundle.IsNullOrDestroyed()) && (!loading))
+                if (!Hud_Manager.asset_bundle.IsNullOrDestroyed() && !loading)
                 {
                     loading = true;
-                    try
+                    foreach (string name in Hud_Manager.asset_bundle.GetAllAssetNames())
                     {
-                        foreach (string name in Hud_Manager.asset_bundle.GetAllAssetNames())
+                        if (name.Contains("/headhunter/"))
                         {
-                            if (name.Contains("/headhunter/"))
+                            if (Functions.Check_Texture(name) && name.Contains("icon") && Unique.Icon.IsNullOrDestroyed())
                             {
-                                if ((Functions.Check_Texture(name)) && (name.Contains("icon")) && (Unique.Icon.IsNullOrDestroyed()))
-                                {
-                                    Texture2D texture = Hud_Manager.asset_bundle.LoadAsset(name).TryCast<Texture2D>();
-                                    Unique.Icon = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
-                                    //Object.DontDestroyOnLoad(Unique.Icon);
-                                }
-                                else if ((Functions.Check_Json(name)) && (name.Contains("hh_buffs")) && (Config.json.IsNullOrDestroyed()))
-                                {
-                                    Config.json = Hud_Manager.asset_bundle.LoadAsset(name).TryCast<TextAsset>();
-                                    //Object.DontDestroyOnLoad(Config.json);
-                                }
+                                Texture2D texture = Hud_Manager.asset_bundle.LoadAsset(name).TryCast<Texture2D>();
+                                Unique.Icon = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
+                            }
+                            else if (Functions.Check_Json(name) && name.Contains("hh_buffs") && Config.json.IsNullOrDestroyed())
+                            {
+                                Config.json = Hud_Manager.asset_bundle.LoadAsset(name).TryCast<TextAsset>();
+                            }
+                            else if (Functions.Check_Prefab(name) && name.Contains("buffs.prefab"))
+                            {
+                                UI.buffs_prefab = Hud_Manager.asset_bundle.LoadAsset(name).TryCast<GameObject>();
+                            }
+                            else if (Functions.Check_Prefab(name) && name.Contains("buff.prefab"))
+                            {
+                                UI.buff_prefab = Hud_Manager.asset_bundle.LoadAsset(name).TryCast<GameObject>();
                             }
                         }
-                        if ((!Unique.Icon.IsNullOrDestroyed()) && (!Config.json.IsNullOrDestroyed())) { Loaded = true; }
-                        else { Loaded = false; }
                     }
-                    catch { Main.logger_instance?.Error("Headhunter Asset Error"); }
                     loading = false;
                 }
             }
+        }
+        public class UI
+        {
+            public static bool Initializing = false;
+            public static GameObject buffs_prefab = null;
+            public static GameObject buffs_obj = null;
+            public static GameObject buff_prefab = null;
+
+            public static void Init()
+            {
+                if (!Initializing && !Refs_Manager.game_uibase.IsNullOrDestroyed())
+                {
+                    Initializing = true;
+                    buffs_obj = Instantiate(buffs_prefab, Vector3.zero, Quaternion.identity);
+                    DontDestroyOnLoad(buffs_obj);
+                    buffs_obj.transform.SetParent(Refs_Manager.game_uibase.transform);
+                    Initializing = false;
+                }
+            }
+            public static void AddBuff(string buff_name, int stack, SP property)
+            {
+                RemoveBuff(buff_name);
+                if (!buffs_obj.IsNullOrDestroyed())
+                {
+                    GameObject buffs_content = Functions.GetChild(buffs_obj, "Panel");
+                    if (!buffs_content.IsNullOrDestroyed())
+                    {
+                        GameObject obj = Instantiate(buff_prefab, Vector3.zero, Quaternion.identity);
+                        obj.name = buff_name;
+                        obj.transform.SetParent(buffs_content.transform);
+                        GameObject panel_icon_obj = Functions.GetChild(obj, "Panel_Icon");
+                        if (!panel_icon_obj.IsNullOrDestroyed())
+                        {
+                            GameObject icon_obj = Functions.GetChild(panel_icon_obj, "Icon");
+                            if (!icon_obj.IsNullOrDestroyed())
+                            {
+                                Sprite icon = GetBuffIcon(property);
+                                UnityEngine.UI.Image img = icon_obj.GetComponent<UnityEngine.UI.Image>();
+                                if (!img.IsNullOrDestroyed() && !icon.IsNullOrDestroyed()) { img.sprite = icon; }
+                            }
+                        }
+                        GameObject stack_obj = Functions.GetChild(obj, "Panel_Stack");
+                        if (!stack_obj.IsNullOrDestroyed())
+                        {
+                            GameObject text_obj = Functions.GetChild(stack_obj, "Text (Legacy)");
+                            if (!text_obj.IsNullOrDestroyed())
+                            {
+                                UnityEngine.UI.Text text = text_obj.GetComponent<UnityEngine.UI.Text>();
+                                if (!text.IsNullOrDestroyed()) { text.text = stack.ToString(); }
+                            }
+                        }
+                    }
+                }
+            }
+            public static void RemoveBuff(string buff_name)
+            {
+                if (!buffs_obj.IsNullOrDestroyed())
+                {
+                    GameObject buffs_content = Functions.GetChild(buffs_obj, "Panel");
+                    if (!buffs_content.IsNullOrDestroyed())
+                    {
+                        foreach (GameObject obj in Functions.GetAllChild(buffs_content))
+                        {
+                            if (obj.name == buff_name)
+                            {
+                                Destroy(obj);
+                                //break;
+                            }
+                        }
+                    }
+                }
+            }
+            public static void UpdateBuff()
+            {
+                if (!buffs_obj.IsNullOrDestroyed())
+                {
+                    GameObject buffs_content = Functions.GetChild(buffs_obj, "Panel");
+                    if (!buffs_content.IsNullOrDestroyed())
+                    {
+                        foreach (GameObject obj in Functions.GetAllChild(buffs_content))
+                        {
+                            bool found = false;
+                            foreach (Buff buff in PlayerFinder.getPlayerActor().statBuffs.buffs)
+                            {
+                                if (obj.name == buff.name)
+                                {
+                                    found = true;
+                                    GameObject icon_obj = Functions.GetChild(obj, "Panel_Icon");
+                                    if (!icon_obj.IsNullOrDestroyed())
+                                    {
+                                        GameObject timer_obj = Functions.GetChild(icon_obj, "Timer");
+                                        if (!timer_obj.IsNullOrDestroyed())
+                                        {
+                                            UnityEngine.UI.Image img = timer_obj.GetComponent<UnityEngine.UI.Image>();
+                                            if (!img.IsNullOrDestroyed()) { img.fillAmount = buff.remainingDuration / Save_Manager.instance.data.NewItems.Headhunter.BuffDuration; }
+                                        }
+                                        GameObject timer__text_obj = Functions.GetChild(icon_obj, "Timer_Text");
+                                        if (!timer__text_obj.IsNullOrDestroyed())
+                                        {
+                                            UnityEngine.UI.Text text = timer__text_obj.GetComponent<UnityEngine.UI.Text>();
+                                            if (!text.IsNullOrDestroyed()) { text.text = buff.remainingDuration.ToString("0.#"); }
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                            if (!found) { Destroy(obj); }
+                        }
+                    }
+                }
+            }
+            public static Sprite GetBuffIcon(SP stat)
+            {
+                Sprite result = null;
+                string search_str = "";
+                switch (stat)
+                {
+                    case SP.Damage: search_str = "c-damage buff"; break;
+                    case SP.AilmentChance: search_str = ""; break;
+                    case SP.AttackSpeed: search_str = "c-Attack Speed Buff (generic)"; break;
+                    case SP.CastSpeed: search_str = "castspeed"; break;
+                    case SP.CriticalChance: search_str = "c-critical strike chance buff_1"; break;
+                    case SP.CriticalMultiplier: search_str = "c-critical strike damage buff"; break;
+                    case SP.DamageTaken: search_str = ""; break;
+                    case SP.Health: search_str = "c-Health Regeneration Buff (generic)_2"; break;
+                    case SP.Mana: search_str = "c-Mana Regeneration Buff (generic)"; break;
+                    case SP.Movespeed: search_str = ""; break;
+                    case SP.Armour: search_str = "c-armor buff"; break;
+                    case SP.DodgeRating: search_str = "dodge chance"; break;
+                    case SP.StunAvoidance: search_str = ""; break;
+                    case SP.FireResistance: search_str = "fire-buff"; break;
+                    case SP.ColdResistance: search_str = "cold-buff"; break;
+                    case SP.LightningResistance: search_str = "lightning-buff"; break;
+                    case SP.WardRetention: search_str = "c-Ward Retention Buff (generic)"; break;
+                    case SP.HealthRegen: search_str = "c-Health Regeneration Buff (generic)"; break;
+                    case SP.ManaRegen: search_str = "c-Mana Regeneration Buff (generic)"; break;
+                    case SP.Strength: search_str = ""; break;
+                    case SP.Vitality: search_str = ""; break;
+                    case SP.Intelligence: search_str = ""; break;
+                    case SP.Dexterity: search_str = ""; break;
+                    case SP.Attunement: search_str = ""; break;
+                    case SP.ManaBeforeHealthPercent: search_str = ""; break;
+                    case SP.ChannelCost: search_str = "Channel"; break;
+                    case SP.VoidResistance: search_str = ""; break;
+                    case SP.NecroticResistance: search_str = ""; break;
+                    case SP.PoisonResistance: search_str = ""; break;
+                    case SP.BlockChance: search_str = "c-block buff"; break;
+                    case SP.AllResistances: search_str = "gg-resistances"; break;
+                    case SP.DamageTakenAsPhysical: search_str = ""; break;
+                    case SP.DamageTakenAsFire: search_str = ""; break;
+                    case SP.DamageTakenAsCold: search_str = ""; break;
+                    case SP.DamageTakenAsLightning: search_str = ""; break;
+                    case SP.DamageTakenAsNecrotic: search_str = ""; break;
+                    case SP.DamageTakenAsVoid: search_str = ""; break;
+                    case SP.DamageTakenAsPoison: search_str = ""; break;
+                    case SP.HealthGain: search_str = ""; break;
+                    case SP.WardGain: search_str = ""; break;
+                    case SP.ManaGain: search_str = ""; break;
+                    case SP.AdaptiveSpellDamage: search_str = ""; break;
+                    case SP.IncreasedAilmentDuration: search_str = ""; break;
+                    case SP.IncreasedAilmentEffect: search_str = ""; break;
+                    case SP.IncreasedHealing: search_str = ""; break;
+                    case SP.IncreasedStunChance: search_str = "stun chance 1"; break;
+                    case SP.AllAttributes: search_str = "gg-attributescale"; break;
+                    case SP.IncreasedPotionDropRate: search_str = ""; break;
+                    case SP.PotionHealth: search_str = ""; break;
+                    case SP.PotionSlots: search_str = ""; break;
+                    case SP.HasteOnHitChance: search_str = ""; break;
+                    case SP.HealthLeech: search_str = ""; break;
+                    case SP.ElementalResistance: search_str = ""; break;
+                    case SP.BlockEffectiveness: search_str = ""; break;
+                    case SP.IncreasedStunImmunityDuration: search_str = ""; break;
+                    case SP.StunImmunity: search_str = ""; break;
+                    case SP.ManaDrain: search_str = ""; break;
+                    case SP.AbilityProperty: search_str = ""; break;
+                    case SP.Penetration: search_str = ""; break;
+                    case SP.CurrentHealthDrain: search_str = ""; break;
+                    case SP.MaximumCompanions: search_str = ""; break;
+                    case SP.GlancingBlowChance: search_str = ""; break;
+                    case SP.CullPercentFromPassives: search_str = ""; break;
+                    case SP.PhysicalResistance: search_str = ""; break;
+                    case SP.CullPercentFromWeapon: search_str = ""; break;
+                    case SP.ManaCost: search_str = ""; break;
+                    case SP.FreezeRateMultiplier: search_str = "Freeze buff"; break;
+                    case SP.IncreasedChanceToBeFrozen: search_str = ""; break;
+                    case SP.ManaEfficiency: search_str = ""; break;
+                    case SP.IncreasedCooldownRecoverySpeed: search_str = ""; break;
+                    case SP.ReceivedStunDuration: search_str = ""; break;
+                    case SP.NegativePhysicalResistance: search_str = ""; break;
+                    case SP.ChillRetaliationChance: search_str = ""; break;
+                    case SP.SlowRetaliationChance: search_str = ""; break;
+                    case SP.Endurance: search_str = ""; break;
+                    case SP.EnduranceThreshold: search_str = ""; break;
+                    case SP.NegativeArmour: search_str = ""; break;
+                    case SP.NegativeFireResistance: search_str = ""; break;
+                    case SP.NegativeColdResistance: search_str = ""; break;
+                    case SP.NegativeLightningResistance: search_str = ""; break;
+                    case SP.NegativeVoidResistance: search_str = ""; break;
+                    case SP.NegativeNecroticResistance: search_str = ""; break;
+                    case SP.NegativePoisonResistance: search_str = ""; break;
+                    case SP.NegativeElementalResistance: search_str = ""; break;
+                    case SP.Thorns: search_str = ""; break;
+                    case SP.PercentReflect: search_str = ""; break;
+                    case SP.ShockRetaliationChance: search_str = ""; break;
+                    case SP.LevelOfSkills: search_str = ""; break;
+                    case SP.CritAvoidance: search_str = ""; break;
+                    case SP.PotionHealthConvertedToWard: search_str = ""; break;
+                    case SP.WardOnPotionUse: search_str = ""; break;
+                    case SP.WardRegen: search_str = ""; break;
+                    case SP.OverkillLeech: search_str = ""; break;
+                    case SP.ManaBeforeWardPercent: search_str = ""; break;
+                    case SP.IncreasedStunDuration: search_str = ""; break;
+                    case SP.MaximumHealthGainedAsEnduranceThreshold: search_str = ""; break;
+                    case SP.ChanceToGain30WardWhenHit: search_str = ""; break;
+                    case SP.PlayerProperty: search_str = ""; break;
+                    case SP.ManaSpentGainedAsWard: search_str = ""; break;
+                    case SP.AilmentConversion: search_str = ""; break;
+                    case SP.PerceivedUnimportanceModifier: search_str = ""; break;
+                    case SP.IncreasedLeechRate: search_str = ""; break;
+                    case SP.MoreFreezeRatePerStackOfChill: search_str = "Freeze buff"; break;
+                    case SP.IncreasedDropRate: search_str = ""; break;
+                    case SP.IncreasedExperience: search_str = ""; break;
+                    case SP.PhysicalAndVoidResistance: search_str = ""; break;
+                    case SP.NecroticAndPoisonResistance: search_str = ""; break;
+                    case SP.DamageTakenBuff: search_str = ""; break;
+                    case SP.IncreasedChanceToBeStunned: search_str = ""; break;
+                    case SP.DamageTakenFromNearbyEnemies: search_str = ""; break;
+                    case SP.BlockChanceAgainstDistantEnemies: search_str = ""; break;
+                    case SP.ChanceToBeCrit: search_str = ""; break;
+                    case SP.DamageTakenWhileMoving: search_str = ""; break;
+                    case SP.ReducedBonusDamageTakenFromCrits: search_str = ""; break;
+                    case SP.DamagePerStackOfAilment: search_str = ""; break;
+                    case SP.IncreasedAreaForAreaSkills: search_str = ""; break;
+                    case SP.GlobalConditionalDamage: search_str = ""; break;
+                    case SP.ArmourMitigationAppliesToDamageOverTime: search_str = ""; break;
+                }
+                if (search_str != "")
+                {
+                    foreach (Sprite s in Resources.FindObjectsOfTypeAll<Sprite>())
+                    {
+                        if (s.name == search_str) { result = s; break; }
+                    }
+                }
+                
+                return result;
+            }              
         }
         public class Basic
         {
@@ -99,7 +357,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     classRequirement = ItemList.ClassRequirement.None,
                     implicits = implicits(),
                     subClassRequirement = ItemList.SubClassRequirement.None,
-                    cannotDrop = true, //Save_Manager.instance.data.Items.Headhunter.BaseDrop,
+                    cannotDrop = true,
                     itemTags = ItemLocationTag.None,
                     levelRequirement = 40,
                     name = Get_Subtype_Name(),
@@ -111,7 +369,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             
             public static void AddToBasicList()
             {
-                if ((!AddedToBasicList) && (!Refs_Manager.item_list.IsNullOrDestroyed()))
+                if (!Refs_Manager.item_list.IsNullOrDestroyed())
                 {
                     Refs_Manager.item_list.EquippableItems[base_type].subItems.Add(Item());
                     AddedToBasicList = true;
@@ -181,7 +439,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     subTypes = SubType(),
                     mods = Mods(),
                     tooltipDescriptions = TooltipDescription(),
-                    loreText = Get_Unique_Lore(), //lore,
+                    loreText = Get_Unique_Lore(),
                     tooltipEntries = TooltipEntries(),
                     oldSubTypeID = 0,
                     oldUniqueID = 0
@@ -192,42 +450,34 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             
             public static void AddToUniqueList()
             {
-                if ((!AddedToUniqueList) && (!Refs_Manager.unique_list.IsNullOrDestroyed()))
+                if (!Refs_Manager.unique_list.IsNullOrDestroyed())
                 {
-                    try
-                    {
-                        UniqueList.getUnique(0); //force initialize uniquelist
-                        Refs_Manager.unique_list.uniques.Add(Item());
-                        AddedToUniqueList = true;
-                    }
-                    catch { Main.logger_instance?.Error("HH Unique List Error"); }                   
-                }                
+                    UniqueList.getUnique(0);
+                    Refs_Manager.unique_list.uniques.Add(Item());
+                    AddedToUniqueList = true;
+                }
             }      
             public static void AddToDictionary()
             {
-                if ((AddedToUniqueList) && (!AddedToDictionary) && (!Refs_Manager.unique_list.IsNullOrDestroyed()))
+                if (!Refs_Manager.unique_list.IsNullOrDestroyed())
                 {
-                    try
+                    UniqueList.Entry item = null;
+                    if (Refs_Manager.unique_list.uniques.Count > 1)
                     {
-                        UniqueList.Entry item = null;
-                        if (Refs_Manager.unique_list.uniques.Count > 1)
+                        foreach (UniqueList.Entry unique in Refs_Manager.unique_list.uniques)
                         {
-                            foreach (UniqueList.Entry unique in Refs_Manager.unique_list.uniques)
+                            if (unique.uniqueID == unique_id && unique.name == Get_Unique_Name())
                             {
-                                if ((unique.uniqueID == unique_id) && (unique.name == Get_Unique_Name()))
-                                {
-                                    item = unique;
-                                    break;
-                                }
+                                item = unique;
+                                break;
                             }
                         }
-                        if (!item.IsNullOrDestroyed())
-                        {
-                            Refs_Manager.unique_list.entryDictionary.Add(unique_id, item);
-                            AddedToDictionary = true;
-                        }
                     }
-                    catch { Main.logger_instance?.Error("HH Unique Dictionary Error"); }
+                    if (!item.IsNullOrDestroyed())
+                    {
+                        Refs_Manager.unique_list.entryDictionary.Add(unique_id, item);
+                        AddedToDictionary = true;
+                    }
                 }
             }
             public static string Get_Unique_Name()
@@ -254,16 +504,16 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 string result = "";
                 switch (Locales.current)
                 {
-                    case Locales.Selected.English: { result = HHLocales.UniqueDescription.en; break; }
-                    case Locales.Selected.French: { result = HHLocales.UniqueDescription.fr; break; }
+                    case Locales.Selected.English: { result = HHLocales.UniqueDescription.en(); break; }
+                    case Locales.Selected.French: { result = HHLocales.UniqueDescription.fr(); break; }
                     
-                    case Locales.Selected.Korean: { result = HHLocales.UniqueDescription.en; break; }
-                    case Locales.Selected.German: { result = HHLocales.UniqueDescription.en; break; }
-                    case Locales.Selected.Russian: { result = HHLocales.UniqueDescription.en; break; }
-                    case Locales.Selected.Polish: { result = HHLocales.UniqueDescription.en; break; }
-                    case Locales.Selected.Portuguese: { result = HHLocales.UniqueDescription.en; break; }
-                    case Locales.Selected.Chinese: { result = HHLocales.UniqueDescription.en; break; }
-                    case Locales.Selected.Spanish: { result = HHLocales.UniqueDescription.en; break; }
+                    case Locales.Selected.Korean: { result = HHLocales.UniqueDescription.en(); break; }
+                    case Locales.Selected.German: { result = HHLocales.UniqueDescription.en(); break; }
+                    case Locales.Selected.Russian: { result = HHLocales.UniqueDescription.en(); break; }
+                    case Locales.Selected.Polish: { result = HHLocales.UniqueDescription.en(); break; }
+                    case Locales.Selected.Portuguese: { result = HHLocales.UniqueDescription.en(); break; }
+                    case Locales.Selected.Chinese: { result = HHLocales.UniqueDescription.en(); break; }
+                    case Locales.Selected.Spanish: { result = HHLocales.UniqueDescription.en(); break; }
                 }
 
                 return result;
@@ -287,12 +537,29 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
 
                 return result;
             }
+            public static bool IsEquipped()
+            {
+                bool result = false;
+                if (!Refs_Manager.player_actor.IsNullOrDestroyed())
+                {
+                    if (Refs_Manager.player_actor.itemContainersManager.hasUniqueEquipped(unique_id)) { result = true; }
+                }
+
+                return result;
+            }
+            public static void Update_LegendaryType()
+            {
+                UniqueList.Entry item = UniqueList.getUnique(unique_id);
+                if (!item.IsNullOrDestroyed())
+                {
+                    item.legendaryType = LegendaryType();
+                }
+            }
 
             private static Il2CppSystem.Collections.Generic.List<byte> SubType()
             {
                 Il2CppSystem.Collections.Generic.List<byte> result = new Il2CppSystem.Collections.Generic.List<byte>();
-                byte r = (byte)Basic.base_id;
-                result.Add(r);
+                result.Add((byte)Basic.base_id);
 
                 return result;
             }
@@ -306,7 +573,8 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     tags = AT.None,
                     type = BaseStats.ModType.ADDED,
                     maxValue = 55,
-                    value = 40
+                    value = 40,
+                    hideInTooltip = false
                 });
                 result.Add(new UniqueItemMod
                 {
@@ -315,7 +583,8 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     tags = AT.None,
                     type = BaseStats.ModType.ADDED,
                     maxValue = 55,
-                    value = 40
+                    value = 40,
+                    hideInTooltip = false
                 });
                 result.Add(new UniqueItemMod
                 {
@@ -324,7 +593,8 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     tags = AT.None,
                     type = BaseStats.ModType.ADDED,
                     maxValue = 60,
-                    value = 50
+                    value = 50,
+                    hideInTooltip = false
                 });
                 result.Add(new UniqueItemMod
                 {
@@ -333,7 +603,8 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                     tags = AT.None,
                     type = BaseStats.ModType.INCREASED,
                     maxValue = 0.3f,
-                    value = 0.2f
+                    value = 0.2f,
+                    hideInTooltip = false
                 });
 
                 return result;
@@ -359,19 +630,18 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             private static UniqueList.LegendaryType LegendaryType()
             {
                 UniqueList.LegendaryType legendaryType = UniqueList.LegendaryType.LegendaryPotential;
-                if (Save_Manager.instance.data.Items.Headhunter.WeaverWill) { legendaryType = UniqueList.LegendaryType.WeaversWill; }
+                if (Save_Manager.instance.data.NewItems.Headhunter.WeaverWill) { legendaryType = UniqueList.LegendaryType.WeaversWill; }
 
                 return legendaryType;
             }
         
-            //Fix for V1.2 (icon in inventory)
             [HarmonyPatch(typeof(InventoryItemUI), "SetImageSpritesAndColours")]
             public class InventoryItemUI_SetImageSpritesAndColours
             {
                 [HarmonyPostfix]
-                static void Postfix(ref Il2Cpp.InventoryItemUI __instance)
+                static void Postfix(ref InventoryItemUI __instance)
                 {
-                    if ((__instance.EntryRef.data.getAsUnpacked().FullName == Get_Unique_Name()) && (!Icon.IsNullOrDestroyed()))
+                    if (__instance.EntryRef.data.getAsUnpacked().FullName == Get_Unique_Name() && !Icon.IsNullOrDestroyed())
                     {
                         __instance.contentImage.sprite = Icon;
                     }
@@ -382,9 +652,9 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             public class UITooltipItem_GetItemSprite
             {
                 [HarmonyPostfix]
-                static void Postfix(ref UnityEngine.Sprite __result, ItemData __0)
+                static void Postfix(ref Sprite __result, ItemData __0)
                 {
-                    if ((__0.getAsUnpacked().FullName == Get_Unique_Name()) && (!Icon.IsNullOrDestroyed()))
+                    if (__0.getAsUnpacked().FullName == Get_Unique_Name() && !Icon.IsNullOrDestroyed())
                     {
                         __result = Icon;
                     }
@@ -395,52 +665,47 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
         {
             public static TextAsset json = null;
             public static System.Collections.Generic.List<RandomBuffs.HH_Buff> HH_Buff_Config = new System.Collections.Generic.List<RandomBuffs.HH_Buff>();
-            public static System.Collections.Generic.List<RandomBuffs.HH_Buff> HH_Buff_Config_Backup = new System.Collections.Generic.List<RandomBuffs.HH_Buff>();
             public static bool LoadConfig()
             {
                 bool result = false;
                 if (!Save_Manager.instance.IsNullOrDestroyed())
                 {
-                    HH_Buff_Config = new System.Collections.Generic.List<RandomBuffs.HH_Buff>();
-                    HH_Buff_Config_Backup = new System.Collections.Generic.List<RandomBuffs.HH_Buff>();
-                    if (!System.IO.File.Exists(Save_Manager.instance.path + filename)) { DefaultConfig(); }
-                    else
+                    try
                     {
-                        try
-                        {
-                            HH_Buff_Config = JsonConvert.DeserializeObject<System.Collections.Generic.List<RandomBuffs.HH_Buff>>(System.IO.File.ReadAllText(Save_Manager.instance.path + filename));
-                            HH_Buff_Config_Backup = HH_Buff_Config;
-                            RandomBuffs.Generate_HH_BuffsList();
-                        }
-                        catch { DefaultConfig(); }
+                        HH_Buff_Config = JsonConvert.DeserializeObject<System.Collections.Generic.List<RandomBuffs.HH_Buff>>(System.IO.File.ReadAllText(Save_Manager.instance.path + filename));
                         result = true;
                     }
+                    catch { result = DefaultConfig(); }
+                    if (result) { RandomBuffs.Generate_HH_BuffsList(); }
                 }
 
                 return result;
-            }
-            public static void SaveConfig()
+            }            
+
+            private static string filename = "hh_buffs.json";
+            private static bool DefaultConfig()
             {
-                HH_Buff_Config_Backup = HH_Buff_Config; //Use to check if buffs changed                
+                bool result = false;
+                try
+                {
+                    HH_Buff_Config = JsonConvert.DeserializeObject<System.Collections.Generic.List<RandomBuffs.HH_Buff>>(json.text);
+                    SaveConfig();
+                    result = true;
+                }
+                catch { }
+
+                return result;
+            }
+            private static void SaveConfig()
+            {
                 string jsonString = JsonConvert.SerializeObject(HH_Buff_Config, Formatting.Indented);
                 if (!System.IO.Directory.Exists(Save_Manager.instance.path)) { System.IO.Directory.CreateDirectory(Save_Manager.instance.path); }
                 if (System.IO.File.Exists(Save_Manager.instance.path + filename)) { System.IO.File.Delete(Save_Manager.instance.path + filename); }
                 System.IO.File.WriteAllText(Save_Manager.instance.path + filename, jsonString);
-                RandomBuffs.Generate_HH_BuffsList();
-            }
-
-            private static string filename = "hh_buffs.json";
-            private static void DefaultConfig()
-            {
-                HH_Buff_Config = JsonConvert.DeserializeObject<System.Collections.Generic.List<RandomBuffs.HH_Buff>>(json.text);
-                HH_Buff_Config_Backup = HH_Buff_Config;
-                SaveConfig();
             }
         }
         public class RandomBuffs
         {
-            //public static int Max_Stack = 10; //Edit max Buff stack
-
             public struct HH_Buff
             {
                 public string property;
@@ -452,35 +717,20 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             public static string hh_buff = "HHBuff";
             public static void GenerateBuffs()
             {
-                int NbBuff = Random.Range(Save_Manager.instance.data.Items.Headhunter.MinGenerated, Save_Manager.instance.data.Items.Headhunter.MaxGenerated + 1);
+                int NbBuff = Random.Range(Save_Manager.instance.data.NewItems.Headhunter.MinGenerated, Save_Manager.instance.data.NewItems.Headhunter.MaxGenerated + 1);
                 for (int i = 0; i < NbBuff; i++)
                 {
                     Buff random_buff = Generate_Random_HHBuff();
-                    int max_stack = (int)Save_Manager.instance.data.Items.Headhunter.Stack;
+                    int max_stack = (int)Save_Manager.instance.data.NewItems.Headhunter.Stack;
                     if (max_stack == 0)
                     {
                         max_stack = 1;
-                        Save_Manager.instance.data.Items.Headhunter.Stack = 1;
+                        Save_Manager.instance.data.NewItems.Headhunter.Stack = 1;
                     }
-                    //int max_addvalue = Max_Stack;
-                    //int max_increasedvalue = Max_Stack;
-                    bool found = false;
-                    foreach (var p in Config.HH_Buff_Config)
-                    {
-                        if (random_buff.name.Contains(p.property))
-                        {
-                            //if ((p.max_added > 0) && (p.max_added < max_addvalue)) { max_addvalue = p.max_added; }
-                            //if ((p.max_increased > 0) && (p.max_increased < max_increasedvalue)) { max_increasedvalue -= p.max_increased; }
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) { Main.logger_instance?.Msg("Error : Property " + random_buff.name + " Not Found"); }
                     if (random_buff != null)
                     {
                         //player
                         UpdateBuff(PlayerFinder.getPlayerActor(), random_buff, max_stack);
-                        //UpdateBuff(PlayerFinder.getPlayerActor(), random_buff, max_addvalue, max_increasedvalue);
                         
                         //Summons
                         if (!Refs_Manager.summon_tracker.IsNullOrDestroyed())
@@ -488,18 +738,18 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                             foreach (Summoned summon in Refs_Manager.summon_tracker.summons)
                             {
                                 UpdateBuff(summon.actor, random_buff, max_stack);
-                                //UpdateBuff(summon.actor, random_buff, max_addvalue, max_increasedvalue);
                             }
                         }
                     }
                 }
             }
-            public static void UpdateBuff(Actor actor, Buff random_buff, int max_stack) // int max_addvalue, int max_increasedvalue)
+            public static void UpdateBuff(Actor actor, Buff random_buff, int max_stack)
             {
                 if (!actor.IsNullOrDestroyed())
                 {
                     float old_value = 0;
                     string BuffToRemove = "";
+                    int stack = 1;
                     foreach (Buff buff in actor.statBuffs.buffs)
                     {
                         if (buff.name.Contains(random_buff.name))
@@ -509,30 +759,41 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                             if (!GetIsIncrease(buff))
                             {
                                 old_value = buff.stat.addedValue;
-                                if (old_value < (Save_Manager.instance.data.Items.Headhunter.AddValue * max_stack))
+                                if (old_value < Save_Manager.instance.data.NewItems.Headhunter.AddValue * max_stack)
                                 {
-                                    new_value = old_value + Save_Manager.instance.data.Items.Headhunter.AddValue;
+                                    new_value = old_value + Save_Manager.instance.data.NewItems.Headhunter.AddValue;
+                                    stack = (int)(new_value / Save_Manager.instance.data.NewItems.Headhunter.AddValue);
                                 }
-                                else { new_value = (Save_Manager.instance.data.Items.Headhunter.AddValue * max_stack); }
+                                else
+                                {
+                                    new_value = Save_Manager.instance.data.NewItems.Headhunter.AddValue * max_stack;
+                                    stack = max_stack;
+                                }
                                 random_buff.stat.addedValue = new_value;
                             }
                             else
                             {
                                 old_value = buff.stat.increasedValue;
-                                if (old_value < (Save_Manager.instance.data.Items.Headhunter.IncreasedValue * max_stack))
+                                if (old_value < Save_Manager.instance.data.NewItems.Headhunter.IncreasedValue * max_stack)
                                 {
-                                    new_value = old_value + Save_Manager.instance.data.Items.Headhunter.IncreasedValue;
+                                    new_value = old_value + Save_Manager.instance.data.NewItems.Headhunter.IncreasedValue;
+                                    stack = (int)(new_value / Save_Manager.instance.data.NewItems.Headhunter.IncreasedValue);
                                 }
-                                else { new_value = (Save_Manager.instance.data.Items.Headhunter.IncreasedValue * max_stack); }
+                                else
+                                {
+                                    new_value = Save_Manager.instance.data.NewItems.Headhunter.IncreasedValue * max_stack;
+                                    stack = max_stack;
+                                }
                                 random_buff.stat.increasedValue = new_value;
                             }
                             break;
                         }
                     }
-                    if (BuffToRemove != null) { actor.statBuffs.removeBuffsWithName(BuffToRemove); }
+                    if (BuffToRemove != "") { actor.statBuffs.removeBuffsWithName(BuffToRemove); }
                     actor.statBuffs.addBuff(random_buff.remainingDuration, random_buff.stat.property,
                         random_buff.stat.addedValue, random_buff.stat.increasedValue, random_buff.stat.moreValues,
                         random_buff.stat.tags, random_buff.stat.specialTag, random_buff.name);
+                    if (actor == PlayerFinder.getPlayerActor()) { UI.AddBuff(random_buff.name, stack, random_buff.stat.property); }
                 }
             }
             public static void Generate_HH_BuffsList()
@@ -581,7 +842,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 bool addedd = false;
                 SP property = SP.None;
 
-                if ((HH_Buff_Add.Count > 0) && (HH_Buff_Increased.Count > 0))
+                if (HH_Buff_Add.Count > 0 && HH_Buff_Increased.Count > 0)
                 {
                     int add_increase = Random.Range(0, 2);
                     if (add_increase == 0) { addedd = true; }
@@ -598,7 +859,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         string property_name = HH_Buff_Add[random].property;
                         property = GetPropertyFromName(property_name);
                         name += "Add ";
-                        addedValue = Save_Manager.instance.data.Items.Headhunter.AddValue;
+                        addedValue = Save_Manager.instance.data.NewItems.Headhunter.AddValue;
                     }
                     else
                     {
@@ -607,7 +868,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         string property_name = HH_Buff_Increased[random].property;
                         property = GetPropertyFromName(property_name);
                         name += "Increased ";
-                        increasedValue = Save_Manager.instance.data.Items.Headhunter.IncreasedValue;
+                        increasedValue = Save_Manager.instance.data.NewItems.Headhunter.IncreasedValue;
                     }
                     if (property != SP.None)
                     {
@@ -615,7 +876,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                         result = new Buff
                         {
                             name = name,
-                            remainingDuration = Save_Manager.instance.data.Items.Headhunter.BuffDuration,
+                            remainingDuration = Save_Manager.instance.data.NewItems.Headhunter.BuffDuration,
                             stat = new Stats.Stat
                             {
                                 addedValue = addedValue,
@@ -666,12 +927,18 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             }
             public class UniqueDescription
             {
-                public static string en = "When you or your minions Kill a monster, you gain " + Save_Manager.instance.data.Items.Headhunter.MinGenerated +
-                    " to " + Save_Manager.instance.data.Items.Headhunter.MaxGenerated + " random Modifiers for " +
-                    Save_Manager.instance.data.Items.Headhunter.BuffDuration + " seconds";
-                public static string fr = "Lorsque vous ou vos serviteurs tuez un monstre, vous gagnez " + Save_Manager.instance.data.Items.Headhunter.MinGenerated +
-                    " à " + Save_Manager.instance.data.Items.Headhunter.MaxGenerated + " modificateurs aléatoires pendant " +
-                    Save_Manager.instance.data.Items.Headhunter.BuffDuration + " secondes.";                
+                public static string en()
+                {
+                    return "When you or your minions Kill a monster, you gain " + Save_Manager.instance.data.NewItems.Headhunter.MinGenerated +
+                    " to " + Save_Manager.instance.data.NewItems.Headhunter.MaxGenerated + " random Modifiers for " +
+                    Save_Manager.instance.data.NewItems.Headhunter.BuffDuration + " seconds";
+                }
+                public static string fr()
+                {
+                    return "Lorsque vous ou vos serviteurs tuez un monstre, vous gagnez " + Save_Manager.instance.data.NewItems.Headhunter.MinGenerated +
+                    " à " + Save_Manager.instance.data.NewItems.Headhunter.MaxGenerated + " modificateurs aléatoires pendant " +
+                    Save_Manager.instance.data.NewItems.Headhunter.BuffDuration + " secondes.";
+                }
                 //Add all languages here
             }
             public class Lore
@@ -689,8 +956,8 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
                 static bool Prefix(ref bool __result, string __0) //, Il2CppSystem.String __1)
                 {
                     bool result = true;
-                    if ((__0 == basic_subtype_name_key) || (__0 == unique_name_key) ||
-                        (__0 == unique_description_key) || (__0 == unique_lore_key))
+                    if (__0 == basic_subtype_name_key || __0 == unique_name_key ||
+                        __0 == unique_description_key || __0 == unique_lore_key)
                     {
                         __result = true;
                         result = false;
@@ -761,13 +1028,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             private static readonly System.Action<Ability, Actor> OnKillAction = new System.Action<Ability, Actor>(OnKill);
             private static void OnKill(Ability ability, Actor killedActor)
             {
-                if (!Refs_Manager.player_actor.IsNullOrDestroyed())
-                {
-                    if (Refs_Manager.player_actor.itemContainersManager.hasUniqueEquipped(Unique.unique_id))
-                    {
-                        RandomBuffs.GenerateBuffs();
-                    }
-                }
+                if (Unique.IsEquipped()) { RandomBuffs.GenerateBuffs(); }
             }
 
             public static bool OnMinionKillEvent_Initialized = false;
@@ -789,13 +1050,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Items
             private static readonly System.Action<Summoned, Ability, Actor> OnMinionKillAction = new System.Action<Summoned, Ability, Actor>(OnMinionKill);
             private static void OnMinionKill(Summoned summon, Ability ability, Actor killedActor)
             {
-                if (!Refs_Manager.player_actor.IsNullOrDestroyed())
-                {
-                    if (Refs_Manager.player_actor.itemContainersManager.hasUniqueEquipped(Unique.unique_id))
-                    {
-                        RandomBuffs.GenerateBuffs();
-                    }
-                }
+                if (Unique.IsEquipped()) { RandomBuffs.GenerateBuffs(); }
             }
         }        
     }

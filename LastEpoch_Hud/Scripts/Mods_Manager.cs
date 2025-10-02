@@ -9,33 +9,41 @@ namespace LastEpoch_Hud.Scripts
         public Mods_Manager(System.IntPtr ptr) : base(ptr) { }
         public static Mods_Manager instance { get; private set; }
 
+        GameObject bank_quad_obj = null;
+
         GameObject character_autopotion_obj = null;
-        GameObject character_potionreplenishment_obj = null;
+        GameObject character_bank_from_anywhere = null;
         GameObject character_blessings_obj = null;
         GameObject character_godmode_obj = null;
         GameObject character_lowlife_obj = null;
         GameObject character_masteries_obj = null;
-        GameObject character_bank_from_anywhere = null;
         GameObject character_permanentbuffs_obj = null;
+        GameObject character_potionreplenishment_obj = null;
         GameObject character_safetp_obj = null;
-        GameObject items_nbsocket_obj = null;
-        GameObject items_autosell_timer_obj = null;
-        GameObject items_headhunter_obj = null;
-        GameObject items_mjolner_obj = null;
-        GameObject items_sandsofsilk_obj = null;
-        GameObject items_essentiasanguis_obj = null;
-        GameObject minimap_icons_obj = null;
-        GameObject monoliths_complete_objectives_obj = null;
-        GameObject bank_quad_obj = null;
+        GameObject character_twohanded_with_shield_obj = null;
+
         GameObject craft_max_tier_obj = null;
-        GameObject twohanded_with_shield_obj = null;
-        GameObject items_autopickup_obj = null;
-        GameObject timebeast_spawn_obj = null;
-        //GameObject runeprison_spawn_obj = null;
-        GameObject summon_godmode_obj = null;
-        GameObject summon_forever_obj = null;
+
+        GameObject items_autopickup_obj = null;        
+        GameObject items_autosell_timer_obj = null;
+        GameObject items_nbsocket_obj = null;
+
+        GameObject minimap_icons_obj = null;
+
+        GameObject monoliths_complete_objectives_obj = null;
+
+        GameObject newitems_headhunter_obj = null;
+        GameObject newitems_mjolner_obj = null;
+        GameObject newitems_sandsofsilk_obj = null;
+        GameObject newitems_essentiasanguis_obj = null;
+        GameObject newitems_heralds_obj = null;
+        
+        GameObject spawn_timebeast_obj = null;
+                
         GameObject summon_collider_obj = null;
-        GameObject heralds_obj = null;
+        GameObject summon_forever_obj = null;
+        GameObject summon_godmode_obj = null;
+
 
         bool initialized = false;
         bool enable = false;
@@ -47,19 +55,25 @@ namespace LastEpoch_Hud.Scripts
             Main.logger_instance?.Msg("Mods Manager : Initialize");
             Il2CppSystem.Collections.Generic.List<GameObject> Mods_Objects = new Il2CppSystem.Collections.Generic.List<GameObject>();
 
+            //Bank Il2cpp Mods
+            bank_quad_obj = Object.Instantiate(new GameObject { name = "Mod_Bank_Quad" }, Vector3.zero, Quaternion.identity);
+            bank_quad_obj.AddComponent<Mods.Bank.Bank_Quad>();
+            Mods_Objects.Add(bank_quad_obj);
+
+            //Characters Il2cpp Mods
             character_autopotion_obj = Object.Instantiate(new GameObject { name = "Mod_Character_AutoPotion" }, Vector3.zero, Quaternion.identity);
             character_autopotion_obj.active = false;
             character_autopotion_obj.AddComponent<Mods.Character.Character_AutoPotions>();
             Mods_Objects.Add(character_autopotion_obj);
 
-            character_potionreplenishment_obj = Object.Instantiate(new GameObject { name = "Mod_Character_PotionReplenishment" }, Vector3.zero, Quaternion.identity);
-            character_potionreplenishment_obj.AddComponent<Mods.Character.Character_PotionReplenishment>();
-            Mods_Objects.Add(character_potionreplenishment_obj);
+            character_bank_from_anywhere = Object.Instantiate(new GameObject { name = "Mod_Character_Bank_Anywhere" }, Vector3.zero, Quaternion.identity);
+            character_bank_from_anywhere.AddComponent<Mods.Character.Character_Bank_Anywhere>();
+            Mods_Objects.Add(character_bank_from_anywhere);
 
             character_blessings_obj = Object.Instantiate(new GameObject { name = "Mod_Character_Blessings" }, Vector3.zero, Quaternion.identity);
             character_blessings_obj.AddComponent<Mods.Character.Character_Blessings>();
             Mods_Objects.Add(character_blessings_obj);
-            
+
             character_godmode_obj = Object.Instantiate(new GameObject { name = "Mod_Character_GodMode" }, Vector3.zero, Quaternion.identity);
             character_godmode_obj.active = false;
             character_godmode_obj.AddComponent<Mods.Character.Character_GodMode>();
@@ -73,91 +87,90 @@ namespace LastEpoch_Hud.Scripts
             character_masteries_obj = Object.Instantiate(new GameObject { name = "Mod_Character_Masteries" }, Vector3.zero, Quaternion.identity);
             character_masteries_obj.AddComponent<Mods.Character.Character_Masteries>();
             Mods_Objects.Add(character_masteries_obj);
-
-            character_permanentbuffs_obj = Object.Instantiate(new GameObject { name = "Mod_Character_Buffs" }, Vector3.zero, Quaternion.identity);
+            
+            character_permanentbuffs_obj = Object.Instantiate(new GameObject { name = "Mod_Character_PermanentBuffs" }, Vector3.zero, Quaternion.identity);
             character_permanentbuffs_obj.AddComponent<Mods.Character.Character_PermanentBuffs>();
             Mods_Objects.Add(character_permanentbuffs_obj);
-                        
+
+            character_potionreplenishment_obj = Object.Instantiate(new GameObject { name = "Mod_Character_PotionReplenishment" }, Vector3.zero, Quaternion.identity);
+            character_potionreplenishment_obj.AddComponent<Mods.Character.Character_PotionReplenishment>();
+            Mods_Objects.Add(character_potionreplenishment_obj);
+
             character_safetp_obj = Object.Instantiate(new GameObject { name = "Mod_Character_SafeTp" }, Vector3.zero, Quaternion.identity);
             character_safetp_obj.AddComponent<Mods.Character.Character_TpSafe>();
             Mods_Objects.Add(character_safetp_obj);
 
-            items_nbsocket_obj = Object.Instantiate(new GameObject { name = "Mod_Items_NbSocket" }, Vector3.zero, Quaternion.identity);
-            items_nbsocket_obj.AddComponent<Mods.Items.Items_SocketsNb>();
-            Mods_Objects.Add(items_nbsocket_obj);
+            character_twohanded_with_shield_obj = Object.Instantiate(new GameObject { name = "Mod_Character_TwoHanded_with_Shield" }, Vector3.zero, Quaternion.identity);
+            character_twohanded_with_shield_obj.AddComponent<Mods.Character.Character_TwoHandedShield>();
+            Mods_Objects.Add(character_twohanded_with_shield_obj);
+
+            //Craft Il2cpp Mods
+            craft_max_tier_obj = Object.Instantiate(new GameObject { name = "Mod_Craft_MaxTier" }, Vector3.zero, Quaternion.identity);
+            craft_max_tier_obj.AddComponent<Mods.Craft.Craft_MaxTier>();
+            Mods_Objects.Add(craft_max_tier_obj);
+
+            //Items Il2cpp Mods
+            items_autopickup_obj = Object.Instantiate(new GameObject { name = "Mod_Items_AutoPickupItems" }, Vector3.zero, Quaternion.identity);
+            items_autopickup_obj.AddComponent<Mods.Items.Items_AutoPickup_Items>();
+            Mods_Objects.Add(items_autopickup_obj);
 
             items_autosell_timer_obj = Object.Instantiate(new GameObject { name = "Mod_Items_AutoStore_All10Sec" }, Vector3.zero, Quaternion.identity);
             items_autosell_timer_obj.active = false;
             items_autosell_timer_obj.AddComponent<Mods.Items.Items_AutoStore_WithTimer>();
             Mods_Objects.Add(items_autosell_timer_obj);
 
-            items_headhunter_obj = Object.Instantiate(new GameObject { name = "Mod_Items_Headhunter" }, Vector3.zero, Quaternion.identity);
-            items_headhunter_obj.AddComponent<Mods.Items.Items_HeadHunter>();
-            Mods_Objects.Add(items_headhunter_obj);
-
-            items_mjolner_obj = Object.Instantiate(new GameObject { name = "Mod_Items_Mjolner" }, Vector3.zero, Quaternion.identity);
-            items_mjolner_obj.AddComponent<Mods.Items.Items_Mjolner>();
-            Mods_Objects.Add(items_mjolner_obj);
-
-            items_sandsofsilk_obj = Object.Instantiate(new GameObject { name = "Mod_Items_SandsOfSilk" }, Vector3.zero, Quaternion.identity);
-            items_sandsofsilk_obj.AddComponent<Mods.Items.Items_SandsOfSilk>();
-            Mods_Objects.Add(items_sandsofsilk_obj);
-
-            items_essentiasanguis_obj = Object.Instantiate(new GameObject { name = "Mod_Items_EssentiaSanguis" }, Vector3.zero, Quaternion.identity);
-            items_essentiasanguis_obj.AddComponent<Mods.Items.Items_EssentiaSanguis>();
-            Mods_Objects.Add(items_essentiasanguis_obj);
-
-            heralds_obj = Object.Instantiate(new GameObject { name = "Mod_Items_Heralds" }, Vector3.zero, Quaternion.identity);
-            heralds_obj.AddComponent<Mods.Items.Items_Heralds>();
-            Mods_Objects.Add(heralds_obj);
-
-            twohanded_with_shield_obj = Object.Instantiate(new GameObject { name = "Mod_TwoHanded_with_Shield" }, Vector3.zero, Quaternion.identity);
-            twohanded_with_shield_obj.AddComponent<Mods.Character.Character_TwoHandedShield>();
-            Mods_Objects.Add(twohanded_with_shield_obj);
-
-            items_autopickup_obj = Object.Instantiate(new GameObject { name = "Mod_AutoPickupItems" }, Vector3.zero, Quaternion.identity);
-            items_autopickup_obj.AddComponent<Mods.Items.Items_AutoPickup_Items>();
-            Mods_Objects.Add(items_autopickup_obj);
-
-            character_bank_from_anywhere = Object.Instantiate(new GameObject { name = "Mod_Bank_Anywhere" }, Vector3.zero, Quaternion.identity);
-            character_bank_from_anywhere.AddComponent<Mods.Character.Character_Bank_Anywhere>();
-            Mods_Objects.Add(character_bank_from_anywhere);
-
+            items_nbsocket_obj = Object.Instantiate(new GameObject { name = "Mod_Items_NbSocket" }, Vector3.zero, Quaternion.identity);
+            items_nbsocket_obj.AddComponent<Mods.Items.Items_SocketsNb>();
+            Mods_Objects.Add(items_nbsocket_obj);
+            
+            //Minimap Il2cpp Mods
             minimap_icons_obj = Object.Instantiate(new GameObject { name = "Mod_Minimap_Icons" }, Vector3.zero, Quaternion.identity);
             minimap_icons_obj.AddComponent<Mods.Minimap.Minimap_Icons>();
             Mods_Objects.Add(minimap_icons_obj);
 
+            //Monolith Il2cpp Mods
             monoliths_complete_objectives_obj = Object.Instantiate(new GameObject { name = "Mod_Monoliths_Complete_Objectives" }, Vector3.zero, Quaternion.identity);
             monoliths_complete_objectives_obj.AddComponent<Mods.Monoliths.Monoliths_CompleteObjective>();
             Mods_Objects.Add(monoliths_complete_objectives_obj);
 
-            bank_quad_obj = Object.Instantiate(new GameObject { name = "mod_bank_quad" }, Vector3.zero, Quaternion.identity);
-            bank_quad_obj.AddComponent<Mods.Bank.Bank_Quad>();
-            Mods_Objects.Add(bank_quad_obj);
+            //NewItems Il2cpp Mods
+            newitems_essentiasanguis_obj = Object.Instantiate(new GameObject { name = "Mod_NewItems_EssentiaSanguis" }, Vector3.zero, Quaternion.identity);
+            newitems_essentiasanguis_obj.AddComponent<Mods.NewItems.Items_EssentiaSanguis>();
+            Mods_Objects.Add(newitems_essentiasanguis_obj);
 
-            craft_max_tier_obj = Object.Instantiate(new GameObject { name = "mod_craft_max_tier" }, Vector3.zero, Quaternion.identity);
-            craft_max_tier_obj.AddComponent<Mods.Craft.Craft_MaxTier>();
-            Mods_Objects.Add(craft_max_tier_obj);
+            newitems_headhunter_obj = Object.Instantiate(new GameObject { name = "Mod_NewItems_Headhunter" }, Vector3.zero, Quaternion.identity);
+            newitems_headhunter_obj.AddComponent<Mods.NewItems.Items_HeadHunter>();
+            Mods_Objects.Add(newitems_headhunter_obj);
 
-            timebeast_spawn_obj = Object.Instantiate(new GameObject { name = "mod_spawn_time_beast" }, Vector3.zero, Quaternion.identity);
-            timebeast_spawn_obj.AddComponent<Mods.Spawn.TimeBeast>();
-            Mods_Objects.Add(timebeast_spawn_obj);
+            newitems_heralds_obj = Object.Instantiate(new GameObject { name = "Mod_NewItems_Heralds" }, Vector3.zero, Quaternion.identity);
+            newitems_heralds_obj.AddComponent<Mods.NewItems.Items_Heralds>();
+            Mods_Objects.Add(newitems_heralds_obj);
 
-            summon_godmode_obj = Object.Instantiate(new GameObject { name = "mod_summon_godmode" }, Vector3.zero, Quaternion.identity);
-            summon_godmode_obj.AddComponent<Mods.Summon.Summon_GodMode>();
-            Mods_Objects.Add(summon_godmode_obj);
+            newitems_mjolner_obj = Object.Instantiate(new GameObject { name = "Mod_NewItems_Mjolner" }, Vector3.zero, Quaternion.identity);
+            newitems_mjolner_obj.AddComponent<Mods.NewItems.Items_Mjolner>();
+            Mods_Objects.Add(newitems_mjolner_obj);
 
-            summon_forever_obj = Object.Instantiate(new GameObject { name = "mod_summon_forever" }, Vector3.zero, Quaternion.identity);
-            summon_forever_obj.AddComponent<Mods.Summon.Summon_Forever>();
-            Mods_Objects.Add(summon_forever_obj);
+            newitems_sandsofsilk_obj = Object.Instantiate(new GameObject { name = "Mod_NewItems_SandsOfSilk" }, Vector3.zero, Quaternion.identity);
+            newitems_sandsofsilk_obj.AddComponent<Mods.NewItems.Items_SandsOfSilk>();
+            Mods_Objects.Add(newitems_sandsofsilk_obj);
 
-            summon_collider_obj = Object.Instantiate(new GameObject { name = "mod_summon_collider" }, Vector3.zero, Quaternion.identity);
+            //Spawn Il2cpp Mods
+            spawn_timebeast_obj = Object.Instantiate(new GameObject { name = "Mod_Spawn_TimeBeast" }, Vector3.zero, Quaternion.identity);
+            spawn_timebeast_obj.AddComponent<Mods.Spawn.TimeBeast>();
+            Mods_Objects.Add(spawn_timebeast_obj);
+
+            //Summon Il2cpp Mods
+            summon_collider_obj = Object.Instantiate(new GameObject { name = "Mod_Summon_Collider" }, Vector3.zero, Quaternion.identity);
             summon_collider_obj.AddComponent<Mods.Summon.Summon_Collider>();
             Mods_Objects.Add(summon_collider_obj);
 
-            /*runeprison_spawn_obj = Object.Instantiate(new GameObject { name = "mod_spawn_rune_prison" }, Vector3.zero, Quaternion.identity);
-            runeprison_spawn_obj.AddComponent<Mods.Spawn.RunePrison>();
-            Mods_Objects.Add(runeprison_spawn_obj);*/
+            summon_forever_obj = Object.Instantiate(new GameObject { name = "Mod_Summon_Forever" }, Vector3.zero, Quaternion.identity);
+            summon_forever_obj.AddComponent<Mods.Summon.Summon_Forever>();
+            Mods_Objects.Add(summon_forever_obj);
+
+            summon_godmode_obj = Object.Instantiate(new GameObject { name = "Mod_Summon_GodMode" }, Vector3.zero, Quaternion.identity);
+            summon_godmode_obj.AddComponent<Mods.Summon.Summon_GodMode>();
+            Mods_Objects.Add(summon_godmode_obj);
 
             foreach (GameObject mod in Mods_Objects) { Object.DontDestroyOnLoad(mod); }
             Mods_Objects.Clear();
