@@ -662,12 +662,16 @@ namespace LastEpoch_Hud.Scripts
                             try
                             {
                                 int i = System.Convert.ToInt32(__instance.name.Split('_')[1]);
-                                //GameObject shard_id_object = Functions.GetChild(shard_btn_object, "shard_id");
-                                //Text shard_id = shard_id_object.GetComponent<Text>();
-
                                 GameObject shard_name_object = Functions.GetChild(__instance.gameObject, "shard_name");
-                                Text shard_name = shard_name_object.GetComponent<Text>();
-                                Content.OdlForceDrop.SelectShard(i, shard_name.text);
+                                if (!shard_name_object.IsNullOrDestroyed())
+                                {
+                                    GameObject text = Functions.GetChild(shard_name_object, "Text");
+                                    if (!text.IsNullOrDestroyed())
+                                    {
+                                        Text shard_name = text.GetComponent<Text>();
+                                        Content.OdlForceDrop.SelectShard(i, shard_name.text);
+                                    }
+                                }
                             }
                             catch { }
                         }
