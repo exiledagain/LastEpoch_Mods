@@ -1,11 +1,14 @@
 ﻿using HarmonyLib;
 using Il2Cpp;
 using Il2CppLE.Data;
+using Il2CppLE.Tools;
+using Il2CppOperationResult;
 using Il2CppRewired.Components; //Gamepad
 using Il2CppSystem.Collections.Generic;
 using Il2CppTMPro;
 using LastEpoch_Hud.Scripts.Mods.NewItems;
 using MelonLoader;
+using Newtonsoft.Json;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices; //Gamepad
@@ -33,8 +36,7 @@ namespace LastEpoch_Hud.Scripts
         private bool data_initializing = false;
 
         private bool updating = false;        
-        public static bool enable = false; //Used to wait loading (Fix_PlayerLoopHelper)
-
+        public static bool enable = false; //Used to wait loading (Fix_PlayerLoopHelper)        
 
 #if WINGAMEPAD
         public static PlayerMouse virtual_mouse = null;
@@ -42,6 +44,7 @@ namespace LastEpoch_Hud.Scripts
         public static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint cButtons, uint dwExtraInfo);
         private const int MOUSEEVENTF_LEFTDOWN = 0x02;
         private const int MOUSEEVENTF_LEFTUP = 0x04;
+
 #endif
 #if KEYBOARD
         private bool exit = false;
@@ -54,7 +57,7 @@ namespace LastEpoch_Hud.Scripts
             AssetBundleCreateRequest bundleLoadRequest = AssetBundle.LoadFromFileAsync(Path.Combine(asset_path, asset_bundle_name));
             asset_bundle = bundleLoadRequest.assetBundle;
             if (asset_bundle == null) { Main.logger_instance.Error("AssetBundle Error"); }
-            else { Object.DontDestroyOnLoad(asset_bundle); }
+            else { Object.DontDestroyOnLoad(asset_bundle); }            
         }
         void Update()
         {
@@ -93,6 +96,10 @@ namespace LastEpoch_Hud.Scripts
                             if (Refs_Manager.epoch_input_manager.forceDisableInput) { Refs_Manager.epoch_input_manager.forceDisableInput = false; }
                             if (virtual_mouse.IsNullOrDestroyed()) { virtual_mouse = Refs_Manager.epoch_input_manager.virtualMouse; }
                         }
+                        if (Content.OdlForceDrop.enable)
+                        {
+                            VirtualKeyboard.instance.MoveTo(Content.OdlForceDrop.center_content_1, Content.OdlForceDrop.shards_filter_name);
+                        }
                         if ((Input.GetKeyDown(KeyCode.Joystick1Button0)) && (!virtual_mouse.IsNullOrDestroyed())) //A
                         {
                             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -128,7 +135,7 @@ namespace LastEpoch_Hud.Scripts
                 {
                     if ((Functions.Check_Prefab(name)) && (name.Contains("/hud/")) && (name.Contains("hud.prefab")))
                     {
-                        if (Main.debug) { Main.logger_instance.Msg("Hud Manager : Dhud prefab found"); }
+                        if (Main.debug) { Main.logger_instance.Msg("Hud Manager : Hud prefab found"); }
                         asset_name = name;
                         break;
                     }
@@ -659,7 +666,7 @@ namespace LastEpoch_Hud.Scripts
                                 //Text shard_id = shard_id_object.GetComponent<Text>();
 
                                 GameObject shard_name_object = Functions.GetChild(__instance.gameObject, "shard_name");
-                                Text shard_name = shard_name_object.GetComponent<Text>();                                
+                                Text shard_name = shard_name_object.GetComponent<Text>();
                                 Content.OdlForceDrop.SelectShard(i, shard_name.text);
                             }
                             catch { }
@@ -750,7 +757,7 @@ namespace LastEpoch_Hud.Scripts
                                     case "Toggle_Items_Drop_ForceSeal": { Save_Manager.instance.data.Items.Drop.Enable_ForceSeal = __instance.isOn; break; }
                                     case "Toggle_Items_Drop_SealTier": { Save_Manager.instance.data.Items.Drop.Enable_SealTier = __instance.isOn; break; }
                                     case "Toggle_Items_Drop_SealValue": { Save_Manager.instance.data.Items.Drop.Enable_SealValue = __instance.isOn; break; }
-                                    case "Toggle_Items_Drop_NbAffixes": { Save_Manager.instance.data.Items.Drop.Enable_AffixCount = __instance.isOn; break; }                                    
+                                    case "Toggle_Items_Drop_NbAffixes": { Save_Manager.instance.data.Items.Drop.Enable_AffixCount = __instance.isOn; break; }
                                     case "Toggle_Items_Drop_AffixesTiers": { Save_Manager.instance.data.Items.Drop.Enable_AffixTiers = __instance.isOn; break; }
                                     case "Toggle_Items_Drop_AffixesValues": { Save_Manager.instance.data.Items.Drop.Enable_AffixValues = __instance.isOn; break; }
                                     case "Toggle_Items_Drop_UniqueMods": { Save_Manager.instance.data.Items.Drop.Enable_UniqueMods = __instance.isOn; break; }
@@ -906,9 +913,9 @@ namespace LastEpoch_Hud.Scripts
                                     case "Toggle_DreadShades_DisableLimit": { Save_Manager.instance.data.Skills.Minions.DreadShades.Enable_DisableLimit = __instance.isOn; break; }
                                     case "Toggle_DreadShades_DisableHealthDrain": { Save_Manager.instance.data.Skills.Minions.DreadShades.Enable_DisableHealthDrain = __instance.isOn; break; }
                                 }
-                            }                            
+                            }
                         }
-                    }                    
+                    }
                 }
             }
 
@@ -993,7 +1000,7 @@ namespace LastEpoch_Hud.Scripts
                                             {
                                                 Refs_Manager.player_data.Deaths = (int)__0;
                                             }
-                                            
+
                                             //Content.Character.Data.deaths_text.text = ((int)__0).ToString();
                                             break;
                                         }
@@ -1158,7 +1165,7 @@ namespace LastEpoch_Hud.Scripts
                                         {
                                             if (Save_Manager.instance.data.Items.Drop.AffixCount_Max != __0) { Save_Manager.instance.data.Items.Drop.AffixCount_Max = __0; }
                                             if (__0 < Save_Manager.instance.data.Items.Drop.AffixCount_Min) { Content.Items.Drop.affix_count_slider_min.value = __0; }
-                                            
+
                                             break;
                                         }
                                     case "Slider_Items_Drop_AffixesTiers_Min":
@@ -1239,7 +1246,7 @@ namespace LastEpoch_Hud.Scripts
 
                                     case "Slider_Items_Craft_SealTier": { Save_Manager.instance.data.Items.CraftingSlot.Seal_Tier = (int)__0; break; }
                                     case "Slider_Items_Craft_SealValue": { Save_Manager.instance.data.Items.CraftingSlot.Seal_Value = __0; break; }
-                                    
+
                                     case "Slider_Items_Craft_AffixTier0": { Save_Manager.instance.data.Items.CraftingSlot.Affix_0_Tier = (int)__0; break; }
                                     case "Slider_Items_Craft_AffixTier1": { Save_Manager.instance.data.Items.CraftingSlot.Affix_1_Tier = (int)__0; break; }
                                     case "Slider_Items_Craft_AffixTier2": { Save_Manager.instance.data.Items.CraftingSlot.Affix_2_Tier = (int)__0; break; }
@@ -1275,7 +1282,7 @@ namespace LastEpoch_Hud.Scripts
                                     case "Slider_Scenes_Camera_OffsetMaximum": { Save_Manager.instance.data.Scenes.Camera.OffsetMaximum = __0; break; }
                                     case "Slider_Scenes_Camera_AngleMinimum": { Save_Manager.instance.data.Scenes.Camera.AngleMinimum = __0; break; }
                                     case "Slider_Scenes_Camera_AngleMaximum": { Save_Manager.instance.data.Scenes.Camera.AngleMaximum = __0; break; }
-                                    
+
                                     case "Slider_Scenes_Monoliths_MaxStability": { Save_Manager.instance.data.Scenes.Monoliths.MaxStability = __0; break; }
                                     case "Slider_Scenes_Monoliths_MobsDensity": { Save_Manager.instance.data.Scenes.Monoliths.MobsDensity = __0; break; }
                                     case "Slider_Scenes_Monoliths_MobsDefeatOnStart": { Save_Manager.instance.data.Scenes.Monoliths.MobsDefeatOnStart = __0; break; }
@@ -1458,12 +1465,16 @@ namespace LastEpoch_Hud.Scripts
             {
                 if ((!Default_PauseMenu_Btns.IsNullOrDestroyed()) && (!hud_object.IsNullOrDestroyed()))
                 {
-                    Events.Set_Base_Button_Event(hud_object, "Base", "Btn_Base_Resume", Resume_OnClick_Action);
-                    Events.Set_Base_Button_Event(hud_object, "Base", "Btn_Base_Settings", Settings_OnClick_Action);
-                    Events.Set_Base_Button_Event(hud_object, "Base", "Btn_Base_GameGuide", GameGuide_OnClick_Action);
-                    Events.Set_Base_Button_Event(hud_object, "Base", "Btn_Base_LeaveGame", LeaveGame_OnClick_Action);
-                    Events.Set_Base_Button_Event(hud_object, "Base", "Btn_Base_ExitDesktop", ExitDesktop_OnClick_Action);
-                    initiliazed_events = true;
+                    GameObject base_obj = Functions.GetChild(hud_object, "Base");
+                    if (!base_obj.IsNullOrDestroyed())
+                    {
+                        Events.Set_Base_Button_Event(base_obj, "Content", "Btn_Base_Resume", Resume_OnClick_Action);
+                        Events.Set_Base_Button_Event(base_obj, "Content", "Btn_Base_Settings", Settings_OnClick_Action);
+                        Events.Set_Base_Button_Event(base_obj, "Content", "Btn_Base_GameGuide", GameGuide_OnClick_Action);
+                        Events.Set_Base_Button_Event(base_obj, "Content", "Btn_Base_LeaveGame", LeaveGame_OnClick_Action);
+                        Events.Set_Base_Button_Event(base_obj, "Content", "Btn_Base_ExitDesktop", ExitDesktop_OnClick_Action);
+                        initiliazed_events = true;
+                    }
                 }
             }
 
@@ -1511,12 +1522,16 @@ namespace LastEpoch_Hud.Scripts
             {
                 if (!hud_object.IsNullOrDestroyed())
                 {
-                    Events.Set_Base_Button_Event(hud_object, "Menu", "Btn_Menu_Character", Character_OnClick_Action);
-                    Events.Set_Base_Button_Event(hud_object, "Menu", "Btn_Menu_Items", Items_OnClick_Action);
-                    Events.Set_Base_Button_Event(hud_object, "Menu", "Btn_Menu_Scenes", Scenes_OnClick_Action);
-                    Events.Set_Base_Button_Event(hud_object, "Menu", "Btn_Menu_TreeSkills", Skills_OnClick_Action);
-                    Events.Set_Base_Button_Event(hud_object, "Menu", "Btn_Menu_ForceDrop", OldForceDrop_OnClick_Action);
-                    Events.Set_Base_Button_Event(hud_object, "Menu", "Btn_Menu_NewItems", NewItems_OnClick_Action);
+                    GameObject menu = Functions.GetChild(hud_object, "Menu");
+                    if (!menu.IsNullOrDestroyed())
+                    {
+                        Events.Set_Base_Button_Event(menu, "Content", "Btn_Menu_Character", Character_OnClick_Action);
+                        Events.Set_Base_Button_Event(menu, "Content", "Btn_Menu_Items", Items_OnClick_Action);
+                        Events.Set_Base_Button_Event(menu, "Content", "Btn_Menu_Scenes", Scenes_OnClick_Action);
+                        Events.Set_Base_Button_Event(menu, "Content", "Btn_Menu_TreeSkills", Skills_OnClick_Action);
+                        Events.Set_Base_Button_Event(menu, "Content", "Btn_Menu_ForceDrop", OldForceDrop_OnClick_Action);
+                        Events.Set_Base_Button_Event(menu, "Content", "Btn_Menu_NewItems", NewItems_OnClick_Action);
+                    }
                 }
             }
             
@@ -1585,7 +1600,7 @@ namespace LastEpoch_Hud.Scripts
                 Content.OdlForceDrop.Set_Active(false);
                 Content.NewItems.Toggle_Active();
             }
-        }                
+        }
         public class Content
         {
             public static GameObject content_obj = null;
@@ -5070,7 +5085,8 @@ namespace LastEpoch_Hud.Scripts
 
                 public static GameObject content_obj = null;
                 public static GameObject left_base_content = null;
-                public static GameObject center_content = null;
+                public static GameObject center_content_1 = null; //Used for Keyboard
+                public static GameObject center_content = null; //viewport
 
                 //Type
                 public static int type_size = 24;
@@ -5421,7 +5437,8 @@ namespace LastEpoch_Hud.Scripts
                 public static GameObject shard_filters = null;
                 public static Dropdown shards_filter_type = null;
                 public static Dropdown shards_filter_class = null;
-                public static InputField shards_filter_name = null;
+                //public static InputField shards_filter_name = null;
+                public static TMP_InputField shards_filter_name = null;
                 public static Button shards_filters_button = null;
                 public static readonly System.Action Resfresh_OnClick_Action = new System.Action(InitializeShardsView);
 
@@ -5446,258 +5463,290 @@ namespace LastEpoch_Hud.Scripts
                         content_obj = Functions.GetChild(Content.content_obj, "Old_ForceDrop_Content");
                         if (!content_obj.IsNullOrDestroyed())
                         {
-                            left_base_content = Functions.GetViewportContent(content_obj, "Left", "Item");
-                            if (!left_base_content.IsNullOrDestroyed())
+                            GameObject left_obj = Functions.GetChild(content_obj, "Left");
+                            if (!left_obj.IsNullOrDestroyed())
                             {
-                                type_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Type", "Dropdown_Items_ForceDrop_Type", new System.Action<int>((_) => { SelectType(); }));
-                                if (type_dropdown.IsNullOrDestroyed()) { error = true; Main.logger_instance.Error("Error type_dropdown not found"); }
+                                //Item
+                                left_base_content = Functions.GetViewportContent(left_obj, "Content", "Item");
+                                if (!left_base_content.IsNullOrDestroyed())
+                                {
+                                    type_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Type", "Dropdown_Items_ForceDrop_Type", new System.Action<int>((_) => { SelectType(); }));
+                                    if (type_dropdown.IsNullOrDestroyed()) { error = true; Main.logger_instance.Error("Error type_dropdown not found"); }
 
-                                rarity_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Rarity", "Dropdown_Items_ForceDrop_Rarity", new System.Action<int>((_) => { SelectRarity(); }));
-                                if (rarity_dropdown.IsNullOrDestroyed()) { error = true; Main.logger_instance.Error("Error rarity_dropdown not found"); }
+                                    rarity_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Rarity", "Dropdown_Items_ForceDrop_Rarity", new System.Action<int>((_) => { SelectRarity(); }));
+                                    if (rarity_dropdown.IsNullOrDestroyed()) { error = true; Main.logger_instance.Error("Error rarity_dropdown not found"); }
 
-                                items_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Item", "Dropdown_Items_ForceDrop_Item", new System.Action<int>((_) => { SelectItem(); }));
-                                if (items_dropdown.IsNullOrDestroyed()) { error = true; Main.logger_instance.Error("Error items_dropdown not found"); }
+                                    items_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Item", "Dropdown_Items_ForceDrop_Item", new System.Action<int>((_) => { SelectItem(); }));
+                                    if (items_dropdown.IsNullOrDestroyed()) { error = true; Main.logger_instance.Error("Error items_dropdown not found"); }
 
-                                implicits = Functions.GetChild(left_base_content, "EnableImplicits");
-                                implicits_border = Functions.GetChild(left_base_content, "ImplicitsBorder");
-                                implicits_dropdown = Functions.Get_DopboxInPanel(left_base_content, "EnableImplicits", "Dropdown", new System.Action<int>((_) => { EnableImplicits(); }));
-                                if (implicits_dropdown.IsNullOrDestroyed()) { error = true; Main.logger_instance.Error("Error implicits_dropdown not found"); }
+                                    implicits = Functions.GetChild(left_base_content, "EnableImplicits");
+                                    implicits_border = Functions.GetChild(left_base_content, "ImplicitsBorder");
+                                    implicits_dropdown = Functions.Get_DopboxInPanel(left_base_content, "EnableImplicits", "Dropdown", new System.Action<int>((_) => { EnableImplicits(); }));
+                                    if (implicits_dropdown.IsNullOrDestroyed()) { error = true; Main.logger_instance.Error("Error implicits_dropdown not found"); }
 
-                                implicit_0 = Functions.GetChild(left_base_content, "Implicit_0");
-                                implicit_0_Text = Functions.Get_TextInPanel(left_base_content, "Implicit_0", "Value");
-                                implicit_0_slider = Functions.Get_SliderInPanel(left_base_content, "Implicit_0", "Slider");
+                                    implicit_0 = Functions.GetChild(left_base_content, "Implicit_0");
+                                    implicit_0_Text = Functions.Get_TextInPanel(left_base_content, "Implicit_0", "Value");
+                                    implicit_0_slider = Functions.Get_SliderInPanel(left_base_content, "Implicit_0", "Slider");
 
-                                implicit_1 = Functions.GetChild(left_base_content, "Implicit_1");
-                                implicit_1_Text = Functions.Get_TextInPanel(left_base_content, "Implicit_1", "Value");
-                                implicit_1_slider = Functions.Get_SliderInPanel(left_base_content, "Implicit_1", "Slider");
+                                    implicit_1 = Functions.GetChild(left_base_content, "Implicit_1");
+                                    implicit_1_Text = Functions.Get_TextInPanel(left_base_content, "Implicit_1", "Value");
+                                    implicit_1_slider = Functions.Get_SliderInPanel(left_base_content, "Implicit_1", "Slider");
 
-                                implicit_2 = Functions.GetChild(left_base_content, "Implicit_2");
-                                implicit_2_Text = Functions.Get_TextInPanel(left_base_content, "Implicit_2", "Value");
-                                implicit_2_slider = Functions.Get_SliderInPanel(left_base_content, "Implicit_2", "Slider");
+                                    implicit_2 = Functions.GetChild(left_base_content, "Implicit_2");
+                                    implicit_2_Text = Functions.Get_TextInPanel(left_base_content, "Implicit_2", "Value");
+                                    implicit_2_slider = Functions.Get_SliderInPanel(left_base_content, "Implicit_2", "Slider");
 
-                                forgin_potencial = Functions.GetChild(left_base_content, "EnableForginPotencial");
-                                forgin_potencial_border = Functions.GetChild(left_base_content, "ForginPotencialBorder");
-                                forgin_potencial_dropdown = Functions.Get_DopboxInPanel(left_base_content, "EnableForginPotencial", "Dropdown", new System.Action<int>((_) => { EnableForginPotencial(); }));
-                                forgin_potencial_value = Functions.GetChild(left_base_content, "ForginPotencial");
-                                forgin_potencial_text = Functions.Get_TextInPanel(left_base_content, "ForginPotencial", "Value");
-                                forgin_potencial_slider = Functions.Get_SliderInPanel(left_base_content, "ForginPotencial", "Slider");
+                                    forgin_potencial = Functions.GetChild(left_base_content, "EnableForginPotencial");
+                                    forgin_potencial_border = Functions.GetChild(left_base_content, "ForginPotencialBorder");
+                                    forgin_potencial_dropdown = Functions.Get_DopboxInPanel(left_base_content, "EnableForginPotencial", "Dropdown", new System.Action<int>((_) => { EnableForginPotencial(); }));
+                                    forgin_potencial_value = Functions.GetChild(left_base_content, "ForginPotencial");
+                                    forgin_potencial_text = Functions.Get_TextInPanel(left_base_content, "ForginPotencial", "Value");
+                                    forgin_potencial_slider = Functions.Get_SliderInPanel(left_base_content, "ForginPotencial", "Slider");
 
-                                seal = Functions.GetChild(left_base_content, "EnableSeal");
-                                seal_border = Functions.GetChild(left_base_content, "SealBorder");
-                                seal_dropdown = Functions.Get_DopboxInPanel(left_base_content, "EnableSeal", "Dropdown", new System.Action<int>((_) => { EnableSeal(); }));
-                                seal_shard = Functions.GetChild(left_base_content, "SelectSeal");
-                                seal_select_btn = Functions.Get_ButtonInPanel(seal_shard, "Button");
-                                seal_select_text = Functions.Get_TextInButton(seal_shard, "Button", "Text");
-                                seal_tier = Functions.GetChild(left_base_content, "SealTier");
-                                seal_tier_text = Functions.Get_TextInPanel(left_base_content, "SealTier", "Value");
-                                seal_tier_slider = Functions.Get_SliderInPanel(left_base_content, "SealTier", "Slider");
-                                seal_value = Functions.GetChild(left_base_content, "SealValue");
-                                seal_value_text = Functions.Get_TextInPanel(left_base_content, "SealValue", "Value");
-                                seal_value_slider = Functions.Get_SliderInPanel(left_base_content, "SealValue", "Slider");
+                                    seal = Functions.GetChild(left_base_content, "EnableSeal");
+                                    seal_border = Functions.GetChild(left_base_content, "SealBorder");
+                                    seal_dropdown = Functions.Get_DopboxInPanel(left_base_content, "EnableSeal", "Dropdown", new System.Action<int>((_) => { EnableSeal(); }));
+                                    seal_shard = Functions.GetChild(left_base_content, "SelectSeal");
+                                    seal_select_btn = Functions.Get_ButtonInPanel(seal_shard, "Button");
+                                    seal_select_text = Functions.Get_TextInButton(seal_shard, "Button", "Text");
+                                    seal_tier = Functions.GetChild(left_base_content, "SealTier");
+                                    seal_tier_text = Functions.Get_TextInPanel(left_base_content, "SealTier", "Value");
+                                    seal_tier_slider = Functions.Get_SliderInPanel(left_base_content, "SealTier", "Slider");
+                                    seal_value = Functions.GetChild(left_base_content, "SealValue");
+                                    seal_value_text = Functions.Get_TextInPanel(left_base_content, "SealValue", "Value");
+                                    seal_value_slider = Functions.Get_SliderInPanel(left_base_content, "SealValue", "Slider");
 
-                                affixs = Functions.GetChild(left_base_content, "EnableAffixs");
-                                if (affixs.IsNullOrDestroyed()) { Main.logger_instance.Error("affixs is null"); }
-                                affixs_border = Functions.GetChild(left_base_content, "AffixsBorder");
-                                if (affixs_border.IsNullOrDestroyed()) { Main.logger_instance.Error("seal_border is null"); }
-                                affixs_dropdown = Functions.Get_DopboxInPanel(left_base_content, "EnableAffixs", "Dropdown", new System.Action<int>((_) => { EnableAffixs(); }));
-                                if (affixs_dropdown.IsNullOrDestroyed()) { Main.logger_instance.Error("affixs_dropdown is null"); }
-                                affixs_numbers = Functions.GetChild(left_base_content, "AffixsNb");
-                                if (affixs_numbers.IsNullOrDestroyed()) { Main.logger_instance.Error("affixs_numbers is null"); }
-                                affixs_numbers_text = Functions.Get_TextInPanel(left_base_content, "AffixsNb", "Value");
-                                if (affixs_numbers_text.IsNullOrDestroyed()) { Main.logger_instance.Error("affixs_numbers_text is null"); }
-                                affixs_numbers_slider = Functions.Get_SliderInPanel(left_base_content, "AffixsNb", "Slider");
-                                if (affixs_numbers_slider.IsNullOrDestroyed()) { Main.logger_instance.Error("affixs_numbers_slider is null"); }
-                                
-                                affix_0 = Functions.GetChild(left_base_content, "Affix_0");
-                                affix_0_button = Functions.Get_ButtonInPanel(affix_0, "Button");
-                                affix_0_select_text = Functions.Get_TextInButton(affix_0, "Button", "Text");
-                                affix_0_tier_text = Functions.Get_TextInPanel(affix_0, "Tier", "Value");
-                                affix_0_tier_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_0", "TierSlider");
-                                affix_0_value_text = Functions.Get_TextInPanel(affix_0, "Roll", "Value");
-                                affix_0_random_toggle = Functions.Get_ToggleInPanel(affix_0, "RandomRoll", "Toggle_Random");
-                                affix_0_value_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_0", "ValueSlider");
-                                
-                                affix_1 = Functions.GetChild(left_base_content, "Affix_1");
-                                affix_1_button = Functions.Get_ButtonInPanel(affix_1, "Button");
-                                affix_1_select_text = Functions.Get_TextInButton(affix_1, "Button", "Text");
-                                affix_1_tier_text = Functions.Get_TextInPanel(affix_1, "Tier", "Value");
-                                affix_1_tier_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_1", "TierSlider");
-                                affix_1_value_text = Functions.Get_TextInPanel(affix_1, "Roll", "Value");
-                                affix_1_random_toggle = Functions.Get_ToggleInPanel(affix_1, "RandomRoll", "Toggle_Random");
-                                affix_1_value_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_1", "ValueSlider");
-                                
-                                affix_2 = Functions.GetChild(left_base_content, "Affix_2");
-                                affix_2_button = Functions.Get_ButtonInPanel(affix_2, "Button");
-                                affix_2_select_text = Functions.Get_TextInButton(affix_2, "Button", "Text");
-                                affix_2_tier_text = Functions.Get_TextInPanel(affix_2, "Tier", "Value");
-                                affix_2_tier_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_2", "TierSlider");
-                                affix_2_value_text = Functions.Get_TextInPanel(affix_2, "Roll", "Value");
-                                affix_2_random_toggle = Functions.Get_ToggleInPanel(affix_2, "RandomRoll", "Toggle_Random");
-                                affix_2_value_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_2", "ValueSlider");
-                                
-                                affix_3 = Functions.GetChild(left_base_content, "Affix_3");
-                                affix_3_button = Functions.Get_ButtonInPanel(affix_3, "Button");
-                                affix_3_select_text = Functions.Get_TextInButton(affix_3, "Button", "Text");
-                                affix_3_tier_text = Functions.Get_TextInPanel(affix_3, "Tier", "Value");
-                                affix_3_tier_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_3", "TierSlider");
-                                affix_3_value_text = Functions.Get_TextInPanel(affix_3, "Roll", "Value");
-                                affix_3_random_toggle = Functions.Get_ToggleInPanel(affix_3, "RandomRoll", "Toggle_Random");
-                                affix_3_value_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_3", "ValueSlider");
-                                
-                                affix_4 = Functions.GetChild(left_base_content, "Affix_4");
-                                affix_4_button = Functions.Get_ButtonInPanel(affix_4, "Button");
-                                affix_4_select_text = Functions.Get_TextInButton(affix_4, "Button", "Text");
-                                affix_4_tier_text = Functions.Get_TextInPanel(affix_4, "Tier", "Value");
-                                affix_4_tier_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_4", "TierSlider");
-                                affix_4_value_text = Functions.Get_TextInPanel(affix_4, "Roll", "Value");
-                                affix_4_random_toggle = Functions.Get_ToggleInPanel(affix_4, "RandomRoll", "Toggle_Random");
-                                affix_4_value_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_4", "ValueSlider");
-                                
-                                affix_5 = Functions.GetChild(left_base_content, "Affix_5");
-                                affix_5_button = Functions.Get_ButtonInPanel(affix_5, "Button");
-                                affix_5_select_text = Functions.Get_TextInButton(affix_5, "Button", "Text");
-                                affix_5_tier_text = Functions.Get_TextInPanel(affix_5, "Tier", "Value");
-                                affix_5_tier_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_5", "TierSlider");
-                                affix_5_value_text = Functions.Get_TextInPanel(affix_5, "Roll", "Value");
-                                affix_5_random_toggle = Functions.Get_ToggleInPanel(affix_5, "RandomRoll", "Toggle_Random");
-                                affix_5_value_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_5", "ValueSlider");
+                                    affixs = Functions.GetChild(left_base_content, "EnableAffixs");
+                                    if (affixs.IsNullOrDestroyed()) { Main.logger_instance.Error("affixs is null"); }
+                                    affixs_border = Functions.GetChild(left_base_content, "AffixsBorder");
+                                    if (affixs_border.IsNullOrDestroyed()) { Main.logger_instance.Error("seal_border is null"); }
+                                    affixs_dropdown = Functions.Get_DopboxInPanel(left_base_content, "EnableAffixs", "Dropdown", new System.Action<int>((_) => { EnableAffixs(); }));
+                                    if (affixs_dropdown.IsNullOrDestroyed()) { Main.logger_instance.Error("affixs_dropdown is null"); }
+                                    affixs_numbers = Functions.GetChild(left_base_content, "AffixsNb");
+                                    if (affixs_numbers.IsNullOrDestroyed()) { Main.logger_instance.Error("affixs_numbers is null"); }
+                                    affixs_numbers_text = Functions.Get_TextInPanel(left_base_content, "AffixsNb", "Value");
+                                    if (affixs_numbers_text.IsNullOrDestroyed()) { Main.logger_instance.Error("affixs_numbers_text is null"); }
+                                    affixs_numbers_slider = Functions.Get_SliderInPanel(left_base_content, "AffixsNb", "Slider");
+                                    if (affixs_numbers_slider.IsNullOrDestroyed()) { Main.logger_instance.Error("affixs_numbers_slider is null"); }
 
-                                unique_mods = Functions.GetChild(left_base_content, "EnableUniqueMods");
-                                unique_mods_border = Functions.GetChild(left_base_content, "UniqueModsBorder");
-                                unique_mods_dropdown = Functions.Get_DopboxInPanel(left_base_content, "EnableUniqueMods", "Dropdown", new System.Action<int>((_) => { EnableUniqueMods(); }));
-                                unique_mod_0 = Functions.GetChild(left_base_content, "UniqueMod_0");
-                                unique_mod_0_Text = Functions.Get_TextInPanel(left_base_content, "UniqueMod_0", "Value");
-                                unique_mod_0_slider = Functions.Get_SliderInPanel(left_base_content, "UniqueMod_0", "Slider");
-                                unique_mod_1 = Functions.GetChild(left_base_content, "UniqueMod_1");
-                                unique_mod_1_Text = Functions.Get_TextInPanel(left_base_content, "UniqueMod_1", "Value");
-                                unique_mod_1_slider = Functions.Get_SliderInPanel(left_base_content, "UniqueMod_1", "Slider");
-                                unique_mod_2 = Functions.GetChild(left_base_content, "UniqueMod_2");
-                                unique_mod_2_Text = Functions.Get_TextInPanel(left_base_content, "UniqueMod_2", "Value");
-                                unique_mod_2_slider = Functions.Get_SliderInPanel(left_base_content, "UniqueMod_2", "Slider");
-                                unique_mod_3 = Functions.GetChild(left_base_content, "UniqueMod_3");
-                                unique_mod_3_Text = Functions.Get_TextInPanel(left_base_content, "UniqueMod_3", "Value");
-                                unique_mod_3_slider = Functions.Get_SliderInPanel(left_base_content, "UniqueMod_3", "Slider");
-                                unique_mod_4 = Functions.GetChild(left_base_content, "UniqueMod_4");
-                                unique_mod_4_Text = Functions.Get_TextInPanel(left_base_content, "UniqueMod_4", "Value");
-                                unique_mod_4_slider = Functions.Get_SliderInPanel(left_base_content, "UniqueMod_4", "Slider");
-                                unique_mod_5 = Functions.GetChild(left_base_content, "UniqueMod_5");
-                                unique_mod_5_Text = Functions.Get_TextInPanel(left_base_content, "UniqueMod_5", "Value");
-                                unique_mod_5_slider = Functions.Get_SliderInPanel(left_base_content, "UniqueMod_5", "Slider");
-                                unique_mod_6 = Functions.GetChild(left_base_content, "UniqueMod_6");
-                                unique_mod_6_Text = Functions.Get_TextInPanel(left_base_content, "UniqueMod_6", "Value");
-                                unique_mod_6_slider = Functions.Get_SliderInPanel(left_base_content, "UniqueMod_6", "Slider");
-                                unique_mod_7 = Functions.GetChild(left_base_content, "UniqueMod_7");
-                                unique_mod_7_Text = Functions.Get_TextInPanel(left_base_content, "UniqueMod_7", "Value");
-                                unique_mod_7_slider = Functions.Get_SliderInPanel(left_base_content, "UniqueMod_7", "Slider");
+                                    affix_0 = Functions.GetChild(left_base_content, "Affix_0");
+                                    affix_0_button = Functions.Get_ButtonInPanel(affix_0, "Button");
+                                    affix_0_select_text = Functions.Get_TextInButton(affix_0, "Button", "Text");
+                                    affix_0_tier_text = Functions.Get_TextInPanel(affix_0, "Tier", "Value");
+                                    affix_0_tier_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_0", "TierSlider");
+                                    affix_0_value_text = Functions.Get_TextInPanel(affix_0, "Roll", "Value");
+                                    affix_0_random_toggle = Functions.Get_ToggleInPanel(affix_0, "RandomRoll", "Toggle_Random");
+                                    affix_0_value_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_0", "ValueSlider");
 
-                                nb_evolution = Functions.GetChild(left_base_content, "Nb_Evo");
-                                nb_evolution_Text = Functions.Get_TextInPanel(left_base_content, "Nb_Evo", "Value");
-                                nb_evolution_slider = Functions.Get_SliderInPanel(left_base_content, "Nb_Evo", "Slider");
+                                    affix_1 = Functions.GetChild(left_base_content, "Affix_1");
+                                    affix_1_button = Functions.Get_ButtonInPanel(affix_1, "Button");
+                                    affix_1_select_text = Functions.Get_TextInButton(affix_1, "Button", "Text");
+                                    affix_1_tier_text = Functions.Get_TextInPanel(affix_1, "Tier", "Value");
+                                    affix_1_tier_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_1", "TierSlider");
+                                    affix_1_value_text = Functions.Get_TextInPanel(affix_1, "Roll", "Value");
+                                    affix_1_random_toggle = Functions.Get_ToggleInPanel(affix_1, "RandomRoll", "Toggle_Random");
+                                    affix_1_value_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_1", "ValueSlider");
 
-                                beast_evolution_border = Functions.GetChild(left_base_content, "BeastEvolBorder");
-                                beast_evolution_0 = Functions.GetChild(left_base_content, "Enable_BeastEvo_0");
-                                beast_evolution_0_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Enable_BeastEvo_0", "Dropdown", new System.Action<int>((_) => { EnableBeastEvolution_0(); }));
-                                beast_evolution_select_0 = Functions.GetChild(left_base_content, "BeastEvo_0");
-                                beast_evolution_0_select_dropdown = Functions.Get_DopboxInPanel(left_base_content, "BeastEvo_0", "Dropdown", new System.Action<int>((_) => { SelectBeastEvolution_0(); }));
-                                beast_evolution_1 = Functions.GetChild(left_base_content, "Enable_BeastEvo_1");
-                                beast_evolution_1_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Enable_BeastEvo_1", "Dropdown", new System.Action<int>((_) => { EnableBeastEvolution_1(); }));
-                                beast_evolution_select_1 = Functions.GetChild(left_base_content, "BeastEvo_1");
-                                beast_evolution_1_select_dropdown = Functions.Get_DopboxInPanel(left_base_content, "BeastEvo_1", "Dropdown", new System.Action<int>((_) => { SelectBeastEvolution_1(); }));
-                                beast_evolution_2 = Functions.GetChild(left_base_content, "Enable_BeastEvo_2");
-                                beast_evolution_2_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Enable_BeastEvo_2", "Dropdown", new System.Action<int>((_) => { EnableBeastEvolution_2(); }));
-                                beast_evolution_select_2 = Functions.GetChild(left_base_content, "BeastEvo_2");
-                                beast_evolution_2_select_dropdown = Functions.Get_DopboxInPanel(left_base_content, "BeastEvo_2", "Dropdown", new System.Action<int>((_) => { SelectBeastEvolution_2(); }));
-                                beast_evolution_3 = Functions.GetChild(left_base_content, "Enable_BeastEvo_3");
-                                beast_evolution_3_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Enable_BeastEvo_3", "Dropdown", new System.Action<int>((_) => { EnableBeastEvolution_3(); }));
-                                beast_evolution_select_3 = Functions.GetChild(left_base_content, "BeastEvo_3");
-                                beast_evolution_3_select_dropdown = Functions.Get_DopboxInPanel(left_base_content, "BeastEvo_3", "Dropdown", new System.Action<int>((_) => { SelectBeastEvolution_3(); }));
-                                beast_evolution_4 = Functions.GetChild(left_base_content, "Enable_BeastEvo_4");
-                                beast_evolution_4_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Enable_BeastEvo_4", "Dropdown", new System.Action<int>((_) => { EnableBeastEvolution_4(); }));
-                                beast_evolution_select_4 = Functions.GetChild(left_base_content, "BeastEvo_4");
-                                beast_evolution_4_select_dropdown = Functions.Get_DopboxInPanel(left_base_content, "BeastEvo_4", "Dropdown", new System.Action<int>((_) => { SelectBeastEvolution_4(); }));
-                                beast_evolution_5 = Functions.GetChild(left_base_content, "Enable_BeastEvo_5");
-                                beast_evolution_5_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Enable_BeastEvo_5", "Dropdown", new System.Action<int>((_) => { EnableBeastEvolution_5(); }));
-                                beast_evolution_select_5 = Functions.GetChild(left_base_content, "BeastEvo_5");
-                                beast_evolution_5_select_dropdown = Functions.Get_DopboxInPanel(left_base_content, "BeastEvo_5", "Dropdown", new System.Action<int>((_) => { SelectBeastEvolution_5(); }));
-                                beast_evolution_6 = Functions.GetChild(left_base_content, "Enable_BeastEvo_6");
-                                beast_evolution_6_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Enable_BeastEvo_6", "Dropdown", new System.Action<int>((_) => { EnableBeastEvolution_6(); }));
-                                beast_evolution_select_6 = Functions.GetChild(left_base_content, "BeastEvo_6");
-                                beast_evolution_6_select_dropdown = Functions.Get_DopboxInPanel(left_base_content, "BeastEvo_6", "Dropdown", new System.Action<int>((_) => { SelectBeastEvolution_6(); }));
+                                    affix_2 = Functions.GetChild(left_base_content, "Affix_2");
+                                    affix_2_button = Functions.Get_ButtonInPanel(affix_2, "Button");
+                                    affix_2_select_text = Functions.Get_TextInButton(affix_2, "Button", "Text");
+                                    affix_2_tier_text = Functions.Get_TextInPanel(affix_2, "Tier", "Value");
+                                    affix_2_tier_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_2", "TierSlider");
+                                    affix_2_value_text = Functions.Get_TextInPanel(affix_2, "Roll", "Value");
+                                    affix_2_random_toggle = Functions.Get_ToggleInPanel(affix_2, "RandomRoll", "Toggle_Random");
+                                    affix_2_value_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_2", "ValueSlider");
 
-                                legenday_potencial = Functions.GetChild(left_base_content, "EnableLegendaryPotencial");
-                                legenday_potencial_border = Functions.GetChild(left_base_content, "LegendaryPotencialBorder");
-                                legenday_potencial_dropdown = Functions.Get_DopboxInPanel(left_base_content, "EnableLegendaryPotencial", "Dropdown", new System.Action<int>((_) => { EnableLegendaryPotencial(); }));
-                                legenday_potencial_value = Functions.GetChild(left_base_content, "LegendaryPotencial");
-                                legenday_potencial_Text = Functions.Get_TextInPanel(left_base_content, "LegendaryPotencial", "Value");
-                                legenday_potencial_slider = Functions.Get_SliderInPanel(left_base_content, "LegendaryPotencial", "Slider");
+                                    affix_3 = Functions.GetChild(left_base_content, "Affix_3");
+                                    affix_3_button = Functions.Get_ButtonInPanel(affix_3, "Button");
+                                    affix_3_select_text = Functions.Get_TextInButton(affix_3, "Button", "Text");
+                                    affix_3_tier_text = Functions.Get_TextInPanel(affix_3, "Tier", "Value");
+                                    affix_3_tier_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_3", "TierSlider");
+                                    affix_3_value_text = Functions.Get_TextInPanel(affix_3, "Roll", "Value");
+                                    affix_3_random_toggle = Functions.Get_ToggleInPanel(affix_3, "RandomRoll", "Toggle_Random");
+                                    affix_3_value_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_3", "ValueSlider");
 
-                                weaver_will = Functions.GetChild(left_base_content, "EnableWeaverWill");
-                                weaver_will_border = Functions.GetChild(left_base_content, "WeaverWillBorder");
-                                weaver_will_dropdown = Functions.Get_DopboxInPanel(left_base_content, "EnableWeaverWill", "Dropdown", new System.Action<int>((_) => { EnableWeaverWill(); }));
-                                weaver_will_value = Functions.GetChild(left_base_content, "WeaverWill");
-                                weaver_will_Text = Functions.Get_TextInPanel(left_base_content, "WeaverWill", "Value");
-                                weaver_will_slider = Functions.Get_SliderInPanel(left_base_content, "WeaverWill", "Slider");
+                                    affix_4 = Functions.GetChild(left_base_content, "Affix_4");
+                                    affix_4_button = Functions.Get_ButtonInPanel(affix_4, "Button");
+                                    affix_4_select_text = Functions.Get_TextInButton(affix_4, "Button", "Text");
+                                    affix_4_tier_text = Functions.Get_TextInPanel(affix_4, "Tier", "Value");
+                                    affix_4_tier_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_4", "TierSlider");
+                                    affix_4_value_text = Functions.Get_TextInPanel(affix_4, "Roll", "Value");
+                                    affix_4_random_toggle = Functions.Get_ToggleInPanel(affix_4, "RandomRoll", "Toggle_Random");
+                                    affix_4_value_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_4", "ValueSlider");
 
-                                quantity = Functions.GetChild(left_base_content, "Quantity");
-                                quantity_border = Functions.GetChild(left_base_content, "QuantityBorder");
-                                forcedrop_quantity_slider = Functions.Get_SliderInPanel(left_base_content, "Quantity", "Slider_Items_ForceDrop_Quantity");
-                                if (forcedrop_quantity_slider.IsNullOrDestroyed()) { error = true; Main.logger_instance.Error("Error forcedrop_quantity_slider not found"); }
-                                quantity_text = Functions.Get_TextInPanel(left_base_content, "Quantity", "Value");
+                                    affix_5 = Functions.GetChild(left_base_content, "Affix_5");
+                                    affix_5_button = Functions.Get_ButtonInPanel(affix_5, "Button");
+                                    affix_5_select_text = Functions.Get_TextInButton(affix_5, "Button", "Text");
+                                    affix_5_tier_text = Functions.Get_TextInPanel(affix_5, "Tier", "Value");
+                                    affix_5_tier_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_5", "TierSlider");
+                                    affix_5_value_text = Functions.Get_TextInPanel(affix_5, "Roll", "Value");
+                                    affix_5_random_toggle = Functions.Get_ToggleInPanel(affix_5, "RandomRoll", "Toggle_Random");
+                                    affix_5_value_slider = Functions.Get_SliderInPanel(left_base_content, "Affix_5", "ValueSlider");
+
+                                    unique_mods = Functions.GetChild(left_base_content, "EnableUniqueMods");
+                                    unique_mods_border = Functions.GetChild(left_base_content, "UniqueModsBorder");
+                                    unique_mods_dropdown = Functions.Get_DopboxInPanel(left_base_content, "EnableUniqueMods", "Dropdown", new System.Action<int>((_) => { EnableUniqueMods(); }));
+                                    unique_mod_0 = Functions.GetChild(left_base_content, "UniqueMod_0");
+                                    unique_mod_0_Text = Functions.Get_TextInPanel(left_base_content, "UniqueMod_0", "Value");
+                                    unique_mod_0_slider = Functions.Get_SliderInPanel(left_base_content, "UniqueMod_0", "Slider");
+                                    unique_mod_1 = Functions.GetChild(left_base_content, "UniqueMod_1");
+                                    unique_mod_1_Text = Functions.Get_TextInPanel(left_base_content, "UniqueMod_1", "Value");
+                                    unique_mod_1_slider = Functions.Get_SliderInPanel(left_base_content, "UniqueMod_1", "Slider");
+                                    unique_mod_2 = Functions.GetChild(left_base_content, "UniqueMod_2");
+                                    unique_mod_2_Text = Functions.Get_TextInPanel(left_base_content, "UniqueMod_2", "Value");
+                                    unique_mod_2_slider = Functions.Get_SliderInPanel(left_base_content, "UniqueMod_2", "Slider");
+                                    unique_mod_3 = Functions.GetChild(left_base_content, "UniqueMod_3");
+                                    unique_mod_3_Text = Functions.Get_TextInPanel(left_base_content, "UniqueMod_3", "Value");
+                                    unique_mod_3_slider = Functions.Get_SliderInPanel(left_base_content, "UniqueMod_3", "Slider");
+                                    unique_mod_4 = Functions.GetChild(left_base_content, "UniqueMod_4");
+                                    unique_mod_4_Text = Functions.Get_TextInPanel(left_base_content, "UniqueMod_4", "Value");
+                                    unique_mod_4_slider = Functions.Get_SliderInPanel(left_base_content, "UniqueMod_4", "Slider");
+                                    unique_mod_5 = Functions.GetChild(left_base_content, "UniqueMod_5");
+                                    unique_mod_5_Text = Functions.Get_TextInPanel(left_base_content, "UniqueMod_5", "Value");
+                                    unique_mod_5_slider = Functions.Get_SliderInPanel(left_base_content, "UniqueMod_5", "Slider");
+                                    unique_mod_6 = Functions.GetChild(left_base_content, "UniqueMod_6");
+                                    unique_mod_6_Text = Functions.Get_TextInPanel(left_base_content, "UniqueMod_6", "Value");
+                                    unique_mod_6_slider = Functions.Get_SliderInPanel(left_base_content, "UniqueMod_6", "Slider");
+                                    unique_mod_7 = Functions.GetChild(left_base_content, "UniqueMod_7");
+                                    unique_mod_7_Text = Functions.Get_TextInPanel(left_base_content, "UniqueMod_7", "Value");
+                                    unique_mod_7_slider = Functions.Get_SliderInPanel(left_base_content, "UniqueMod_7", "Slider");
+
+                                    nb_evolution = Functions.GetChild(left_base_content, "Nb_Evo");
+                                    nb_evolution_Text = Functions.Get_TextInPanel(left_base_content, "Nb_Evo", "Value");
+                                    nb_evolution_slider = Functions.Get_SliderInPanel(left_base_content, "Nb_Evo", "Slider");
+
+                                    beast_evolution_border = Functions.GetChild(left_base_content, "BeastEvolBorder");
+                                    beast_evolution_0 = Functions.GetChild(left_base_content, "Enable_BeastEvo_0");
+                                    beast_evolution_0_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Enable_BeastEvo_0", "Dropdown", new System.Action<int>((_) => { EnableBeastEvolution_0(); }));
+                                    beast_evolution_select_0 = Functions.GetChild(left_base_content, "BeastEvo_0");
+                                    beast_evolution_0_select_dropdown = Functions.Get_DopboxInPanel(left_base_content, "BeastEvo_0", "Dropdown", new System.Action<int>((_) => { SelectBeastEvolution_0(); }));
+                                    beast_evolution_1 = Functions.GetChild(left_base_content, "Enable_BeastEvo_1");
+                                    beast_evolution_1_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Enable_BeastEvo_1", "Dropdown", new System.Action<int>((_) => { EnableBeastEvolution_1(); }));
+                                    beast_evolution_select_1 = Functions.GetChild(left_base_content, "BeastEvo_1");
+                                    beast_evolution_1_select_dropdown = Functions.Get_DopboxInPanel(left_base_content, "BeastEvo_1", "Dropdown", new System.Action<int>((_) => { SelectBeastEvolution_1(); }));
+                                    beast_evolution_2 = Functions.GetChild(left_base_content, "Enable_BeastEvo_2");
+                                    beast_evolution_2_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Enable_BeastEvo_2", "Dropdown", new System.Action<int>((_) => { EnableBeastEvolution_2(); }));
+                                    beast_evolution_select_2 = Functions.GetChild(left_base_content, "BeastEvo_2");
+                                    beast_evolution_2_select_dropdown = Functions.Get_DopboxInPanel(left_base_content, "BeastEvo_2", "Dropdown", new System.Action<int>((_) => { SelectBeastEvolution_2(); }));
+                                    beast_evolution_3 = Functions.GetChild(left_base_content, "Enable_BeastEvo_3");
+                                    beast_evolution_3_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Enable_BeastEvo_3", "Dropdown", new System.Action<int>((_) => { EnableBeastEvolution_3(); }));
+                                    beast_evolution_select_3 = Functions.GetChild(left_base_content, "BeastEvo_3");
+                                    beast_evolution_3_select_dropdown = Functions.Get_DopboxInPanel(left_base_content, "BeastEvo_3", "Dropdown", new System.Action<int>((_) => { SelectBeastEvolution_3(); }));
+                                    beast_evolution_4 = Functions.GetChild(left_base_content, "Enable_BeastEvo_4");
+                                    beast_evolution_4_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Enable_BeastEvo_4", "Dropdown", new System.Action<int>((_) => { EnableBeastEvolution_4(); }));
+                                    beast_evolution_select_4 = Functions.GetChild(left_base_content, "BeastEvo_4");
+                                    beast_evolution_4_select_dropdown = Functions.Get_DopboxInPanel(left_base_content, "BeastEvo_4", "Dropdown", new System.Action<int>((_) => { SelectBeastEvolution_4(); }));
+                                    beast_evolution_5 = Functions.GetChild(left_base_content, "Enable_BeastEvo_5");
+                                    beast_evolution_5_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Enable_BeastEvo_5", "Dropdown", new System.Action<int>((_) => { EnableBeastEvolution_5(); }));
+                                    beast_evolution_select_5 = Functions.GetChild(left_base_content, "BeastEvo_5");
+                                    beast_evolution_5_select_dropdown = Functions.Get_DopboxInPanel(left_base_content, "BeastEvo_5", "Dropdown", new System.Action<int>((_) => { SelectBeastEvolution_5(); }));
+                                    beast_evolution_6 = Functions.GetChild(left_base_content, "Enable_BeastEvo_6");
+                                    beast_evolution_6_dropdown = Functions.Get_DopboxInPanel(left_base_content, "Enable_BeastEvo_6", "Dropdown", new System.Action<int>((_) => { EnableBeastEvolution_6(); }));
+                                    beast_evolution_select_6 = Functions.GetChild(left_base_content, "BeastEvo_6");
+                                    beast_evolution_6_select_dropdown = Functions.Get_DopboxInPanel(left_base_content, "BeastEvo_6", "Dropdown", new System.Action<int>((_) => { SelectBeastEvolution_6(); }));
+
+                                    legenday_potencial = Functions.GetChild(left_base_content, "EnableLegendaryPotencial");
+                                    legenday_potencial_border = Functions.GetChild(left_base_content, "LegendaryPotencialBorder");
+                                    legenday_potencial_dropdown = Functions.Get_DopboxInPanel(left_base_content, "EnableLegendaryPotencial", "Dropdown", new System.Action<int>((_) => { EnableLegendaryPotencial(); }));
+                                    legenday_potencial_value = Functions.GetChild(left_base_content, "LegendaryPotencial");
+                                    legenday_potencial_Text = Functions.Get_TextInPanel(left_base_content, "LegendaryPotencial", "Value");
+                                    legenday_potencial_slider = Functions.Get_SliderInPanel(left_base_content, "LegendaryPotencial", "Slider");
+
+                                    weaver_will = Functions.GetChild(left_base_content, "EnableWeaverWill");
+                                    weaver_will_border = Functions.GetChild(left_base_content, "WeaverWillBorder");
+                                    weaver_will_dropdown = Functions.Get_DopboxInPanel(left_base_content, "EnableWeaverWill", "Dropdown", new System.Action<int>((_) => { EnableWeaverWill(); }));
+                                    weaver_will_value = Functions.GetChild(left_base_content, "WeaverWill");
+                                    weaver_will_Text = Functions.Get_TextInPanel(left_base_content, "WeaverWill", "Value");
+                                    weaver_will_slider = Functions.Get_SliderInPanel(left_base_content, "WeaverWill", "Slider");
+
+                                    quantity = Functions.GetChild(left_base_content, "Quantity");
+                                    quantity_border = Functions.GetChild(left_base_content, "QuantityBorder");
+                                    forcedrop_quantity_slider = Functions.Get_SliderInPanel(left_base_content, "Quantity", "Slider_Items_ForceDrop_Quantity");
+                                    if (forcedrop_quantity_slider.IsNullOrDestroyed()) { error = true; Main.logger_instance.Error("Error forcedrop_quantity_slider not found"); }
+                                    quantity_text = Functions.Get_TextInPanel(left_base_content, "Quantity", "Value");
+                                }
+                                else { error = true; Main.logger_instance.Error("left_content not found"); }
+
+                                //Drop button
+                                GameObject left_content = Functions.GetChild(left_obj, "Content");
+                                if (!left_content.IsNullOrDestroyed())
+                                {
+                                    GameObject new_obj = Functions.GetChild(left_content, "Btn");
+                                    if (!new_obj.IsNullOrDestroyed())
+                                    {
+                                        forcedrop_drop_button = Functions.Get_ButtonInPanel(new_obj, "Btn_Drop");
+                                        if (forcedrop_drop_button.IsNullOrDestroyed()) { error = true; Main.logger_instance.Error("Error forcedrop_drop_button not found"); }
+                                    }
+                                    else { error = true; Main.logger_instance.Error("left Btn panel not found"); }
+                                }
+                                else { error = true; Main.logger_instance.Error("left_content not found"); }
                             }
-                            else { error = true; Main.logger_instance.Error("left_content not found"); }
+                            else { error = true; Main.logger_instance.Error("left_obj not found"); }                            
 
                             //Shards filters
                             GameObject center = Functions.GetChild(content_obj, "Center");
                             if (!center.IsNullOrDestroyed())
                             {
-                                shard_filters = Functions.GetChild(center, "Filters");
-                                if (!shard_filters.IsNullOrDestroyed())
+                                center_content_1 = Functions.GetChild(center, "Content");
+                                if (!center_content_1.IsNullOrDestroyed())
                                 {
-                                    GameObject line_0 = Functions.GetChild(shard_filters, "Line_0");
-                                    if (!line_0.IsNullOrDestroyed())
+                                    shard_filters = Functions.GetChild(center_content_1, "Filters");
+                                    if (!shard_filters.IsNullOrDestroyed())
                                     {
-                                        shards_filter_type = Functions.Get_DopboxInPanel(line_0, "Type", "Dropdown", new System.Action<int>((value) => { }));
-                                        shards_filter_class = Functions.Get_DopboxInPanel(line_0, "Class", "Dropdown", new System.Action<int>((_) => { }));
-                                    }
-                                    else { error = true; Main.logger_instance.Error("line_0 not found"); }
-
-                                    GameObject line_1 = Functions.GetChild(shard_filters, "Line_1");
-                                    if (!line_1.IsNullOrDestroyed())
-                                    {
-                                        GameObject name = Functions.GetChild(line_1, "Name");
-                                        if (!name.IsNullOrDestroyed())
+                                        GameObject line_0 = Functions.GetChild(shard_filters, "Line_0");
+                                        if (!line_0.IsNullOrDestroyed())
                                         {
-                                            GameObject g = Functions.GetChild(name, "InputField");
-                                            if (!g.IsNullOrDestroyed()) { shards_filter_name = g.GetComponent<InputField>(); }
-                                            else { error = true; Main.logger_instance.Error("g_name not found"); }
+                                            shards_filter_type = Functions.Get_DopboxInPanel(line_0, "Type", "Dropdown", new System.Action<int>((value) => { }));
+                                            shards_filter_class = Functions.Get_DopboxInPanel(line_0, "Class", "Dropdown", new System.Action<int>((_) => { }));
                                         }
-                                        else { error = true; Main.logger_instance.Error("name not found"); }
+                                        else { error = true; Main.logger_instance.Error("line_0 not found"); }
 
-                                        GameObject refresh = Functions.GetChild(line_1, "Refresh");
-                                        if (!refresh.IsNullOrDestroyed())
+                                        GameObject line_1 = Functions.GetChild(shard_filters, "Line_1");
+                                        if (!line_1.IsNullOrDestroyed())
                                         {
-                                            GameObject g = Functions.GetChild(refresh, "Button");
-                                            if (!g.IsNullOrDestroyed()) { shards_filters_button = g.GetComponent<Button>(); }
-                                            else { error = true; Main.logger_instance.Error("g_refresh not found"); }
+                                            GameObject name = Functions.GetChild(line_1, "Name");
+                                            if (!name.IsNullOrDestroyed())
+                                            {
+                                                GameObject g = Functions.GetChild(name, "InputField");
+                                                if (!g.IsNullOrDestroyed()) { shards_filter_name = g.GetComponent<TMP_InputField>(); }
+                                                //if (!g.IsNullOrDestroyed()) { shards_filter_name = g.GetComponent<InputField>(); }
+                                                else { error = true; Main.logger_instance.Error("g_name not found"); }
+                                            }
+                                            else { error = true; Main.logger_instance.Error("name not found"); }
+
+                                            GameObject refresh = Functions.GetChild(line_1, "Refresh");
+                                            if (!refresh.IsNullOrDestroyed())
+                                            {
+                                                GameObject g = Functions.GetChild(refresh, "Button");
+                                                if (!g.IsNullOrDestroyed()) { shards_filters_button = g.GetComponent<Button>(); }
+                                                else { error = true; Main.logger_instance.Error("g_refresh not found"); }
+                                            }
+                                            else { error = true; Main.logger_instance.Error("refresh not found"); }
                                         }
-                                        else { error = true; Main.logger_instance.Error("refresh not found"); }
+                                        else { error = true; Main.logger_instance.Error("line_1 not found"); }
                                     }
-                                    else { error = true; Main.logger_instance.Error("line_1 not found"); }
+                                    else { error = true; Main.logger_instance.Error("shard_filters not found"); }
                                 }
-                                else { error = true; Main.logger_instance.Error("shard_filters not found"); }
+                                //Shards
+                                center_content = Functions.GetViewportContent(center, "Content", "Content");
+                                if (!center_content.IsNullOrDestroyed())
+                                {
+                                    
+                                }
+                                else { error = true; Main.logger_instance.Error("center_content not found"); }
                             }
                             else { error = true; Main.logger_instance.Error("center not found"); }
 
                             //Shards
-                            center_content = Functions.GetViewportContent(content_obj, "Center", "Content");
+                            /*center_content = Functions.GetViewportContent(content_obj, "Center", "Content");
                             if (!center_content.IsNullOrDestroyed())
                             {
 
                             }
-                            else { error = true; Main.logger_instance.Error("center_content not found"); }
+                            else { error = true; Main.logger_instance.Error("center_content not found"); }*/
 
                             //Drop button
-                            GameObject left_obj = Functions.GetChild(content_obj, "Left");
+                            /*GameObject left_obj = Functions.GetChild(content_obj, "Left");
                             if (!left_obj.IsNullOrDestroyed())
                             {
                                 GameObject new_obj = Functions.GetChild(left_obj, "Btn");
@@ -5708,7 +5757,7 @@ namespace LastEpoch_Hud.Scripts
                                 }
                                 else { error = true; Main.logger_instance.Error("left Btn panel not found"); }
                             }
-                            else { error = true; Main.logger_instance.Error("left_obj not found"); }
+                            else { error = true; Main.logger_instance.Error("left_obj not found"); }*/
                         }
                         else { error = true; Main.logger_instance.Error("content_obj is null"); }
 
@@ -5792,7 +5841,7 @@ namespace LastEpoch_Hud.Scripts
                         Events.Set_Slider_Event(nb_evolution_slider, nb_evolution_Action);
                         Events.Set_Slider_Event(legenday_potencial_slider, legenday_potencial_Action);
                         Events.Set_Slider_Event(weaver_will_slider, weaver_will_Action);
-                                                
+
                         Events.Set_Button_Event(shards_filters_button, Resfresh_OnClick_Action);
 
                         Events.Set_Button_Event(forcedrop_drop_button, Drop_OnClick_Action);
@@ -6665,22 +6714,36 @@ namespace LastEpoch_Hud.Scripts
                     GameObject shard_btn_object = Functions.GetChild(g, "shard_btn");
                     Button shard_btn = shard_btn_object.GetComponent<Button>();
                     shard_btn.name = shard_btn_name + id;
-                    GameObject shard_id_object = Functions.GetChild(shard_btn_object, "shard_id");
-                    Text shard_id = shard_id_object.GetComponent<Text>();
-                    shard_id.text = id.ToString();
-                    GameObject shard_name_object = Functions.GetChild(shard_btn_object, "shard_name");
-                    Text shard_name = shard_name_object.GetComponent<Text>();
-                    shard_name.text = name.ToString();
                     UnityEngine.Color color_id = color_red;
                     if (naturally) { color_id = color_green; }
-                    shard_id.color = color_id;
                     UnityEngine.Color color_name = color_blue;
                     if (!idol)
                     {
                         if (affix_type == AffixList.AffixType.PREFIX) { color_name = color_yellow; }
                         else if (affix_type == AffixList.AffixType.SPECIAL) { color_name = color_green; }
                     }
-                    shard_name.color = color_name;
+                    GameObject shard_id_object = Functions.GetChild(shard_btn_object, "shard_id");
+                    if (!shard_id_object.IsNullOrDestroyed())
+                    {
+                        GameObject text = Functions.GetChild(shard_id_object, "Text");
+                        if (!text.IsNullOrDestroyed())
+                        {
+                            Text shard_id = text.GetComponent<Text>();
+                            shard_id.text = id.ToString();
+                            shard_id.color = color_id;
+                        }
+                    }
+                    GameObject shard_name_object = Functions.GetChild(shard_btn_object, "shard_name");
+                    if (!shard_name_object.IsNullOrDestroyed())
+                    {
+                        GameObject text = Functions.GetChild(shard_name_object, "Text");
+                        if (!text.IsNullOrDestroyed())
+                        {
+                            Text shard_name = text.GetComponent<Text>();
+                            shard_name.text = name.ToString();
+                            shard_name.color = color_name;
+                        }
+                    }
                 }
                 public static void SelectShard(int id, string name)
                 {

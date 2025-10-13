@@ -126,6 +126,7 @@ namespace LastEpoch_Hud
             base_object.AddComponent<Scripts.Save_Manager>();
             base_object.AddComponent<Scripts.Hud_Manager>();
             base_object.AddComponent<Scripts.Mods_Manager>();
+            base_object.AddComponent<Scripts.VirtualKeyboard>();
             Initialized = true;
             Initializing = false;
         }
@@ -181,7 +182,7 @@ namespace LastEpoch_Hud
                         break;
                     }
                 }
-                string[] no_bug = { "skin", "Modifier Button", "legendary_icon", "quad_stash_row" };
+                string[] no_bug = { "skin", "Modifier Button", "legendary_icon", "quad_stash_row", "Hud_VirtualKeyboard" };
                 if ((!found) && (!no_bug.Contains(name))) { Main.logger_instance?.Error("Functions.GetChild, Child : " + name + " not Found"); }
             }
             else { Main.logger_instance.Error("GetChild(" + name + ") : Obj is null"); }

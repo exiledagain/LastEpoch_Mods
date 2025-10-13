@@ -37,7 +37,8 @@ namespace LastEpoch_Hud.Scripts
         GameObject newitems_sandsofsilk_obj = null;
         GameObject newitems_essentiasanguis_obj = null;
         GameObject newitems_heralds_obj = null;
-        
+        GameObject newitems_arakaali_obj = null;
+
         GameObject spawn_timebeast_obj = null;
                 
         GameObject summon_collider_obj = null;
@@ -153,6 +154,10 @@ namespace LastEpoch_Hud.Scripts
             newitems_sandsofsilk_obj = Object.Instantiate(new GameObject { name = "Mod_NewItems_SandsOfSilk" }, Vector3.zero, Quaternion.identity);
             newitems_sandsofsilk_obj.AddComponent<Mods.NewItems.Items_SandsOfSilk>();
             Mods_Objects.Add(newitems_sandsofsilk_obj);
+
+            newitems_arakaali_obj = Object.Instantiate(new GameObject { name = "Mod_NewItems_ArakaalisFang" }, Vector3.zero, Quaternion.identity);
+            newitems_arakaali_obj.AddComponent<Mods.NewItems.Items_ArakaalisFang>();
+            Mods_Objects.Add(newitems_arakaali_obj);
 
             //Spawn Il2cpp Mods
             spawn_timebeast_obj = Object.Instantiate(new GameObject { name = "Mod_Spawn_TimeBeast" }, Vector3.zero, Quaternion.identity);

@@ -114,7 +114,44 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
                     buffs_obj = Instantiate(buffs_prefab, Vector3.zero, Quaternion.identity);
                     DontDestroyOnLoad(buffs_obj);
                     buffs_obj.transform.SetParent(Refs_Manager.game_uibase.transform);
+                    MoveEnemyHealthBar(55f);
                     Initializing = false;
+                }
+            }
+            public static void MoveEnemyHealthBar(float down)
+            {
+                GameObject canvas_enemy_health_bar = Functions.GetChild(Refs_Manager.game_uibase.gameObject, "Canvas (enemy health bar)");
+                if (!canvas_enemy_health_bar.IsNullOrDestroyed())
+                {
+                    GameObject enemy_health_bar = Functions.GetChild(canvas_enemy_health_bar, "EnemyHealthBar");
+                    if (!enemy_health_bar.IsNullOrDestroyed())
+                    {
+                        float scale = enemy_health_bar.GetComponent<Transform>().lossyScale.y;
+                        GameObject normal_enemy = Functions.GetChild(enemy_health_bar, "normalEnemy");
+                        if (!normal_enemy.IsNullOrDestroyed())
+                        {
+                            Vector3 position = normal_enemy.GetComponent<Transform>().position;
+                            normal_enemy.GetComponent<Transform>().position = new Vector3(position.x, (position.y - (down * scale)), position.z);
+                        }
+                        GameObject rare_enemy = Functions.GetChild(enemy_health_bar, "rareEnemy");
+                        if (!rare_enemy.IsNullOrDestroyed())
+                        {
+                            Vector3 position = rare_enemy.GetComponent<Transform>().position;
+                            rare_enemy.GetComponent<Transform>().position = new Vector3(position.x, (position.y - (down * scale)), position.z);
+                        }
+                        GameObject boss_enemy = Functions.GetChild(enemy_health_bar, "bossEnemy");
+                        if (!boss_enemy.IsNullOrDestroyed())
+                        {
+                            Vector3 position = boss_enemy.GetComponent<Transform>().position;
+                            boss_enemy.GetComponent<Transform>().position = new Vector3(position.x, (position.y - (down * scale)), position.z);
+                        }
+                        GameObject friendly_unit = Functions.GetChild(enemy_health_bar, "friendlyUnit");
+                        if (!friendly_unit.IsNullOrDestroyed())
+                        {
+                            Vector3 position = friendly_unit.GetComponent<Transform>().position;
+                            friendly_unit.GetComponent<Transform>().position = new Vector3(position.x, (position.y - (down * scale)), position.z);
+                        }
+                    }
                 }
             }
             public static void AddBuff(string buff_name, int stack, SP property)
@@ -212,133 +249,13 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
             public static Sprite GetBuffIcon(SP stat)
             {
                 Sprite result = null;
-                string search_str = "";
-                switch (stat)
+                if (!buffs_obj.IsNullOrDestroyed())
                 {
-                    case SP.Damage: search_str = "c-damage buff"; break;
-                    case SP.AilmentChance: search_str = ""; break;
-                    case SP.AttackSpeed: search_str = "c-Attack Speed Buff (generic)"; break;
-                    case SP.CastSpeed: search_str = "castspeed"; break;
-                    case SP.CriticalChance: search_str = "c-critical strike chance buff_1"; break;
-                    case SP.CriticalMultiplier: search_str = "c-critical strike damage buff"; break;
-                    case SP.DamageTaken: search_str = ""; break;
-                    case SP.Health: search_str = "c-Health Regeneration Buff (generic)_2"; break;
-                    case SP.Mana: search_str = "c-Mana Regeneration Buff (generic)"; break;
-                    case SP.Movespeed: search_str = ""; break;
-                    case SP.Armour: search_str = "c-armor buff"; break;
-                    case SP.DodgeRating: search_str = "dodge chance"; break;
-                    case SP.StunAvoidance: search_str = ""; break;
-                    case SP.FireResistance: search_str = "fire-buff"; break;
-                    case SP.ColdResistance: search_str = "cold-buff"; break;
-                    case SP.LightningResistance: search_str = "lightning-buff"; break;
-                    case SP.WardRetention: search_str = "c-Ward Retention Buff (generic)"; break;
-                    case SP.HealthRegen: search_str = "c-Health Regeneration Buff (generic)"; break;
-                    case SP.ManaRegen: search_str = "c-Mana Regeneration Buff (generic)"; break;
-                    case SP.Strength: search_str = ""; break;
-                    case SP.Vitality: search_str = ""; break;
-                    case SP.Intelligence: search_str = ""; break;
-                    case SP.Dexterity: search_str = ""; break;
-                    case SP.Attunement: search_str = ""; break;
-                    case SP.ManaBeforeHealthPercent: search_str = ""; break;
-                    case SP.ChannelCost: search_str = "Channel"; break;
-                    case SP.VoidResistance: search_str = ""; break;
-                    case SP.NecroticResistance: search_str = ""; break;
-                    case SP.PoisonResistance: search_str = ""; break;
-                    case SP.BlockChance: search_str = "c-block buff"; break;
-                    case SP.AllResistances: search_str = "gg-resistances"; break;
-                    case SP.DamageTakenAsPhysical: search_str = ""; break;
-                    case SP.DamageTakenAsFire: search_str = ""; break;
-                    case SP.DamageTakenAsCold: search_str = ""; break;
-                    case SP.DamageTakenAsLightning: search_str = ""; break;
-                    case SP.DamageTakenAsNecrotic: search_str = ""; break;
-                    case SP.DamageTakenAsVoid: search_str = ""; break;
-                    case SP.DamageTakenAsPoison: search_str = ""; break;
-                    case SP.HealthGain: search_str = ""; break;
-                    case SP.WardGain: search_str = ""; break;
-                    case SP.ManaGain: search_str = ""; break;
-                    case SP.AdaptiveSpellDamage: search_str = ""; break;
-                    case SP.IncreasedAilmentDuration: search_str = ""; break;
-                    case SP.IncreasedAilmentEffect: search_str = ""; break;
-                    case SP.IncreasedHealing: search_str = ""; break;
-                    case SP.IncreasedStunChance: search_str = "stun chance 1"; break;
-                    case SP.AllAttributes: search_str = "gg-attributescale"; break;
-                    case SP.IncreasedPotionDropRate: search_str = ""; break;
-                    case SP.PotionHealth: search_str = ""; break;
-                    case SP.PotionSlots: search_str = ""; break;
-                    case SP.HasteOnHitChance: search_str = ""; break;
-                    case SP.HealthLeech: search_str = ""; break;
-                    case SP.ElementalResistance: search_str = ""; break;
-                    case SP.BlockEffectiveness: search_str = ""; break;
-                    case SP.IncreasedStunImmunityDuration: search_str = ""; break;
-                    case SP.StunImmunity: search_str = ""; break;
-                    case SP.ManaDrain: search_str = ""; break;
-                    case SP.AbilityProperty: search_str = ""; break;
-                    case SP.Penetration: search_str = ""; break;
-                    case SP.CurrentHealthDrain: search_str = ""; break;
-                    case SP.MaximumCompanions: search_str = ""; break;
-                    case SP.GlancingBlowChance: search_str = ""; break;
-                    case SP.CullPercentFromPassives: search_str = ""; break;
-                    case SP.PhysicalResistance: search_str = ""; break;
-                    case SP.CullPercentFromWeapon: search_str = ""; break;
-                    case SP.ManaCost: search_str = ""; break;
-                    case SP.FreezeRateMultiplier: search_str = "Freeze buff"; break;
-                    case SP.IncreasedChanceToBeFrozen: search_str = ""; break;
-                    case SP.ManaEfficiency: search_str = ""; break;
-                    case SP.IncreasedCooldownRecoverySpeed: search_str = ""; break;
-                    case SP.ReceivedStunDuration: search_str = ""; break;
-                    case SP.NegativePhysicalResistance: search_str = ""; break;
-                    case SP.ChillRetaliationChance: search_str = ""; break;
-                    case SP.SlowRetaliationChance: search_str = ""; break;
-                    case SP.Endurance: search_str = ""; break;
-                    case SP.EnduranceThreshold: search_str = ""; break;
-                    case SP.NegativeArmour: search_str = ""; break;
-                    case SP.NegativeFireResistance: search_str = ""; break;
-                    case SP.NegativeColdResistance: search_str = ""; break;
-                    case SP.NegativeLightningResistance: search_str = ""; break;
-                    case SP.NegativeVoidResistance: search_str = ""; break;
-                    case SP.NegativeNecroticResistance: search_str = ""; break;
-                    case SP.NegativePoisonResistance: search_str = ""; break;
-                    case SP.NegativeElementalResistance: search_str = ""; break;
-                    case SP.Thorns: search_str = ""; break;
-                    case SP.PercentReflect: search_str = ""; break;
-                    case SP.ShockRetaliationChance: search_str = ""; break;
-                    case SP.LevelOfSkills: search_str = ""; break;
-                    case SP.CritAvoidance: search_str = ""; break;
-                    case SP.PotionHealthConvertedToWard: search_str = ""; break;
-                    case SP.WardOnPotionUse: search_str = ""; break;
-                    case SP.WardRegen: search_str = ""; break;
-                    case SP.OverkillLeech: search_str = ""; break;
-                    case SP.ManaBeforeWardPercent: search_str = ""; break;
-                    case SP.IncreasedStunDuration: search_str = ""; break;
-                    case SP.MaximumHealthGainedAsEnduranceThreshold: search_str = ""; break;
-                    case SP.ChanceToGain30WardWhenHit: search_str = ""; break;
-                    case SP.PlayerProperty: search_str = ""; break;
-                    case SP.ManaSpentGainedAsWard: search_str = ""; break;
-                    case SP.AilmentConversion: search_str = ""; break;
-                    case SP.PerceivedUnimportanceModifier: search_str = ""; break;
-                    case SP.IncreasedLeechRate: search_str = ""; break;
-                    case SP.MoreFreezeRatePerStackOfChill: search_str = "Freeze buff"; break;
-                    case SP.IncreasedDropRate: search_str = ""; break;
-                    case SP.IncreasedExperience: search_str = ""; break;
-                    case SP.PhysicalAndVoidResistance: search_str = ""; break;
-                    case SP.NecroticAndPoisonResistance: search_str = ""; break;
-                    case SP.DamageTakenBuff: search_str = ""; break;
-                    case SP.IncreasedChanceToBeStunned: search_str = ""; break;
-                    case SP.DamageTakenFromNearbyEnemies: search_str = ""; break;
-                    case SP.BlockChanceAgainstDistantEnemies: search_str = ""; break;
-                    case SP.ChanceToBeCrit: search_str = ""; break;
-                    case SP.DamageTakenWhileMoving: search_str = ""; break;
-                    case SP.ReducedBonusDamageTakenFromCrits: search_str = ""; break;
-                    case SP.DamagePerStackOfAilment: search_str = ""; break;
-                    case SP.IncreasedAreaForAreaSkills: search_str = ""; break;
-                    case SP.GlobalConditionalDamage: search_str = ""; break;
-                    case SP.ArmourMitigationAppliesToDamageOverTime: search_str = ""; break;
-                }
-                if (search_str != "")
-                {
-                    foreach (Sprite s in Resources.FindObjectsOfTypeAll<Sprite>())
+                    GameObject go = Functions.GetChild(buffs_obj, stat.ToString());
+                    if (!go.IsNullOrDestroyed())
                     {
-                        if (s.name == search_str) { result = s; break; }
+                        UnityEngine.UI.Image img = go.GetComponent<UnityEngine.UI.Image>();
+                        if (!img.IsNullOrDestroyed()) { result = img.sprite; }
                     }
                 }
                 
@@ -668,40 +585,15 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
             public static bool LoadConfig()
             {
                 bool result = false;
-                if (!Save_Manager.instance.IsNullOrDestroyed())
-                {
-                    try
-                    {
-                        HH_Buff_Config = JsonConvert.DeserializeObject<System.Collections.Generic.List<RandomBuffs.HH_Buff>>(System.IO.File.ReadAllText(Save_Manager.instance.path + filename));
-                        result = true;
-                    }
-                    catch { result = DefaultConfig(); }
-                    if (result) { RandomBuffs.Generate_HH_BuffsList(); }
-                }
-
-                return result;
-            }            
-
-            private static string filename = "hh_buffs.json";
-            private static bool DefaultConfig()
-            {
-                bool result = false;
-                try
+                if (!json.IsNullOrDestroyed())
                 {
                     HH_Buff_Config = JsonConvert.DeserializeObject<System.Collections.Generic.List<RandomBuffs.HH_Buff>>(json.text);
-                    SaveConfig();
+                    RandomBuffs.Generate_HH_BuffsList();
                     result = true;
                 }
-                catch { }
-
+                else { Main.logger_instance.Error("json is null"); }
+                
                 return result;
-            }
-            private static void SaveConfig()
-            {
-                string jsonString = JsonConvert.SerializeObject(HH_Buff_Config, Formatting.Indented);
-                if (!System.IO.Directory.Exists(Save_Manager.instance.path)) { System.IO.Directory.CreateDirectory(Save_Manager.instance.path); }
-                if (System.IO.File.Exists(Save_Manager.instance.path + filename)) { System.IO.File.Delete(Save_Manager.instance.path + filename); }
-                System.IO.File.WriteAllText(Save_Manager.instance.path + filename, jsonString);
             }
         }
         public class RandomBuffs
@@ -711,8 +603,6 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
                 public string property;
                 public bool added;
                 public bool increased;
-                public int max_added;
-                public int max_increased;
             }
             public static string hh_buff = "HHBuff";
             public static void GenerateBuffs()
