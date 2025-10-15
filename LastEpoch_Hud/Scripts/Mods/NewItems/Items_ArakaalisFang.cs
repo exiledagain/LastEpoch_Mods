@@ -148,8 +148,8 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
                 Il2CppSystem.Collections.Generic.List<ItemList.EquipmentImplicit> implicits = new Il2CppSystem.Collections.Generic.List<ItemList.EquipmentImplicit>();
                 implicits.Add(new ItemList.EquipmentImplicit
                 {
-                    implicitMaxValue = 40,
-                    implicitValue = 40,
+                    implicitMaxValue = 0.4f,
+                    implicitValue = 0.4f,
                     property = SP.CriticalChance,
                     specialTag = 0,
                     tags = AT.None,
@@ -402,7 +402,6 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
         {
             public static Sprite Icon = null;
             public static int summon_limit = 20;
-            //public static int summon_count = 0;
             public static float max_time = 30;
             public static string actor_name = "Cave Spider";
             public static string actor_data_name = "Arakaali Spider";
@@ -446,6 +445,7 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
                             {
                                 name = "Raise Spider",
                                 abilityName = "Raise Spider",
+                                abilitySprite = Icon,
                                 abilityObjectRotation = Ability.AbilityObjectRotation.FacingTarget,
                                 abilityObjectType = Ability.AbilityObjectType.Default,
                                 animation = AbilityAnimation.CastUp,
@@ -556,7 +556,7 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
                 {
                     if (multi_minion_card.ability.abilityName == "Raise Spider")
                     {
-                        multi_minion_card.image.sprite = Icon;
+                        //multi_minion_card.image.sprite = Icon; //already in update
                         count += multi_minion_card.number;
                     }
                 }
@@ -594,6 +594,14 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
                         if (!emerging.IsNullOrDestroyed())
                         {
                             emerging.duration = 0f;
+                        }
+                        AbilityList ability_list = __instance.gameObject.GetComponent<AbilityList>();
+                        if (!ability_list.IsNullOrDestroyed())
+                        {
+                            foreach (Ability ability in ability_list.abilities)
+                            {
+                                if (ability.abilitySprite.IsNullOrDestroyed()) { ability.abilitySprite = Icon; }
+                            }
                         }
                     }
                 }

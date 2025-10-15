@@ -283,6 +283,7 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
                                     {
                                         name = "Herald of Ice",
                                         abilityName = "Herald of Ice",
+                                        abilitySprite = Icon,
                                         abilityObjectRotation = Ability.AbilityObjectRotation.FacingTarget,
                                         abilityObjectType = Ability.AbilityObjectType.Default,
                                         animation = AbilityAnimation.Cast,
@@ -492,6 +493,7 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
                                     {
                                         name = "Herald of Ash",
                                         abilityName = "Herald of Ash",
+                                        abilitySprite = Icon,
                                         abilityObjectRotation = Ability.AbilityObjectRotation.FacingTarget,
                                         abilityObjectType = Ability.AbilityObjectType.Default,
                                         animation = AbilityAnimation.Cast,
@@ -701,6 +703,7 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
                                     {
                                         name = "Herald of Thunder",
                                         abilityName = "Herald of Thunder",
+                                        abilitySprite = Icon,
                                         abilityObjectRotation = Ability.AbilityObjectRotation.FacingTarget,
                                         abilityObjectType = Ability.AbilityObjectType.Default,
                                         animation = AbilityAnimation.Cast,
@@ -910,6 +913,7 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
                                     {
                                         name = "Herald of Agony",
                                         abilityName = "Herald of Agony",
+                                        abilitySprite = Icon,
                                         abilityObjectRotation = Ability.AbilityObjectRotation.FacingTarget,
                                         abilityObjectType = Ability.AbilityObjectType.Default,
                                         animation = AbilityAnimation.Cast,

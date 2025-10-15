@@ -9,6 +9,10 @@ namespace LastEpoch_Hud.Scripts
         public Mods_Manager(System.IntPtr ptr) : base(ptr) { }
         public static Mods_Manager instance { get; private set; }
 
+        GameObject cosmetics_obj = null;
+        GameObject damager_meter_obj = null;
+        GameObject chat_obj = null;
+
         GameObject bank_quad_obj = null;
 
         GameObject character_autopotion_obj = null;
@@ -55,6 +59,19 @@ namespace LastEpoch_Hud.Scripts
             instance = this;
             Main.logger_instance?.Msg("Mods Manager : Initialize");
             Il2CppSystem.Collections.Generic.List<GameObject> Mods_Objects = new Il2CppSystem.Collections.Generic.List<GameObject>();
+
+            //UI
+            cosmetics_obj = Object.Instantiate(new GameObject { name = "Mod_Cosmetics" }, Vector3.zero, Quaternion.identity);
+            cosmetics_obj.AddComponent<Mods.Cosmetics.Cosmetics_Offline>();
+            Mods_Objects.Add(cosmetics_obj);
+
+            damager_meter_obj = Object.Instantiate(new GameObject { name = "Mod_Damager_Meter" }, Vector3.zero, Quaternion.identity);
+            damager_meter_obj.AddComponent<Mods.UI.DamageMeter>();
+            Mods_Objects.Add(damager_meter_obj);
+
+            chat_obj = Object.Instantiate(new GameObject { name = "Mod_Remove_Chat" }, Vector3.zero, Quaternion.identity);
+            chat_obj.AddComponent<Mods.Chat.Chat_Remove>();
+            Mods_Objects.Add(chat_obj);
 
             //Bank Il2cpp Mods
             bank_quad_obj = Object.Instantiate(new GameObject { name = "Mod_Bank_Quad" }, Vector3.zero, Quaternion.identity);

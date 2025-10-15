@@ -176,14 +176,14 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
                 }
             }
         }
-        private class Icon
+        public class Icon
         {
             internal static void Update()
             {
                 if (sprite.IsNullOrDestroyed()) { Get_UniqueIcon(); }
             }
 
-            private static Sprite sprite = null;
+            public static Sprite sprite = null;
             private static bool loading = false;
             private static void Get_UniqueIcon()
             {
@@ -427,7 +427,7 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
                 }
             }            
 
-            private static Ability[] Abilities = null;
+            public static Ability[] Abilities = null;
             private static System.DateTime[] Times = null;
             private static bool Initializing = false;
             private static bool trigger = false;
