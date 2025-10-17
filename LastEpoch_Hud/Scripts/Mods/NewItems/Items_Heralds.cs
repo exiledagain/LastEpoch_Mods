@@ -11,7 +11,7 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
     {
         public static Items_Heralds instance { get; private set; }
         public Items_Heralds(System.IntPtr ptr) : base(ptr) { }
-        
+
         bool InGame = false;
 
         void Awake()
@@ -45,11 +45,6 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
                 if (Uniques.Lightning.ability.IsNullOrDestroyed()) { Uniques.Lightning.GetAbility(); }
                 if (Uniques.Poison.prefab_obj.IsNullOrDestroyed()) { Uniques.Poison.GetPrefab(); }
                 if (Uniques.Poison.ability.IsNullOrDestroyed()) { Uniques.Poison.GetAbility(); }
-
-                if (Input.GetKeyDown(KeyCode.F9)) { Uniques.Ice.Launch(Refs_Manager.player_actor.gameObject, Refs_Manager.player_actor.position()); }
-                if (Input.GetKeyDown(KeyCode.F10)) { Uniques.Fire.Launch(Refs_Manager.player_actor.gameObject, Refs_Manager.player_actor.position()); }
-                if (Input.GetKeyDown(KeyCode.F11)) { Uniques.Lightning.Launch(Refs_Manager.player_actor.gameObject, Refs_Manager.player_actor.position()); }
-                if (Input.GetKeyDown(KeyCode.F12)) { Uniques.Poison.Launch(Refs_Manager.player_actor.gameObject, Refs_Manager.player_actor.position()); }
             }
         }
         void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -228,6 +223,38 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
                     catch { Main.logger_instance?.Error("Herald of Ice Unique Dictionary Error"); }
                 }
             }
+            public static void SetDamage(GameObject prefab_obj, AT element, int target_max_health)
+            {
+                DamageEnemyOnHit damageEnemyOnHit = prefab_obj.GetComponent<DamageEnemyOnHit>();
+                if (!damageEnemyOnHit.IsNullOrDestroyed())
+                {
+                    DamageStatsHolder.BaseDamageStats base_damage_stats = damageEnemyOnHit.baseDamageStats;
+                    if (!base_damage_stats.IsNullOrDestroyed())
+                    {
+                        base_damage_stats.addedDamageScaling = 2f;
+                        base_damage_stats.critChance = 0.05f;
+                        base_damage_stats.critMultiplier = 2f;
+                        //base_damage_stats.cullPercent = cull_percent;
+                        base_damage_stats.convertAllAddedDamage = false;
+                        int index = -1;
+                        if (element == AT.Physical) { index = 0; }
+                        else if (element == AT.Fire) { index = 1; }
+                        else if (element == AT.Cold) { index = 2; }
+                        else if (element == AT.Lightning) { index = 3; }
+                        else if (element == AT.Necrotic) { index = 4; }
+                        else if (element == AT.Void) { index = 5; }
+                        else if (element == AT.Poison) { index = 6; }
+                        if (index > -1)
+                        {
+                            for (int i = 0; i < base_damage_stats.damage.Count; i++)
+                            {
+                                if (i == index) { base_damage_stats.damage[i] = target_max_health / 20; }
+                                else { base_damage_stats.damage[i] = 0f; }
+                            }
+                        }
+                    }
+                }
+            }
 
             public class Ice
             {
@@ -324,7 +351,7 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
                                 { collider.radius = Save_Manager.instance.data.NewItems.HeraldOfIce.Radius; }
                                 CreateVfxOnDeath vfx_on_death = prefab_obj.GetComponent<CreateVfxOnDeath>();
                                 if (!vfx_on_death.IsNullOrDestroyed() && Save_Manager.instance.data.NewItems.HeraldOfIce.Enable_Radius)
-                                { vfx_on_death.increasedRadius = Save_Manager.instance.data.NewItems.HeraldOfIce.Radius; }
+                                { vfx_on_death.increasedRadius = Save_Manager.instance.data.NewItems.HeraldOfIce.Radius; }                                
                                 break;
                             }
                         }
@@ -395,16 +422,16 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
 
                     return r;
                 }                
-                public static void Launch(GameObject actor, Vector3 target_position)
+                public static void Launch(GameObject actor, Actor target)
                 {
-                    if (!ability.IsNullOrDestroyed() && !prefab_obj.IsNullOrDestroyed())
+                    if (!ability.IsNullOrDestroyed() && (!target.IsNullOrDestroyed()) && (!prefab_obj.IsNullOrDestroyed()))
                     {
-                        if (ability.abilityPrefab.IsNullOrDestroyed()) { ability.abilityPrefab = Instantiate(prefab_obj, Vector3.zero, Quaternion.identity); }
+                        SetDamage(prefab_obj, AT.Cold, target.health.maxHealth);
+                        ability.abilityPrefab = Instantiate(prefab_obj, Vector3.zero, Quaternion.identity);
                         if (!ability.abilityPrefab.IsNullOrDestroyed())
                         {
-                            //Vector3 position = new Vector3(target_position.x, target_position.y, (target_position.z + 10));
                             ability.abilityPrefab.active = true;
-                            ability.CastAfterDelay(actor.GetComponent<AbilityObjectConstructor>(), target_position, target_position, 0f);
+                            ability.CastAfterDelay(actor.GetComponent<AbilityObjectConstructor>(), target.position(), target.position(), 0f);
                         }
                     }
                 }
@@ -605,16 +632,16 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
 
                     return r;
                 }
-                public static void Launch(GameObject actor, Vector3 target_position)
+                public static void Launch(GameObject actor, Actor target)
                 {
-                    if (!ability.IsNullOrDestroyed() && !prefab_obj.IsNullOrDestroyed())
+                    if (!ability.IsNullOrDestroyed() && (!target.IsNullOrDestroyed()) && (!prefab_obj.IsNullOrDestroyed()))
                     {
-                        if (ability.abilityPrefab.IsNullOrDestroyed()) { ability.abilityPrefab = Instantiate(prefab_obj, Vector3.zero, Quaternion.identity); }
+                        SetDamage(prefab_obj, AT.Fire, target.health.maxHealth);
+                        ability.abilityPrefab = Instantiate(prefab_obj, Vector3.zero, Quaternion.identity);
                         if (!ability.abilityPrefab.IsNullOrDestroyed())
                         {
-                            //Vector3 position = new Vector3(target_position.x, target_position.y, (target_position.z + 10));
                             ability.abilityPrefab.active = true;
-                            ability.CastAfterDelay(actor.GetComponent<AbilityObjectConstructor>(), target_position, target_position, 0f);
+                            ability.CastAfterDelay(actor.GetComponent<AbilityObjectConstructor>(), target.position(), target.position(), 0f);
                         }
                     }
                 }
@@ -815,16 +842,16 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
 
                     return r;
                 }
-                public static void Launch(GameObject actor, Vector3 target_position)
+                public static void Launch(GameObject actor, Actor target)
                 {
-                    if (!ability.IsNullOrDestroyed() && !prefab_obj.IsNullOrDestroyed())
+                    if (!ability.IsNullOrDestroyed() && (!target.IsNullOrDestroyed()) && (!prefab_obj.IsNullOrDestroyed()))
                     {
-                        if (ability.abilityPrefab.IsNullOrDestroyed()) { ability.abilityPrefab = Instantiate(prefab_obj, Vector3.zero, Quaternion.identity); }
+                        SetDamage(prefab_obj, AT.Lightning, target.health.maxHealth);
+                        ability.abilityPrefab = Instantiate(prefab_obj, Vector3.zero, Quaternion.identity);
                         if (!ability.abilityPrefab.IsNullOrDestroyed())
                         {
-                            //Vector3 position = new Vector3(target_position.x, target_position.y, (target_position.z + 10));
                             ability.abilityPrefab.active = true;
-                            ability.CastAfterDelay(actor.GetComponent<AbilityObjectConstructor>(), target_position, target_position, 0f);
+                            ability.CastAfterDelay(actor.GetComponent<AbilityObjectConstructor>(), target.position(), target.position(), 0f);
                         }
                     }
                 }
@@ -1025,16 +1052,16 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
 
                     return r;
                 }
-                public static void Launch(GameObject actor, Vector3 target_position)
+                public static void Launch(GameObject actor, Actor target)
                 {
-                    if (!ability.IsNullOrDestroyed() && !prefab_obj.IsNullOrDestroyed())
+                    if (!ability.IsNullOrDestroyed() && (!target.IsNullOrDestroyed()) && (!prefab_obj.IsNullOrDestroyed()))
                     {
-                        if (ability.abilityPrefab.IsNullOrDestroyed()) { ability.abilityPrefab = Instantiate(prefab_obj, Vector3.zero, Quaternion.identity); }
+                        SetDamage(prefab_obj, AT.Poison, target.health.maxHealth);
+                        ability.abilityPrefab = Instantiate(prefab_obj, Vector3.zero, Quaternion.identity);
                         if (!ability.abilityPrefab.IsNullOrDestroyed())
                         {
-                            //Vector3 position = new Vector3(target_position.x, target_position.y, (target_position.z + 10));
                             ability.abilityPrefab.active = true;
-                            ability.CastAfterDelay(actor.GetComponent<AbilityObjectConstructor>(), target_position, target_position, 0f);
+                            ability.CastAfterDelay(actor.GetComponent<AbilityObjectConstructor>(), target.position(), target.position(), 0f);
                         }
                     }
                 }
@@ -1159,7 +1186,7 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
                 }
                 public class UniqueDescription
                 {
-                    public static string en = "Grants a buff, when you or your minions Kill a monster, this item will cause them to explode and deal AoE cold damage to enemies near them";
+                    public static string en = "Grants a buff, when you or your minions Kill a monster with cold damage, this item will cause them to explode and deal 5% of their Life as cold damage to enemies near them";
                     //Add all languages here
                 }
                 public class Lore
@@ -1181,7 +1208,7 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
                 }
                 public class UniqueDescription
                 {
-                    public static string en = "Grants a buff, when you or your minions Kill a monster, this item will cause them to explode and deal AoE fire damage to enemies near them";
+                    public static string en = "Grants a buff, when you or your minions Kill a monster with fire damage, this item will cause them to explode and deal 5% of their Life as fire damage to enemies near them";
                     //Add all languages here
                 }
                 public class Lore
@@ -1203,7 +1230,7 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
                 }
                 public class UniqueDescription
                 {
-                    public static string en = "Grants a buff, when you or your minions Kill a monster, this item will cause them to explode and deal AoE lightning damage to enemies near them";
+                    public static string en = "Grants a buff, when you or your minions Kill a monster with lightning damage, this item will cause them to explode and deal 5% of their Life as lightning damage to enemies near them";
                     //Add all languages here
                 }
                 public class Lore
@@ -1225,7 +1252,7 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
                 }
                 public class UniqueDescription
                 {
-                    public static string en = "Grants a buff, when you or your minions Kill a monster, this item will cause them to explode and deal AoE poison damage to enemies near them";
+                    public static string en = "Grants a buff, when you or your minions Kill a monster with poison damage, this item will cause them to explode and deal 5% of their Life as poison damage to enemies near them";
                     //Add all languages here
                 }
                 public class Lore
@@ -1390,24 +1417,12 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
             private static readonly System.Action<Ability, Actor> OnKillAction = new System.Action<Ability, Actor>(OnKill);
             private static void OnKill(Ability ability, Actor killedActor)
             {
-                if (!Refs_Manager.player_actor.IsNullOrDestroyed())
+                if ((!Refs_Manager.player_actor.IsNullOrDestroyed()) && (!ability.IsNullOrDestroyed()) && (!killedActor.IsNullOrDestroyed()))
                 {
-                    if (Uniques.Ice.Equipped() && !Uniques.Ice.ability.IsNullOrDestroyed())
-                    {
-                        Uniques.Ice.Launch(Refs_Manager.player_actor.gameObject, killedActor.position());
-                    }
-                    if (Uniques.Fire.Equipped() && !Uniques.Fire.ability.IsNullOrDestroyed())
-                    {
-                        Uniques.Fire.Launch(Refs_Manager.player_actor.gameObject, killedActor.position());
-                    }
-                    if (Uniques.Lightning.Equipped() && !Uniques.Lightning.ability.IsNullOrDestroyed())
-                    {
-                        Uniques.Lightning.Launch(Refs_Manager.player_actor.gameObject, killedActor.position());
-                    }
-                    if (Uniques.Poison.Equipped() && !Uniques.Poison.ability.IsNullOrDestroyed())
-                    {
-                        Uniques.Poison.Launch(Refs_Manager.player_actor.gameObject, killedActor.position());
-                    }
+                    if ((Uniques.Ice.Equipped()) && (ability.tags.HasFlag(AT.Cold))) { Uniques.Ice.Launch(Refs_Manager.player_actor.gameObject, killedActor); }
+                    if ((Uniques.Fire.Equipped()) && (ability.tags.HasFlag(AT.Fire))) { Uniques.Fire.Launch(Refs_Manager.player_actor.gameObject, killedActor); }
+                    if ((Uniques.Lightning.Equipped()) && (ability.tags.HasFlag(AT.Lightning))) { Uniques.Lightning.Launch(Refs_Manager.player_actor.gameObject, killedActor); }
+                    if ((Uniques.Poison.Equipped()) && (ability.tags.HasFlag(AT.Poison))) { Uniques.Poison.Launch(Refs_Manager.player_actor.gameObject, killedActor); }
                 }
             }
 
@@ -1430,24 +1445,12 @@ namespace LastEpoch_Hud.Scripts.Mods.NewItems
             private static readonly System.Action<Summoned, Ability, Actor> OnMinionKillAction = new System.Action<Summoned, Ability, Actor>(OnMinionKill);
             private static void OnMinionKill(Summoned summon, Ability ability, Actor killedActor)
             {
-                if (!Refs_Manager.player_actor.IsNullOrDestroyed())
+                if ((!summon.IsNullOrDestroyed()) && (!ability.IsNullOrDestroyed()) && (!killedActor.IsNullOrDestroyed()))
                 {
-                    if (Uniques.Ice.Equipped() && !Uniques.Ice.ability.IsNullOrDestroyed())
-                    {
-                        Uniques.Ice.Launch(summon.gameObject, killedActor.position());
-                    }
-                    if (Uniques.Fire.Equipped() && !Uniques.Fire.ability.IsNullOrDestroyed())
-                    {
-                        Uniques.Fire.Launch(summon.gameObject, killedActor.position());
-                    }
-                    if (Uniques.Lightning.Equipped() && !Uniques.Lightning.ability.IsNullOrDestroyed())
-                    {
-                        Uniques.Lightning.Launch(summon.gameObject, killedActor.position());
-                    }
-                    if (Uniques.Poison.Equipped() && !Uniques.Poison.ability.IsNullOrDestroyed())
-                    {
-                        Uniques.Poison.Launch(summon.gameObject, killedActor.position());
-                    }
+                    if ((Uniques.Ice.Equipped()) && (ability.tags.HasFlag(AT.Cold))) { Uniques.Ice.Launch(summon.gameObject, killedActor); }
+                    if ((Uniques.Fire.Equipped()) && (ability.tags.HasFlag(AT.Fire))) { Uniques.Fire.Launch(summon.gameObject, killedActor); }
+                    if ((Uniques.Lightning.Equipped()) && (ability.tags.HasFlag(AT.Lightning))) { Uniques.Lightning.Launch(summon.gameObject, killedActor); }
+                    if ((Uniques.Poison.Equipped()) && (ability.tags.HasFlag(AT.Poison))) { Uniques.Poison.Launch(summon.gameObject, killedActor); }
                 }
             }
         }        
