@@ -138,6 +138,14 @@ namespace LastEpoch_Hud.Scripts
                         Dex_Buff_Value = 0f,
                         Enable_Att_Buff = false,
                         Att_Buff_Value = 0f
+                    },
+                    Visuals =
+                    {
+                        Primalist = "Primalist",
+                        Mage = "Mage",
+                        Sentinel = "Sentinel",
+                        Acolyte = "Acolyte",
+                        Rogue = "Rogue"
                     }
                 },
                 Factions =
@@ -624,6 +632,7 @@ namespace LastEpoch_Hud.Scripts
             {
                 public Cheats Cheats;
                 public PermanentBuffs PermanentBuffs;
+                public Visuals Visuals;
             }
             public struct Cheats
             {
@@ -686,7 +695,15 @@ namespace LastEpoch_Hud.Scripts
                 public bool Enable_Att_Buff;
                 public float Att_Buff_Value;
             }
-            
+            public struct Visuals
+            {
+                public string Primalist;
+                public string Mage;
+                public string Sentinel;
+                public string Acolyte;
+                public string Rogue;
+            }
+
             //Summon
             public struct Summon
             {
