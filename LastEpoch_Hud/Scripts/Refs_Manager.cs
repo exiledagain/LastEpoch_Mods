@@ -81,6 +81,7 @@ namespace LastEpoch_Hud.Scripts
             //if ((!character_select.IsNullOrDestroyed()) && (character_select.OnOnlineTabChange.IsNullOrDestroyed())) { character_select.OnOnlineTabChange = Action_SetOnline; }
             if ((craft_slot_manager.IsNullOrDestroyed()) && (!CraftingSlotManager.instance.IsNullOrDestroyed())) { craft_slot_manager = CraftingSlotManager.instance; }
             if (ability_manager.IsNullOrDestroyed()) { ability_manager = AbilityManager.instance; }
+            if (player_data_tracker.IsNullOrDestroyed()) { player_data_tracker = PlayerFinder.getPlayerDataTracker(); }
 
             if (Scenes.IsGameScene())
             {
@@ -116,8 +117,7 @@ namespace LastEpoch_Hud.Scripts
                 if ((item_containers_manager.IsNullOrDestroyed()) && (!ItemContainersManager.Instance.IsNullOrDestroyed())) { item_containers_manager = ItemContainersManager.Instance; }
                 if (player_actor.IsNullOrDestroyed()) { player_actor = PlayerFinder.getPlayerActor(); }
                 if (player_visuals.IsNullOrDestroyed()) { player_visuals = PlayerFinder.getPlayerVisuals(); }
-                if (player_data.IsNullOrDestroyed()) { player_data = PlayerFinder.getPlayerData(); }
-                if (player_data_tracker.IsNullOrDestroyed()) { player_data_tracker = PlayerFinder.getPlayerDataTracker(); }
+                if (player_data.IsNullOrDestroyed()) { player_data = PlayerFinder.getPlayerData(); }                
                 if ((faction_tracker.IsNullOrDestroyed()) && (!player_actor.IsNullOrDestroyed())) { faction_tracker = player_actor.gameObject.GetComponent<FactionTracker>(); }
                 if ((player_quest_list.IsNullOrDestroyed()) && (!player_actor.IsNullOrDestroyed())) { player_quest_list = player_actor.gameObject.GetComponent<PlayerQuestListHolder>(); }
                 if (player_health.IsNullOrDestroyed()) { player_health = PlayerFinder.getLocalPlayerHealth(); }
