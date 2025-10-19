@@ -1,66 +1,14 @@
 ﻿using HarmonyLib;
 using Il2Cpp;
-using MelonLoader;
-using UnityEngine;
 
 namespace LastEpoch_Hud.Scripts.Mods.Character
 {
-    [RegisterTypeInIl2Cpp]
-    public class Character_Visuals : MonoBehaviour
-    {
-        public static Character_Visuals instance { get; private set; }
-        public Character_Visuals(System.IntPtr ptr) : base(ptr) { }
-
-        //Primalist = 0, Mage = 1, Sentinel = 2, Acolyte = 3, Rogue = 4        
+    public class Character_Visuals
+    {     
         public static int wanted_class = -1;
         public static int backup_class = -1;
+        public static readonly string[] CharacterClass = { "Primalist", "Mage", "Sentinel", "Acolyte", "Rogue" };
 
-        /*public static bool Initializing = false;
-        public static bool Initialized = false;
-        public static EquipmentVisualsManager equipment_manager = null;
-        public static System.Collections.Generic.List<SkinnedMeshRenderer> primalist_renderer = null;
-        public static System.Collections.Generic.List<SkinnedMeshRenderer> mage_renderer = null;
-        public static System.Collections.Generic.List<SkinnedMeshRenderer> sentinel_renderer = null;
-        public static System.Collections.Generic.List<SkinnedMeshRenderer> acolyte_renderer = null;
-        public static System.Collections.Generic.List<SkinnedMeshRenderer> rogue_renderer = null;
-        public static System.Collections.Generic.List<SkinnedMeshRenderer>[] renderers = null;
-        public static readonly string[] CharacterClass = { "Primalist", "Mage", "Sentinel", "Acolyte", "Rogue" };*/
-
-        void Awake()
-        {
-            instance = this;
-        }
-        /*void Update()
-        {
-            if ((!Initialized) && (!Initializing)) { Init(); }
-        }*/
-
-        /*public static void Init()
-        {
-            Initializing = true;
-            primalist_renderer = new System.Collections.Generic.List<SkinnedMeshRenderer>();
-            mage_renderer = new System.Collections.Generic.List<SkinnedMeshRenderer>();
-            sentinel_renderer = new System.Collections.Generic.List<SkinnedMeshRenderer>();
-            acolyte_renderer = new System.Collections.Generic.List<SkinnedMeshRenderer>();
-            rogue_renderer = new System.Collections.Generic.List<SkinnedMeshRenderer>();
-            foreach (SkinnedMeshRenderer skin in Resources.FindObjectsOfTypeAll<SkinnedMeshRenderer>())
-            {
-                if (skin.name.Contains(CharacterClass[0])) { primalist_renderer.Add(skin); }
-                else if (skin.name.Contains(CharacterClass[1])) { mage_renderer.Add(skin); }
-                else if (skin.name.Contains(CharacterClass[2])) { sentinel_renderer.Add(skin); }
-                else if (skin.name.Contains(CharacterClass[3])) { acolyte_renderer.Add(skin); }
-                else if (skin.name.Contains(CharacterClass[4])) { rogue_renderer.Add(skin); }
-            }
-            renderers = new System.Collections.Generic.List<SkinnedMeshRenderer>[5];
-            renderers[0] = primalist_renderer;
-            renderers[1] = mage_renderer;
-            renderers[2] = sentinel_renderer;
-            renderers[3] = acolyte_renderer;
-            renderers[4] = rogue_renderer;
-
-            Initialized = true;
-            Initializing = false;
-        }*/        
         public static void Set_WantedClass(string name)
         {            
             if (name == "Primalist") { wanted_class = 0; }
@@ -95,47 +43,118 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
         public class EquipmentVisualsManager_EquipGearAsync
         {
             [HarmonyPrefix]
-            static void Prefix(EquipmentVisualsManager __instance, Il2CppCysharp.Threading.Tasks.UniTask __result, EquipmentType __0, int __1, bool __2, ushort __3)
+            static void Prefix(EquipmentVisualsManager __instance, Il2CppCysharp.Threading.Tasks.UniTask __result, EquipmentType __0, ref int __1, bool __2, ref ushort __3)
             {
-                if ((wanted_class > -1) && (!Refs_Manager.player_data.IsNullOrDestroyed()))
+                if (__instance.didAwake)
                 {
-                    backup_class = Refs_Manager.player_data.CharacterClass;
-                    Refs_Manager.player_data.CharacterClass = wanted_class;
+                    if ((wanted_class > -1) && (__instance.name == "v_MainPlayer"))
+                    {
+                        //Check item class req, then set another subitem and another unique if unique
+                        bool class_req = false;
+                        int item_type = 0;
+                        foreach (ItemList.BaseEquipmentItem baseEquipmentItem in ItemList.instance.EquippableItems)
+                        {
+                            if (baseEquipmentItem.type == __0)
+                            {
+                                if ((__1 > -1) && (__1 < baseEquipmentItem.subItems.Count))
+                                {
+                                    if (baseEquipmentItem.subItems[__1].classRequirement != ItemList.ClassRequirement.None)
+                                    {
+                                        class_req = true;
+                                    }
+                                }
+                                break;
+                            }
+                            item_type++;
+                        }
+                        if (class_req)
+                        {
+                            if (!__2) //Check for another Base item without class requirement
+                            {
+                                bool found = false;
+                                int i = 0;
+                                foreach (ItemList.BaseEquipmentItem baseEquipmentItem in ItemList.instance.EquippableItems)
+                                {
+                                    if (baseEquipmentItem.type == __0)
+                                    {
+                                        foreach (ItemList.EquipmentItem equipmentItem in baseEquipmentItem.subItems)
+                                        {
+                                            if (equipmentItem.classRequirement == ItemList.ClassRequirement.None)
+                                            {
+                                                found = true;
+                                                break;
+                                            }
+                                            i++;
+                                        }
+                                        break;
+                                    }
+                                }
+                                if (found) { __1 = i; }
+                            }
+                            else //Check for another Unique without class requirement
+                            {
+                                bool found = false;
+                                foreach (UniqueList.Entry unique in UniqueList.instance.uniques)
+                                {
+                                    if (unique.baseType == item_type)
+                                    {
+                                        int unique_subtype = unique.subTypes[0];
+                                        foreach (ItemList.BaseEquipmentItem baseEquipmentItem in ItemList.instance.EquippableItems)
+                                        {
+                                            if (baseEquipmentItem.type == __0)
+                                            {
+                                                if ((unique_subtype > -1) && (unique_subtype < baseEquipmentItem.subItems.Count))
+                                                {
+                                                    if (baseEquipmentItem.subItems[unique_subtype].classRequirement == ItemList.ClassRequirement.None)
+                                                    {
+                                                        found = true;
+                                                        __1 = unique_subtype;
+                                                        __3 = unique.uniqueID;                                                        
+                                                    }
+                                                }
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if (found) { break; }
+                                }
+                            }
+                        }
+
+                        //Set character class to wanted_class
+                        if (!Refs_Manager.player_data_tracker.IsNullOrDestroyed())
+                        {
+                            if (!Refs_Manager.player_data_tracker.charData.IsNullOrDestroyed())
+                            {
+                                backup_class = Refs_Manager.player_data_tracker.charData.CharacterClass;
+                                Refs_Manager.player_data_tracker.charData.CharacterClass = wanted_class;
+                            }
+                            else { Main.logger_instance.Error("player_data_tracker.charData is null"); }
+                        }
+                        else { Main.logger_instance.Error("player_data_tracker is null"); }
+                    }
                 }
             }
             [HarmonyPostfix]
             static void Postifx(EquipmentVisualsManager __instance, Il2CppCysharp.Threading.Tasks.UniTask __result, EquipmentType __0, int __1, bool __2, ushort __3)
             {
-                if ((wanted_class > -1) && (!Refs_Manager.player_data.IsNullOrDestroyed()))
+                if (__instance.didAwake)
                 {
-                    Refs_Manager.player_data.CharacterClass = backup_class;
-                }
-
-                /*if ((__0 == EquipmentType.BODY_ARMOR) && (!equipment_manager.IsNullOrDestroyed()))
-                {
-                    RendererManager renderer_manager = equipment_manager.gameObject.GetComponent<RendererManager>();
-                    if (!renderer_manager.IsNullOrDestroyed())
+                    if ((backup_class > -1) && (__instance.name == "v_MainPlayer"))
                     {
-                        foreach (Renderer renderer in renderer_manager.renderers)
+                        //Reset character class
+                        if (!Refs_Manager.player_data_tracker.IsNullOrDestroyed())
                         {
-                            if ((renderer.name.Contains(CharacterClass[backup_class])) && ((renderer.name.Contains("Chest")) || (renderer.name.Contains("Cloth"))))
+                            if (!Refs_Manager.player_data_tracker.charData.IsNullOrDestroyed())
                             {
-                                Object.Destroy(renderer);
+                                Refs_Manager.player_data_tracker.charData.CharacterClass = backup_class;
+                                backup_class = -1;
                             }
+                            else { Main.logger_instance.Error("player_data_tracker.charData is null"); }
                         }
-
-                        foreach (SkinnedMeshRenderer skin in renderers[wanted_class])
-                        {
-                            if (!skin.IsNullOrDestroyed())
-                            {
-                                if ((skin.name.Contains("Chest")) || (skin.name.Contains("Cloth")))
-                                {
-                                    renderer_manager.renderers.Add(skin);
-                                }
-                            }
-                        }
+                        else { Main.logger_instance.Error("player_data_tracker is null"); }
                     }
-                }*/
+                }
             }
         }
     }
