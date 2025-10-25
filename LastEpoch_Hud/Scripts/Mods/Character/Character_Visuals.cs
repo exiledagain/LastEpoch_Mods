@@ -1,7 +1,5 @@
 ﻿using HarmonyLib;
 using Il2Cpp;
-using MelonLoader;
-using UnityEngine;
 
 namespace LastEpoch_Hud.Scripts.Mods.Character
 {
@@ -93,9 +91,9 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
             [HarmonyPrefix]
             static void Prefix(EquipmentVisualsManager __instance, Il2CppCysharp.Threading.Tasks.UniTask __result, EquipmentType __0, ref int __1, bool __2, ref ushort __3)
             {
-                if ((__instance.didAwake) && (__instance.name == "v_MainPlayer") && (wanted_class > -1) && (backup_class > -1))
+                if ((__instance.didAwake) && (__instance.name == "v_MainPlayer") && (wanted_class > -1) && (backup_class > -1) && (!ItemList.instance.IsNullOrDestroyed()))
                 {
-                    //Check item class req, then set another subitem and another unique if unique
+                    //Check item class req
                     bool class_req = false;
                     int item_type = 0;
                     foreach (ItemList.BaseEquipmentItem baseEquipmentItem in ItemList.instance.EquippableItems)
@@ -113,56 +111,40 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
                         }
                         item_type++;
                     }
-                    if (class_req)
+                    if ((class_req) && (item_type < ItemList.instance.EquippableItems.Count))
                     {
                         if (!__2) //Check for another Base item without class requirement
                         {
-                            bool found = false;
                             int i = 0;
-                            foreach (ItemList.BaseEquipmentItem baseEquipmentItem in ItemList.instance.EquippableItems)
+                            foreach (ItemList.EquipmentItem equipmentItem in ItemList.instance.EquippableItems[item_type].subItems)
                             {
-                                if (baseEquipmentItem.type == __0)
+                                if (equipmentItem.classRequirement == ItemList.ClassRequirement.None)
                                 {
-                                    foreach (ItemList.EquipmentItem equipmentItem in baseEquipmentItem.subItems)
-                                    {
-                                        if (equipmentItem.classRequirement == ItemList.ClassRequirement.None)
-                                        {
-                                            found = true;
-                                            break;
-                                        }
-                                        i++;
-                                    }
+                                    __1 = i;
                                     break;
                                 }
+                                i++;
                             }
-                            if (found) { __1 = i; }
                         }
                         else //Check for another Unique without class requirement
                         {
-                            bool found = false;
+                            if (UniqueList.instance.IsNullOrDestroyed()) { UniqueList.getUnique(0); }
                             foreach (UniqueList.Entry unique in UniqueList.instance.uniques)
                             {
                                 if (unique.baseType == item_type)
                                 {
-                                    int unique_subtype = unique.subTypes[0];
-                                    foreach (ItemList.BaseEquipmentItem baseEquipmentItem in ItemList.instance.EquippableItems)
+                                    int unique_subtype = -1;
+                                    if (unique.subTypes.Count > 0) { unique_subtype = unique.subTypes[0]; }
+                                    if ((unique_subtype > -1) && (unique_subtype < ItemList.instance.EquippableItems[item_type].subItems.Count))
                                     {
-                                        if (baseEquipmentItem.type == __0)
+                                        if (ItemList.instance.EquippableItems[item_type].subItems[unique_subtype].classRequirement == ItemList.ClassRequirement.None)
                                         {
-                                            if ((unique_subtype > -1) && (unique_subtype < baseEquipmentItem.subItems.Count))
-                                            {
-                                                if (baseEquipmentItem.subItems[unique_subtype].classRequirement == ItemList.ClassRequirement.None)
-                                                {
-                                                    found = true;
-                                                    __1 = unique_subtype;
-                                                    __3 = unique.uniqueID;
-                                                }
-                                            }
+                                            __1 = unique_subtype;
+                                            __3 = unique.uniqueID;
                                             break;
                                         }
                                     }
                                 }
-                                if (found) { break; }
                             }
                         }
                     }
@@ -171,6 +153,84 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
             }
             [HarmonyPostfix]
             static void Postifx(EquipmentVisualsManager __instance, Il2CppCysharp.Threading.Tasks.UniTask __result, EquipmentType __0, int __1, bool __2, ushort __3)
+            {
+                if ((__instance.didAwake) && (__instance.name == "v_MainPlayer") && (wanted_class > -1) && (backup_class > -1))
+                {
+                    if (!loading_screen) { Set_CharacterClass(backup_class); }
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(EquipmentVisualsManager), "EquipWeaponAsync")]
+        public class EquipmentVisualsManager_EquipWeaponAsync
+        {
+            [HarmonyPrefix]
+            static void Prefix(EquipmentVisualsManager __instance, int __0, ref int __1, int __2, ref ushort __3)
+            {
+                if ((__instance.didAwake) && (__instance.name == "v_MainPlayer") && (wanted_class > -1) && (backup_class > -1) && (!ItemList.instance.IsNullOrDestroyed()))
+                {
+                    //Check item class req
+                    bool class_req = false;
+                    if (__0 < ItemList.instance.EquippableItems.Count)
+                    {
+                        if (__1 < ItemList.instance.EquippableItems[__0].subItems.Count)
+                        {
+                            if (ItemList.instance.EquippableItems[__0].subItems[__1].classRequirement != ItemList.ClassRequirement.None)
+                            {
+                                class_req = true;
+                            }
+                        }
+                    }
+                    if (class_req)
+                    {
+                        bool IsUnique = false;
+                        if (__2 > 6)
+                        {
+                            UniqueList.Entry item = UniqueList.getUnique(__3);
+                            if (!item.IsNullOrDestroyed())
+                            {
+                                if (item.baseType == __0) { IsUnique = true; }
+                            }
+                        }
+                        if (!IsUnique) //Check for another Base item without class requirement
+                        {
+                            int i = 0;
+                            foreach (ItemList.EquipmentItem equipmentItem in ItemList.instance.EquippableItems[__0].subItems)
+                            {
+                                if (equipmentItem.classRequirement == ItemList.ClassRequirement.None)
+                                {
+                                    __1 = i;
+                                    break;
+                                }
+                                i++;
+                            }
+                        }
+                        else //Check for another Unique without class requirement
+                        {
+                            foreach (UniqueList.Entry unique in UniqueList.instance.uniques)
+                            {
+                                if (unique.baseType == __0)
+                                {
+                                    int unique_subtype = -1;
+                                    if (unique.subTypes.Count > 0) { unique_subtype = unique.subTypes[0]; }
+                                    if ((unique_subtype > -1) && (unique_subtype < ItemList.instance.EquippableItems[__0].subItems.Count))
+                                    {
+                                        if (ItemList.instance.EquippableItems[__0].subItems[unique_subtype].classRequirement == ItemList.ClassRequirement.None)
+                                        {
+                                            __1 = unique_subtype;
+                                            __3 = unique.uniqueID;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (!loading_screen) { Set_CharacterClass(wanted_class); }
+                }
+            }
+            [HarmonyPostfix]
+            static void Postifx(EquipmentVisualsManager __instance)
             {
                 if ((__instance.didAwake) && (__instance.name == "v_MainPlayer") && (wanted_class > -1) && (backup_class > -1))
                 {
