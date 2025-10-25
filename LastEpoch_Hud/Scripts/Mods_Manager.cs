@@ -120,7 +120,7 @@ namespace LastEpoch_Hud.Scripts
 
             character_twohanded_with_shield_obj = Object.Instantiate(new GameObject { name = "Mod_Character_TwoHanded_with_Shield" }, Vector3.zero, Quaternion.identity);
             character_twohanded_with_shield_obj.AddComponent<Mods.Character.Character_TwoHandedShield>();
-            Mods_Objects.Add(character_twohanded_with_shield_obj);                      
+            Mods_Objects.Add(character_twohanded_with_shield_obj);
 
             //Craft Il2cpp Mods
             craft_max_tier_obj = Object.Instantiate(new GameObject { name = "Mod_Craft_MaxTier" }, Vector3.zero, Quaternion.identity);
