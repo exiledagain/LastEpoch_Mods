@@ -49,6 +49,7 @@ namespace LastEpoch_Hud.Scripts
         GameObject summon_forever_obj = null;
         GameObject summon_godmode_obj = null;
 
+        GameObject maxroll_import_obj = null;
 
         bool initialized = false;
         bool enable = false;
@@ -193,6 +194,10 @@ namespace LastEpoch_Hud.Scripts
             summon_godmode_obj = Object.Instantiate(new GameObject { name = "Mod_Summon_GodMode" }, Vector3.zero, Quaternion.identity);
             summon_godmode_obj.AddComponent<Mods.Summon.Summon_GodMode>();
             Mods_Objects.Add(summon_godmode_obj);
+
+            maxroll_import_obj = Object.Instantiate(new GameObject { name = "Mod_Maxroll_Import" }, Vector3.zero, Quaternion.identity);
+            maxroll_import_obj.AddComponent<Mods.Maxroll.Maxroll_import>();
+            Mods_Objects.Add(maxroll_import_obj);
 
             foreach (GameObject mod in Mods_Objects) { Object.DontDestroyOnLoad(mod); }
             Mods_Objects.Clear();
