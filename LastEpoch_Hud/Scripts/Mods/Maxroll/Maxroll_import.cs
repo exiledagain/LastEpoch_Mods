@@ -1,8 +1,7 @@
 ﻿//Mod From https://github.com/exiledagain
 
-//At this time, can import AllEquipement, Equipement, Idols and Passives
+//At this time, can import AllEquipement, Equipement, Idols, Passives and WeaverTree
 //Blessing (need to unlock timeline first) Should be fixed soon
-//WeaverTree (not writen at this time)
 //Skills (not writen at this time)
 
 using Il2Cpp;
@@ -19,13 +18,6 @@ namespace LastEpoch_Hud.Scripts.Mods.Maxroll
         public static Maxroll_import instance { get; private set; }
 
         private static readonly int blessing_container = 33;
-        public static AllEquipments.Root AllEquipmentsData = new AllEquipments.Root();
-        public static Equipment.Root EquipmentData = new Equipment.Root();
-        public static Idols.Root IdolsData = new Idols.Root();
-        public static Blessings.Root BlessingsData = new Blessings.Root();
-        public static Passives.Root PassivesData = new Passives.Root();
-        public static WeaverTree.Root WeaverTreeData = new WeaverTree.Root();
-        public static Skills.Root SkillsData = new Skills.Root();
 
         void Awake()
         {
@@ -40,38 +32,142 @@ namespace LastEpoch_Hud.Scripts.Mods.Maxroll
             string JsonString = GUIUtility.systemCopyBuffer;
             if ((JsonString.Substring(2, 5) == "items") && (JsonString.Contains("idols")) && (JsonString.Contains("blessings")))
             {
-                AllEquipmentsData = JsonConvert.DeserializeObject<AllEquipments.Root>(JsonString);
-                AllEquipments.Load();
+                AllEquipments AllEquipmentsData = JsonConvert.DeserializeObject<AllEquipments>(JsonString);
+                Item[] items = { AllEquipmentsData.Items.Body, AllEquipmentsData.Items.Feet, AllEquipmentsData.Items.Finger1,
+                    AllEquipmentsData.Items.Finger2, AllEquipmentsData.Items.Hands, AllEquipmentsData.Items.Head,
+                    AllEquipmentsData.Items.Neck, AllEquipmentsData.Items.Offhand, AllEquipmentsData.Items.Relic,
+                    AllEquipmentsData.Items.Waist, AllEquipmentsData.Items.Weapon };
+                foreach (Item item in items)
+                {
+                    if (!item.IsNullOrDestroyed())
+                    {
+                        if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
+                        if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
+                        if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
+                        DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
+                    }
+                }
+                int i = 0;
+                foreach (Blessing item in AllEquipmentsData.Blessings)
+                {
+                    if (!item.IsNullOrDestroyed()) { SetBlessings((ushort)(i + blessing_container), item.Implicits, item.ItemType, item.SubType); }
+                    i++;
+                }
+                foreach (Idol item in AllEquipmentsData.Idols)
+                {
+                    if (!item.IsNullOrDestroyed())
+                    {
+                        if (item.UniqueRolls.IsNullOrDestroyed())
+                        {
+                            item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 };
+                        }
+                        DropIdol(item.Affixes, item.ItemType, item.SubType, item.UniqueID, item.UniqueRolls);
+                    }
+                }
             }
             else if (JsonString.Substring(2, 5) == "items")
             {
-                EquipmentData = JsonConvert.DeserializeObject<Equipment.Root>(JsonString);
-                Equipment.Load();
+                Equipment EquipmentData = JsonConvert.DeserializeObject<Equipment>(JsonString);
+                Item[] items = { EquipmentData.Items.Body, EquipmentData.Items.Feet, EquipmentData.Items.Finger1,
+                    EquipmentData.Items.Finger2, EquipmentData.Items.Hands, EquipmentData.Items.Head,
+                    EquipmentData.Items.Neck, EquipmentData.Items.Offhand, EquipmentData.Items.Relic,
+                    EquipmentData.Items.Waist, EquipmentData.Items.Weapon };
+                foreach (Item item in items)
+                {
+                    if (!item.IsNullOrDestroyed())
+                    {
+                        if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
+                        if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
+                        if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
+                        DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
+                    }
+                }
             }
             else if (JsonString.Substring(2, 5) == "idols")
             {
-                IdolsData = JsonConvert.DeserializeObject<Idols.Root>(JsonString);
-                Idols.Load();
+                AllIdols IdolsData = JsonConvert.DeserializeObject<AllIdols>(JsonString);
+                foreach (Idol item in IdolsData.Idols)
+                {
+                    if (!item.IsNullOrDestroyed())
+                    {
+                        if (item.UniqueRolls.IsNullOrDestroyed())
+                        {
+                            item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 };
+                        }
+                        DropIdol(item.Affixes, item.ItemType, item.SubType, item.UniqueID, item.UniqueRolls);
+                    }
+                }
             }
             else if (JsonString.Substring(2, 9) == "blessings")
             {
-                BlessingsData = JsonConvert.DeserializeObject<Blessings.Root>(JsonString);
-                Blessings.Load();
+                AllBlessings BlessingsData = JsonConvert.DeserializeObject<AllBlessings>(JsonString);
+                int i = 0;
+                foreach (Blessing item in BlessingsData.Blessings)
+                {
+                    if (!item.IsNullOrDestroyed()) { SetBlessings((ushort)(i + blessing_container), item.Implicits, item.ItemType, item.SubType); }
+                    i++;
+                }
             }
             else if (JsonString.Substring(2, 8) == "passives")
             {
-                PassivesData = JsonConvert.DeserializeObject<Passives.Root>(JsonString);
-                Passives.Load();
+                AllPassives PassivesData = JsonConvert.DeserializeObject<AllPassives>(JsonString);
+                if ((!Refs_Manager.player_treedata.IsNullOrDestroyed()) && (!Refs_Manager.player_data.IsNullOrDestroyed()))
+                {
+                    if (Refs_Manager.player_data.CharacterClass == PassivesData.Class)
+                    {
+                        Refs_Manager.player_data.ChosenMastery = (byte)PassivesData.Mastery;
+                        Refs_Manager.player_data.ClickedUnlockMasteriesButton = true;
+                        Refs_Manager.player_treedata.chosenMastery = (byte)PassivesData.Mastery;
+                        Refs_Manager.player_treedata.passiveTree.nodes.Clear();
+                        foreach (int node_id in PassivesData.Passives.History)
+                        {
+                            bool found = false;
+                            foreach (LocalTreeData.NodeData node_data in Refs_Manager.player_treedata.passiveTree.nodes)
+                            {
+                                if (node_data.id == node_id)
+                                {
+                                    node_data.pointsAllocated++;
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) { Refs_Manager.player_treedata.passiveTree.nodes.Add(new LocalTreeData.NodeData((byte)node_id, (byte)1)); }
+                        }
+                        Refs_Manager.player_treedata.updateMasteryTotals();
+                        Refs_Manager.player_treedata.savePassiveTreeData();
+                        Refs_Manager.player_data.SaveData();
+                    }
+                    else { Main.logger_instance.Error("Not the good class"); }
+                }
             }
             else if (JsonString.Substring(2, 11) == "weaverItems")
             {
-                WeaverTreeData = JsonConvert.DeserializeObject<WeaverTree.Root>(JsonString);
-                WeaverTree.Load();
+                WeaverTree WeaverTreeData = JsonConvert.DeserializeObject<WeaverTree>(JsonString);
+                if (!Refs_Manager.player_treedata.IsNullOrDestroyed())
+                {
+                    Refs_Manager.player_treedata.weaverTree.nodes.Clear();
+                    foreach (int node_id in WeaverTreeData.Weaver.History)
+                    {
+                        bool found = false;
+                        foreach (LocalTreeData.NodeData node_data in Refs_Manager.player_treedata.weaverTree.nodes)
+                        {
+                            if (node_data.id == node_id)
+                            {
+                                node_data.pointsAllocated++;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) { Refs_Manager.player_treedata.weaverTree.nodes.Add(new LocalTreeData.NodeData((byte)node_id, (byte)1)); }
+                    }
+                    Refs_Manager.player_treedata.SaveWeaverTreeData();
+                    Refs_Manager.player_data.SaveData();
+                }
             }
             else if (JsonString.Substring(2, 10) == "skillTrees")
             {
-                SkillsData = JsonConvert.DeserializeObject<Skills.Root>(JsonString);
-                Skills.Load();
+                Skills.Root SkillsData = JsonConvert.DeserializeObject<Skills.Root>(JsonString);
+
             }
         }
         public static void DropItem(System.Collections.Generic.List<Affix> affixs, System.Collections.Generic.List<int> implicits,
@@ -279,354 +375,51 @@ namespace LastEpoch_Hud.Scripts.Mods.Maxroll
         
         public class AllEquipments
         {
-            public static void Load()
-            {
-                if (!AllEquipmentsData.Items.Body.IsNullOrDestroyed())
-                {
-                    Item item = AllEquipmentsData.Items.Body;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-                if (!AllEquipmentsData.Items.Feet.IsNullOrDestroyed())
-                {
-                    Item item = AllEquipmentsData.Items.Feet;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-                if (!AllEquipmentsData.Items.Finger1.IsNullOrDestroyed())
-                {
-                    Item item = AllEquipmentsData.Items.Finger1;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-                if (!AllEquipmentsData.Items.Finger2.IsNullOrDestroyed())
-                {
-                    Item item = AllEquipmentsData.Items.Finger2;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-                if (!AllEquipmentsData.Items.Hands.IsNullOrDestroyed())
-                {
-                    Item item = AllEquipmentsData.Items.Hands;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-                if (!AllEquipmentsData.Items.Head.IsNullOrDestroyed())
-                {
-                    Item item = AllEquipmentsData.Items.Head;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-                if (!AllEquipmentsData.Items.Neck.IsNullOrDestroyed())
-                {
-                    Item item = AllEquipmentsData.Items.Neck;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-                if (!AllEquipmentsData.Items.Offhand.IsNullOrDestroyed())
-                {
-                    Item item = AllEquipmentsData.Items.Offhand;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-                if (!AllEquipmentsData.Items.Relic.IsNullOrDestroyed())
-                {
-                    Item item = AllEquipmentsData.Items.Relic;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-                if (!AllEquipmentsData.Items.Waist.IsNullOrDestroyed())
-                {
-                    Item item = AllEquipmentsData.Items.Waist;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-                if (!AllEquipmentsData.Items.Weapon.IsNullOrDestroyed())
-                {
-                    Item item = AllEquipmentsData.Items.Weapon;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-                int i = 0;
-                foreach (Blessing item in AllEquipmentsData.Blessings)
-                {
-                    if (!item.IsNullOrDestroyed()) { SetBlessings((ushort)(i + blessing_container), item.Implicits, item.ItemType, item.SubType); }
-                    i++;
-                }
-                foreach (Idol item in AllEquipmentsData.Idols)
-                {
-                    if (!item.IsNullOrDestroyed())
-                    {
-                        if (item.UniqueRolls.IsNullOrDestroyed())
-                        {
-                            item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 };
-                        }
-                        DropIdol(item.Affixes, item.ItemType, item.SubType, item.UniqueID, item.UniqueRolls);
-                    }
-                }
-            }
-            
-            public class Root
-            {
-                [JsonProperty("items")]
-                public Items Items;
+            [JsonProperty("items")]
+            public Items Items;
 
-                [JsonProperty("idols")]
-                public System.Collections.Generic.List<Idol> Idols;
+            [JsonProperty("idols")]
+            public System.Collections.Generic.List<Idol> Idols;
 
-                [JsonProperty("blessings")]
-                public System.Collections.Generic.List<Blessing> Blessings;
-            }            
+            [JsonProperty("blessings")]
+            public System.Collections.Generic.List<Blessing> Blessings;
         }
         public class Equipment
         {
-            public static void Load()
-            {
-                if (!EquipmentData.Items.Body.IsNullOrDestroyed())
-                {
-                    Item item = EquipmentData.Items.Body;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-                if (!EquipmentData.Items.Feet.IsNullOrDestroyed())
-                {
-                    Item item = EquipmentData.Items.Feet;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-                if (!EquipmentData.Items.Finger1.IsNullOrDestroyed())
-                {
-                    Item item = EquipmentData.Items.Finger1;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-                if (!EquipmentData.Items.Finger2.IsNullOrDestroyed())
-                {
-                    Item item = EquipmentData.Items.Finger2;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-                if (!EquipmentData.Items.Hands.IsNullOrDestroyed())
-                {
-                    Item item = EquipmentData.Items.Hands;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-                if (!EquipmentData.Items.Head.IsNullOrDestroyed())
-                {
-                    Item item = EquipmentData.Items.Head;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-                if (!EquipmentData.Items.Neck.IsNullOrDestroyed())
-                {
-                    Item item = EquipmentData.Items.Neck;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-                if (!EquipmentData.Items.Offhand.IsNullOrDestroyed())
-                {
-                    Item item = EquipmentData.Items.Offhand;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-                if (!EquipmentData.Items.Relic.IsNullOrDestroyed())
-                {
-                    Item item = EquipmentData.Items.Relic;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-                if (!EquipmentData.Items.Waist.IsNullOrDestroyed())
-                {
-                    Item item = EquipmentData.Items.Waist;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-                if (!EquipmentData.Items.Weapon.IsNullOrDestroyed())
-                {
-                    Item item = EquipmentData.Items.Weapon;
-                    if (item.SealedAffix.IsNullOrDestroyed()) { item.SealedAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.PrimordialAffix.IsNullOrDestroyed()) { item.PrimordialAffix = new Affix { Id = -1, Tier = -1, Roll = -1 }; }
-                    if (item.UniqueRolls.IsNullOrDestroyed()) { item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 }; }
-                    DropItem(item.Affixes, item.Implicits, item.ItemType, item.SealedAffix, item.PrimordialAffix, item.SubType, item.UniqueID, item.UniqueRolls);
-                }
-            }
-
-            public class Root
-            {
-                [JsonProperty("items")]
-                public Items Items;
-            }
+            [JsonProperty("items")]
+            public Items Items;
         }
-        public class Idols
+        public class AllIdols
         {
-            public static void Load()
-            {
-                foreach (Idol item in IdolsData.Idols)
-                {
-                    if (!item.IsNullOrDestroyed())
-                    {
-                        if (item.UniqueRolls.IsNullOrDestroyed())
-                        {
-                            item.UniqueRolls = new System.Collections.Generic.List<int> { -1, -1, -1, -1, -1, -1, -1, -1 };
-                        }
-                        DropIdol(item.Affixes, item.ItemType, item.SubType, item.UniqueID, item.UniqueRolls);
-                    }
-                }
-            }
-
-            public class Root
-            {
-                [JsonProperty("idols")]
-                public System.Collections.Generic.List<Idol> Idols;
-            }
+            [JsonProperty("idols")]
+            public System.Collections.Generic.List<Idol> Idols;
         }
-        public class Blessings
+        public class AllBlessings
         {
-            public static void Load()
-            {
-                int i = 0;
-                foreach (Blessing item in BlessingsData.Blessings)
-                {
-                    if (!item.IsNullOrDestroyed()) { SetBlessings((ushort)(i + blessing_container), item.Implicits, item.ItemType, item.SubType); }
-                    i++;
-                }
-            }
-
-            public class Root
-            {
-                [JsonProperty("blessings")]
-                public System.Collections.Generic.List<Blessing> Blessings;
-            }
+            [JsonProperty("blessings")]
+            public System.Collections.Generic.List<Blessing> Blessings;
         }
-        public class Passives
+        public class AllPassives
         {
-            public static void Load()
-            {
-                Main.logger_instance.Msg("LoadPassives");
-                if ((!Refs_Manager.player_treedata.IsNullOrDestroyed()) && (!Refs_Manager.player_data.IsNullOrDestroyed()))
-                {
-                    if (Refs_Manager.player_data.CharacterClass == PassivesData.Class)
-                    {
-                        Refs_Manager.player_treedata.chosenMastery = (byte)PassivesData.Mastery;
-                        Refs_Manager.player_data.ChosenMastery = (byte)PassivesData.Mastery;
-                        Refs_Manager.player_data.ClickedUnlockMasteriesButton = true;
-                        Refs_Manager.player_data.SaveData();
+            [JsonProperty("passives")]
+            public NodePoint Passives;
 
-                        Refs_Manager.player_treedata.passiveTree.nodes.Clear();
-                        foreach (int node_id in PassivesData.Passives.History)
-                        {
-                            bool found = false;
-                            foreach (LocalTreeData.NodeData node_data in Refs_Manager.player_treedata.passiveTree.nodes)
-                            {
-                                if (node_data.id == node_id)
-                                {
-                                    node_data.pointsAllocated++;
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if (!found) { Refs_Manager.player_treedata.passiveTree.nodes.Add(new LocalTreeData.NodeData((byte)node_id, (byte)1)); }
-                        }
-                        Refs_Manager.player_treedata.savePassiveTreeData();
-                    }
-                    else { Main.logger_instance.Error("Not the good class"); }
-                }
-            }
+            [JsonProperty("class")]
+            public int Class;
 
-            public class Root
-            {
-                [JsonProperty("passives")]
-                public Passive Passives;
-
-                [JsonProperty("class")]
-                public int Class;
-
-                [JsonProperty("mastery")]
-                public int Mastery;
-            }
-            public class Passive
-            {
-                [JsonProperty("history")]
-                public System.Collections.Generic.List<int> History;
-
-                [JsonProperty("position")]
-                public int Position;
-            }
+            [JsonProperty("mastery")]
+            public int Mastery;
         }
         public class WeaverTree
         {
-            public static void Load()
-            {
-                Main.logger_instance.Msg("LoadWeaverTree");
-            }
+            [JsonProperty("weaverItems")] //Not needed
+            public System.Collections.Generic.List<object> WeaverItems;
 
-            public class Root
-            {
-                [JsonProperty("weaverItems")] //Not needed
-                public System.Collections.Generic.List<object> WeaverItems;
-
-                [JsonProperty("weaver")]
-                public Weaver Weaver;
-            }
-            public class Weaver
-            {
-                [JsonProperty("history")]
-                public System.Collections.Generic.List<int> History;
-
-                [JsonProperty("position")]
-                public int Position;
-            }
+            [JsonProperty("weaver")]
+            public NodePoint Weaver;
         }
         public class Skills
         {
-            public static void Load()
-            {
-
-            }
-
             public class Root
             {
                 [JsonProperty("skillTrees")]
@@ -635,15 +428,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Maxroll
             public class SkillTrees
             {
                 [JsonProperty("skillName")]
-                public Skill Skill;
-            }
-            public class Skill
-            {
-                [JsonProperty("history")]
-                public System.Collections.Generic.List<int> History;
-
-                [JsonProperty("position")]
-                public int Position;
+                public NodePoint Skill;
             }
         }
 
@@ -746,6 +531,14 @@ namespace LastEpoch_Hud.Scripts.Mods.Maxroll
 
             [JsonProperty("roll")]
             public int Roll;
-        }        
+        }
+        public class NodePoint
+        {
+            [JsonProperty("history")]
+            public System.Collections.Generic.List<int> History;
+
+            [JsonProperty("position")]
+            public int Position;
+        }
     }
 }
