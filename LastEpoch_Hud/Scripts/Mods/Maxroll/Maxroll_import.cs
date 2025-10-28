@@ -18,6 +18,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Maxroll
         public static Maxroll_import instance { get; private set; }
 
         private static readonly int blessing_container = 33;
+        public static Skills SkillsData = null; //Here for debug only
 
         void Awake()
         {
@@ -166,7 +167,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Maxroll
             }
             else if (JsonString.Substring(2, 10) == "skillTrees")
             {
-                Skills.Root SkillsData = JsonConvert.DeserializeObject<Skills.Root>(JsonString);
+                /*Skills*/ SkillsData = JsonConvert.DeserializeObject<Skills>(JsonString);
 
             }
         }
@@ -412,24 +413,17 @@ namespace LastEpoch_Hud.Scripts.Mods.Maxroll
         }
         public class WeaverTree
         {
-            [JsonProperty("weaverItems")] //Not needed
-            public System.Collections.Generic.List<object> WeaverItems;
+            [JsonProperty("weaverItems")] //items placed inside the weaver tree
+            public System.Collections.Generic.List<Item> WeaverItems;
 
             [JsonProperty("weaver")]
             public NodePoint Weaver;
         }
         public class Skills
         {
-            public class Root
-            {
-                [JsonProperty("skillTrees")]
-                public SkillTrees SkillTrees;
-            }
-            public class SkillTrees
-            {
-                [JsonProperty("skillName")]
-                public NodePoint Skill;
-            }
+            //https://github.com/exiledagain/LastEpoch_Mods/blob/f881533806e869b15218e5c0c29abedb8b3dface/LastEpoch_Hud/Scripts/Mods/Maxroll/Maxroll_import.cs#L242
+            [JsonProperty("skillTrees")]
+            public System.Collections.Generic.Dictionary<string, NodePoint> Skill;
         }
 
         public class Items
